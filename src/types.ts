@@ -1,27 +1,10 @@
-// Configuration types
-export interface Config {
-  task_directory: string;
-  git: GitConfig;
-  file_naming: FileNamingConfig;
-  defaults: DefaultsConfig;
-}
-
-export interface GitConfig {
-  extract_username: boolean;
-  username_from_remote: boolean;
-}
-
-export interface FileNamingConfig {
-  pattern: string;
-  date_format: string;
-  hash_length: number;
-}
-
-export interface DefaultsConfig {
-  status: string;
-  priority: string;
-  tags: string[];
-}
+// Re-export configuration types from schema
+export type { 
+  Config, 
+  GitConfig, 
+  FileNamingConfig, 
+  DefaultsConfig 
+} from "./config/schema.ts";
 
 // Task file related types
 export interface TaskConfig {
