@@ -72,6 +72,41 @@ new Command()
 - Mock file system operations and Git commands for unit tests
 - Integration tests for CLI commands
 
+## Git Commit Guidelines
+
+When making commits to this repository, follow these rules:
+
+1. **Commit in meaningful chunks**: Each commit should represent a complete, logical change
+   - One feature/fix per commit
+   - All tests passing before commit
+   - No mixing of unrelated changes
+
+2. **Use Gitemoji prefixes**: Start every commit message with an appropriate gitemoji
+   - ✨ `:sparkles:` - New feature
+   - 🐛 `:bug:` - Bug fix
+   - 📝 `:memo:` - Documentation changes
+   - ♻️ `:recycle:` - Code refactoring
+   - ✅ `:white_check_mark:` - Adding tests
+   - 🎨 `:art:` - Improving structure/format
+   - ⚡️ `:zap:` - Performance improvements
+   - 🔧 `:wrench:` - Configuration changes
+   - 🚀 `:rocket:` - Deploying stuff
+   - 💚 `:green_heart:` - Fixing CI
+   - ➕ `:heavy_plus_sign:` - Adding dependencies
+   - ➖ `:heavy_minus_sign:` - Removing dependencies
+   - 🏗️ `:building_construction:` - Architectural changes
+
+3. **Commit message format**:
+   ```
+   <gitemoji> <type>: <subject>
+   
+   <body>
+   
+   🤖 Generated with [Claude Code](https://claude.ai/code)
+   
+   Co-Authored-By: Claude <noreply@anthropic.com>
+   ```
+
 ## Important Specifications
 
 Refer to `docs/locus-specification.md` for detailed implementation requirements including:
