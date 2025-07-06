@@ -4,13 +4,13 @@
 export * from "./types.ts";
 
 // Configuration exports
-export { 
-  loadConfig, 
+export {
   createDefaultConfig,
-  getConfigDir,
   findConfigFile,
-  resetConfigCache,
+  getConfigDir,
+  loadConfig,
   overrideConfig,
+  resetConfigCache,
 } from "./config/index.ts";
 export { DEFAULT_CONFIG } from "./config/defaults.ts";
 

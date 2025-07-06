@@ -1,21 +1,21 @@
-import { Command } from "@cliffy/command";
-import { join } from "@std/path";
-import { exists } from "@std/fs";
-import { 
-  TagsListOptions, 
-  TagsGetOptions, 
-  TagsSetOptions,
-  TagsRemoveOptions,
-  TagsClearOptions,
+import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
+import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import {
   FrontMatter,
+  TagsClearOptions,
+  TagsGetOptions,
+  TagsListOptions,
+  TagsRemoveOptions,
+  TagsSetOptions,
 } from "../types.ts";
-import { 
-  ensureMarkdownExtension, 
-  parseMarkdown, 
+import {
+  ensureMarkdownExtension,
   generateMarkdown,
   mergeFrontmatter,
+  parseMarkdown,
 } from "../utils/markdown.ts";
-import { getTaskBaseDir, getTaskFiles, findTaskFile } from "../utils/path.ts";
+import { findTaskFile, getTaskBaseDir, getTaskFiles } from "../utils/path.ts";
 import { getRepoInfo } from "../utils/git.ts";
 
 export function createTagsCommand(): Command {
@@ -67,12 +67,12 @@ export function createTagsCommand(): Command {
 
 async function resolveTaskFile(fileName: string, noGit: boolean): Promise<string> {
   const baseDir = await getTaskBaseDir();
-  
+
   // Check if it's an absolute path
   if (fileName.startsWith("/")) {
     return fileName;
   }
-  
+
   // Try to find in current repo directory if in a git repo
   if (!noGit) {
     const repoInfo = await getRepoInfo();
@@ -82,11 +82,11 @@ async function resolveTaskFile(fileName: string, noGit: boolean): Promise<string
       if (found) return found;
     }
   }
-  
+
   // Try to find in base directory
   const found = await findTaskFile(baseDir, fileName);
   if (found) return found;
-  
+
   // If not found, construct path
   const withExt = ensureMarkdownExtension(fileName);
   return join(baseDir, withExt);
@@ -97,39 +97,39 @@ async function listTags(options: TagsListOptions, noGit: boolean): Promise<void>
     // List all task files
     const baseDir = await getTaskBaseDir();
     console.log(`📁 タスクファイル一覧:`);
-    
+
     let fileCount = 0;
     for await (const filePath of getTaskFiles(baseDir)) {
       const relativePath = filePath.replace(baseDir + "/", "");
       console.log(`  ${relativePath}`);
       fileCount++;
     }
-    
+
     if (fileCount === 0) {
       console.log("  (タスクファイルがありません)");
     } else {
       console.log(`\n合計: ${fileCount} ファイル`);
     }
-    
+
     return;
   }
-  
+
   const filePath = await resolveTaskFile(options.fileName, noGit);
-  
+
   try {
     const content = await Deno.readTextFile(filePath);
     const { frontmatter } = parseMarkdown(content);
-    
+
     if (!frontmatter || Object.keys(frontmatter).length === 0) {
       console.log("プロパティが設定されていません");
       return;
     }
-    
+
     console.log(`📋 ${filePath} のプロパティ:`);
     for (const [key, value] of Object.entries(frontmatter)) {
       if (typeof value === "string" && value.includes("\n")) {
         console.log(`  ${key}: |`);
-        value.split("\n").forEach(line => console.log(`    ${line}`));
+        value.split("\n").forEach((line) => console.log(`    ${line}`));
       } else if (Array.isArray(value)) {
         console.log(`  ${key}: [${value.join(", ")}]`);
       } else if (typeof value === "object" && value !== null) {
@@ -150,15 +150,15 @@ async function listTags(options: TagsListOptions, noGit: boolean): Promise<void>
 
 async function getTag(options: TagsGetOptions, noGit: boolean): Promise<void> {
   const filePath = await resolveTaskFile(options.fileName, noGit);
-  
+
   try {
     const content = await Deno.readTextFile(filePath);
     const { frontmatter } = parseMarkdown(content);
-    
+
     if (!frontmatter || !(options.property in frontmatter)) {
       Deno.exit(1);
     }
-    
+
     const value = frontmatter[options.property];
     if (typeof value === "object") {
       console.log(JSON.stringify(value, null, 2));
@@ -175,19 +175,19 @@ async function getTag(options: TagsGetOptions, noGit: boolean): Promise<void> {
 
 async function setTag(options: TagsSetOptions, noGit: boolean): Promise<void> {
   const filePath = await resolveTaskFile(options.fileName, noGit);
-  
+
   try {
     let content = "";
     let frontmatter: FrontMatter = {};
     let body = "";
-    
+
     if (await exists(filePath)) {
       content = await Deno.readTextFile(filePath);
       const parsed = parseMarkdown(content);
       frontmatter = parsed.frontmatter || {};
       body = parsed.body;
     }
-    
+
     // Try to parse value as JSON first, fallback to string
     let parsedValue: unknown = options.value;
     try {
@@ -195,14 +195,14 @@ async function setTag(options: TagsSetOptions, noGit: boolean): Promise<void> {
     } catch {
       // Keep as string if not valid JSON
     }
-    
+
     frontmatter = mergeFrontmatter(frontmatter, {
       [options.property]: parsedValue,
     });
-    
+
     const newContent = generateMarkdown(frontmatter, body);
     await Deno.writeTextFile(filePath, newContent);
-    
+
     console.log(`✅ プロパティ '${options.property}' を更新しました`);
   } catch (error) {
     console.error(`エラー: ${error.message}`);
@@ -212,21 +212,21 @@ async function setTag(options: TagsSetOptions, noGit: boolean): Promise<void> {
 
 async function removeTag(options: TagsRemoveOptions, noGit: boolean): Promise<void> {
   const filePath = await resolveTaskFile(options.fileName, noGit);
-  
+
   try {
     const content = await Deno.readTextFile(filePath);
     const { frontmatter, body } = parseMarkdown(content);
-    
+
     if (!frontmatter || !(options.property in frontmatter)) {
       console.log(`プロパティ '${options.property}' は存在しません`);
       Deno.exit(1);
     }
-    
+
     delete frontmatter[options.property];
-    
+
     const newContent = generateMarkdown(frontmatter, body);
     await Deno.writeTextFile(filePath, newContent);
-    
+
     console.log(`✅ プロパティ '${options.property}' を削除しました`);
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
@@ -240,13 +240,13 @@ async function removeTag(options: TagsRemoveOptions, noGit: boolean): Promise<vo
 
 async function clearTags(options: TagsClearOptions, noGit: boolean): Promise<void> {
   const filePath = await resolveTaskFile(options.fileName, noGit);
-  
+
   try {
     const content = await Deno.readTextFile(filePath);
     const { body } = parseMarkdown(content);
-    
+
     await Deno.writeTextFile(filePath, body);
-    
+
     console.log(`✅ 全てのプロパティを削除しました`);
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {

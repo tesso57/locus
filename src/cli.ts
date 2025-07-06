@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run
 
-import { Command } from "@cliffy/command";
+import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
 import { createAddCommand } from "./commands/add.ts";
 import { createTagsCommand } from "./commands/tags.ts";
 import { createConfigCommand } from "./commands/config.ts";
@@ -14,18 +14,21 @@ async function main() {
     .description("Git対応タスク管理CLIツール")
     .meta("author", "tesso57")
     .meta("license", "MIT")
-    .globalOption("--json", "JSON形式で出力", { hidden: true })
-    // Main commands
-    .command("add", createAddCommand())
-    .command("tags", createTagsCommand())
-    .command("config", createConfigCommand());
+    .globalOption("--json", "JSON形式で出力", { hidden: true });
+
+  // Add commands
+  command.command("add", createAddCommand() as any);
+  command.command("tags", createTagsCommand() as any);
+  command.command("config", createConfigCommand() as any);
 
   // Help command
-  command.command("help", new Command()
-    .description("ヘルプを表示")
-    .action(() => {
-      command.showHelp();
-    })
+  command.command(
+    "help",
+    new Command()
+      .description("ヘルプを表示")
+      .action(() => {
+        command.showHelp();
+      }),
   );
 
   // Default action shows help

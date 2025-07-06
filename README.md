@@ -134,6 +134,7 @@ assignee: john
 Add JWT-based authentication to the API endpoints.
 
 ## Requirements
+
 - [ ] Login endpoint
 - [ ] Token refresh mechanism
 - [ ] Logout functionality

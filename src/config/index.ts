@@ -1,7 +1,7 @@
-import { parse } from "@std/yaml";
-import { deepMerge } from "@std/collections";
-import { exists } from "@std/fs";
-import { join } from "@std/path";
+import { parse } from "https://deno.land/std@0.224.0/yaml/mod.ts";
+import { deepMerge } from "https://deno.land/std@0.224.0/collections/mod.ts";
+import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
 import { Config } from "../types.ts";
 import { DEFAULT_CONFIG } from "./defaults.ts";
 
@@ -13,7 +13,7 @@ let cachedConfig: Config | null = null;
 export async function findConfigFile(): Promise<string | null> {
   const home = Deno.env.get("XDG_CONFIG_HOME") ??
     join(Deno.env.get("HOME") || "", ".config");
-  
+
   const candidates = [
     join(home, "locus", "settings.yml"),
     join(home, "locus", "settings.yaml"),
@@ -24,13 +24,13 @@ export async function findConfigFile(): Promise<string | null> {
         join(d, "locus", "settings.yaml"),
       ])),
   ];
-  
+
   for (const path of candidates) {
     if (await exists(path)) {
       return path;
     }
   }
-  
+
   return null;
 }
 
@@ -40,51 +40,67 @@ export async function findConfigFile(): Promise<string | null> {
 function extractFromEnv(): Partial<Config> {
   const env = Deno.env.toObject();
   const config: Partial<Config> = {};
-  
+
   if (env.LOCUS_TASK_DIRECTORY) {
     config.task_directory = env.LOCUS_TASK_DIRECTORY;
   }
-  
+
   if (env.LOCUS_GIT_EXTRACT_USERNAME !== undefined) {
-    config.git = config.git || {};
+    if (!config.git) {
+      config.git = { extract_username: true, username_from_remote: true };
+    }
     config.git.extract_username = env.LOCUS_GIT_EXTRACT_USERNAME !== "false";
   }
-  
+
   if (env.LOCUS_GIT_USERNAME_FROM_REMOTE !== undefined) {
-    config.git = config.git || {};
+    if (!config.git) {
+      config.git = { extract_username: true, username_from_remote: true };
+    }
     config.git.username_from_remote = env.LOCUS_GIT_USERNAME_FROM_REMOTE !== "false";
   }
-  
+
   if (env.LOCUS_FILE_NAMING_PATTERN) {
-    config.file_naming = config.file_naming || {};
+    if (!config.file_naming) {
+      config.file_naming = { pattern: "", date_format: "", hash_length: 0 };
+    }
     config.file_naming.pattern = env.LOCUS_FILE_NAMING_PATTERN;
   }
-  
+
   if (env.LOCUS_FILE_NAMING_DATE_FORMAT) {
-    config.file_naming = config.file_naming || {};
+    if (!config.file_naming) {
+      config.file_naming = { pattern: "", date_format: "", hash_length: 0 };
+    }
     config.file_naming.date_format = env.LOCUS_FILE_NAMING_DATE_FORMAT;
   }
-  
+
   if (env.LOCUS_FILE_NAMING_HASH_LENGTH) {
-    config.file_naming = config.file_naming || {};
+    if (!config.file_naming) {
+      config.file_naming = { pattern: "", date_format: "", hash_length: 0 };
+    }
     config.file_naming.hash_length = parseInt(env.LOCUS_FILE_NAMING_HASH_LENGTH, 10);
   }
-  
+
   if (env.LOCUS_DEFAULT_STATUS) {
-    config.defaults = config.defaults || {};
+    if (!config.defaults) {
+      config.defaults = { status: "", priority: "", tags: [] };
+    }
     config.defaults.status = env.LOCUS_DEFAULT_STATUS;
   }
-  
+
   if (env.LOCUS_DEFAULT_PRIORITY) {
-    config.defaults = config.defaults || {};
+    if (!config.defaults) {
+      config.defaults = { status: "", priority: "", tags: [] };
+    }
     config.defaults.priority = env.LOCUS_DEFAULT_PRIORITY;
   }
-  
+
   if (env.LOCUS_DEFAULT_TAGS) {
-    config.defaults = config.defaults || {};
+    if (!config.defaults) {
+      config.defaults = { status: "", priority: "", tags: [] };
+    }
     config.defaults.tags = env.LOCUS_DEFAULT_TAGS.split(",").map((t) => t.trim());
   }
-  
+
   return config;
 }
 
@@ -95,28 +111,32 @@ export async function loadConfig(forceReload = false): Promise<Config> {
   if (!forceReload && cachedConfig) {
     return cachedConfig;
   }
-  
+
   let fileConfig = {};
   const configFile = await findConfigFile();
-  
+
   if (configFile) {
     try {
       const content = await Deno.readTextFile(configFile);
       fileConfig = parse(content) as Partial<Config>;
     } catch (error) {
-      console.error(`Warning: Failed to load config file ${configFile}: ${error.message}`);
+      console.error(
+        `Warning: Failed to load config file ${configFile}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
   }
-  
+
   const envConfig = extractFromEnv();
-  
+
   // Deep merge: defaults <- file config <- env config
   // Cast to any to work around deepMerge type limitations
   cachedConfig = deepMerge(
     deepMerge(DEFAULT_CONFIG as any, fileConfig as any),
     envConfig as any,
   ) as Config;
-  
+
   return cachedConfig;
 }
 
@@ -135,13 +155,13 @@ export function getConfigDir(): string {
 export async function createDefaultConfig(): Promise<void> {
   const configDir = getConfigDir();
   const configPath = join(configDir, "settings.yml");
-  
+
   if (await exists(configPath)) {
     return;
   }
-  
+
   await Deno.mkdir(configDir, { recursive: true });
-  
+
   const yamlContent = `# Locus configuration file
 # See documentation for all available options
 
@@ -171,7 +191,7 @@ defaults:
   priority: "normal"
   tags: []
 `;
-  
+
   await Deno.writeTextFile(configPath, yamlContent);
 }
 

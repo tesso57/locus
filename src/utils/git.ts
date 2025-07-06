@@ -5,7 +5,7 @@ import { GitInfo, RepoInfo } from "../types.ts";
  */
 export async function hasGit(): Promise<boolean> {
   try {
-    const command = new Deno.Command("git", { 
+    const command = new Deno.Command("git", {
       args: ["--version"],
       stdout: "null",
       stderr: "null",
@@ -22,7 +22,7 @@ export async function hasGit(): Promise<boolean> {
  */
 export async function isGitRepo(cwd?: string): Promise<boolean> {
   if (!await hasGit()) return false;
-  
+
   try {
     const command = new Deno.Command("git", {
       args: ["rev-parse", "--is-inside-work-tree"],
@@ -42,7 +42,7 @@ export async function isGitRepo(cwd?: string): Promise<boolean> {
  */
 export async function getGitRoot(cwd?: string): Promise<string | null> {
   if (!await hasGit()) return null;
-  
+
   try {
     const command = new Deno.Command("git", {
       args: ["rev-parse", "--show-toplevel"],
@@ -63,7 +63,7 @@ export async function getGitRoot(cwd?: string): Promise<string | null> {
  */
 export async function getRemoteUrl(cwd?: string): Promise<string | null> {
   if (!await hasGit()) return null;
-  
+
   try {
     const command = new Deno.Command("git", {
       args: ["remote", "get-url", "origin"],
@@ -87,20 +87,18 @@ export function normalizeGitUrl(raw: string): URL {
   // SSH / SCP-like format: git@github.com:user/repo.git
   const sshPattern = /^git@([^:]+):(.+)$/;
   const match = raw.match(sshPattern);
-  
+
   if (match) {
     const [, host, path] = match;
     return new URL(`https://${host}/${path.replace(/\.git$/, "")}`);
   }
-  
+
   // Already HTTPS or git://
-  const url = raw.startsWith("http") 
-    ? new URL(raw)
-    : new URL(raw.replace(/^git:\/\//, "https://"));
-  
+  const url = raw.startsWith("http") ? new URL(raw) : new URL(raw.replace(/^git:\/\//, "https://"));
+
   // Strip .git suffix
   url.pathname = url.pathname.replace(/\.git$/, "");
-  
+
   return url;
 }
 
@@ -109,14 +107,14 @@ export function normalizeGitUrl(raw: string): URL {
  */
 export function parseRepoInfo(url: URL): RepoInfo {
   const parts = url.pathname.replace(/^\/|\/$/g, "").split("/");
-  
+
   if (parts.length < 2) {
     throw new Error("Invalid repository URL: missing owner or repo name");
   }
-  
+
   const repo = parts.pop()!;
   const owner = parts.join("/"); // Support nested groups (GitLab)
-  
+
   return {
     host: url.host,
     owner,
@@ -132,10 +130,10 @@ export async function getGitInfo(cwd?: string): Promise<GitInfo> {
   if (!isRepo) {
     return { isRepo: false };
   }
-  
+
   const root = await getGitRoot(cwd);
   const remoteUrl = await getRemoteUrl(cwd);
-  
+
   return {
     isRepo: true,
     root: root || undefined,
@@ -148,11 +146,11 @@ export async function getGitInfo(cwd?: string): Promise<GitInfo> {
  */
 export async function getRepoInfo(cwd?: string): Promise<RepoInfo | null> {
   const gitInfo = await getGitInfo(cwd);
-  
+
   if (!gitInfo.isRepo || !gitInfo.remoteUrl) {
     return null;
   }
-  
+
   try {
     const url = normalizeGitUrl(gitInfo.remoteUrl);
     return parseRepoInfo(url);

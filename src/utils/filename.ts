@@ -29,7 +29,7 @@ export function formatDate(date: Date, pattern: string): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-  
+
   return pattern
     .replace(/YYYY/g, String(year))
     .replace(/MM/g, month)
@@ -42,7 +42,7 @@ export function formatDate(date: Date, pattern: string): string {
 export async function generateFileNameComponents(title: string): Promise<FileNameComponents> {
   const config = await loadConfig();
   const now = new Date();
-  
+
   return {
     date: formatDate(now, config.file_naming.date_format),
     slug: generateSlug(title),
@@ -56,18 +56,18 @@ export async function generateFileNameComponents(title: string): Promise<FileNam
 export async function generateFileName(title: string): Promise<string> {
   const config = await loadConfig();
   const components = await generateFileNameComponents(title);
-  
+
   // Replace tokens in pattern
   let fileName = config.file_naming.pattern
     .replace("{date}", components.date)
     .replace("{slug}", components.slug)
     .replace("{hash}", components.hash);
-  
+
   // Ensure .md extension
   if (!fileName.endsWith(".md")) {
     fileName += ".md";
   }
-  
+
   return fileName;
 }
 
@@ -77,9 +77,9 @@ export async function generateFileName(title: string): Promise<string> {
 export function parseFileName(fileName: string): Partial<FileNameComponents> {
   const withoutExt = fileName.replace(/\.md$/, "");
   const parts = withoutExt.split("-");
-  
+
   const components: Partial<FileNameComponents> = {};
-  
+
   // Try to extract date (assuming YYYY-MM-DD format at the beginning)
   if (parts.length >= 3) {
     const possibleDate = parts.slice(0, 3).join("-");
@@ -88,7 +88,7 @@ export function parseFileName(fileName: string): Partial<FileNameComponents> {
       parts.splice(0, 3);
     }
   }
-  
+
   // Try to extract hash (assuming it's the last part and alphanumeric)
   if (parts.length > 0) {
     const lastPart = parts[parts.length - 1];
@@ -97,11 +97,11 @@ export function parseFileName(fileName: string): Partial<FileNameComponents> {
       parts.pop();
     }
   }
-  
+
   // Remaining parts form the slug
   if (parts.length > 0) {
     components.slug = parts.join("-");
   }
-  
+
   return components;
 }

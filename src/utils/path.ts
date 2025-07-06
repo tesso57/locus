@@ -1,5 +1,5 @@
-import { join } from "@std/path";
-import { ensureDir, expandGlob } from "@std/fs";
+import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { ensureDir, expandGlob } from "https://deno.land/std@0.224.0/fs/mod.ts";
 import { RepoInfo } from "../types.ts";
 import { loadConfig } from "../config/index.ts";
 
@@ -31,14 +31,14 @@ export async function getTaskBaseDir(): Promise<string> {
 export async function resolveTaskDir(repoInfo: RepoInfo | null): Promise<string> {
   const baseDir = await getTaskBaseDir();
   const config = await loadConfig();
-  
+
   if (!repoInfo || !config.git.extract_username || !config.git.username_from_remote) {
     return baseDir;
   }
-  
+
   const taskDir = join(baseDir, repoInfo.owner, repoInfo.repo);
   await ensureDir(taskDir);
-  
+
   return taskDir;
 }
 
@@ -62,21 +62,21 @@ export async function* getTaskFiles(dir: string): AsyncIterableIterator<string> 
  */
 export async function findTaskFile(dir: string, partialName: string): Promise<string | null> {
   const normalizedName = partialName.toLowerCase();
-  
+
   for await (const filePath of getTaskFiles(dir)) {
     const fileName = filePath.split("/").pop()?.toLowerCase() || "";
-    
+
     // Exact match (with or without .md)
     if (fileName === normalizedName || fileName === `${normalizedName}.md`) {
       return filePath;
     }
-    
+
     // Partial match
     if (fileName.includes(normalizedName)) {
       return filePath;
     }
   }
-  
+
   return null;
 }
 
@@ -92,11 +92,11 @@ export async function ensureTaskDir(dir: string): Promise<void> {
  */
 export async function getRelativeTaskPath(absolutePath: string): Promise<string> {
   const baseDir = await getTaskBaseDir();
-  
+
   if (absolutePath.startsWith(baseDir)) {
     return absolutePath.slice(baseDir.length + 1); // +1 for the separator
   }
-  
+
   return absolutePath;
 }
 
@@ -106,6 +106,6 @@ export async function getRelativeTaskPath(absolutePath: string): Promise<string>
 export async function isInTaskDir(path: string): Promise<boolean> {
   const baseDir = await getTaskBaseDir();
   const resolvedPath = expandTilde(path);
-  
+
   return resolvedPath.startsWith(baseDir);
 }

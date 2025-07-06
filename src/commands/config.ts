@@ -1,13 +1,8 @@
-import { Command } from "@cliffy/command";
-import { stringify } from "@std/yaml";
-import { exists } from "@std/fs";
-import { join } from "@std/path";
-import { 
-  loadConfig, 
-  getConfigDir, 
-  createDefaultConfig,
-  findConfigFile,
-} from "../config/index.ts";
+import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
+import { stringify } from "https://deno.land/std@0.224.0/yaml/mod.ts";
+import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { createDefaultConfig, findConfigFile, getConfigDir, loadConfig } from "../config/index.ts";
 
 export function createConfigCommand(): Command {
   return new Command()
@@ -39,7 +34,7 @@ export function createConfigCommand(): Command {
 async function showConfig(asJson: boolean = false): Promise<void> {
   try {
     const config = await loadConfig();
-    
+
     if (asJson) {
       console.log(JSON.stringify(config, null, 2));
     } else {
@@ -48,7 +43,7 @@ async function showConfig(asJson: boolean = false): Promise<void> {
         lineWidth: -1,
         noRefs: true,
       }));
-      
+
       // Show source of configuration
       const configFile = await findConfigFile();
       if (configFile) {
@@ -56,9 +51,9 @@ async function showConfig(asJson: boolean = false): Promise<void> {
       } else {
         console.log(`\n📁 設定ファイル: なし（デフォルト設定を使用）`);
       }
-      
+
       // Check for environment variables
-      const envVars = Object.keys(Deno.env.toObject()).filter(key => key.startsWith("LOCUS_"));
+      const envVars = Object.keys(Deno.env.toObject()).filter((key) => key.startsWith("LOCUS_"));
       if (envVars.length > 0) {
         console.log(`\n🌍 環境変数による上書き:`);
         for (const key of envVars) {
@@ -74,7 +69,7 @@ async function showConfig(asJson: boolean = false): Promise<void> {
 
 async function showConfigPath(): Promise<void> {
   const configFile = await findConfigFile();
-  
+
   if (configFile) {
     console.log(configFile);
   } else {
@@ -89,19 +84,18 @@ async function showConfigPath(): Promise<void> {
 async function initConfig(force: boolean = false): Promise<void> {
   const configDir = getConfigDir();
   const configPath = join(configDir, "settings.yml");
-  
+
   try {
     if (await exists(configPath) && !force) {
       console.error(`エラー: 設定ファイルは既に存在します: ${configPath}`);
       console.error(`上書きするには --force オプションを使用してください。`);
       Deno.exit(1);
     }
-    
+
     await createDefaultConfig();
     console.log(`✨ 設定ファイルを作成しました: ${configPath}`);
     console.log(`\n設定を編集するには、以下のコマンドを実行してください:`);
     console.log(`  $EDITOR ${configPath}`);
-    
   } catch (error) {
     console.error(`エラー: ${error.message}`);
     Deno.exit(1);

@@ -1,9 +1,9 @@
-import { parse } from "@std/yaml";
-import { exists } from "@std/fs";
-import { join } from "@std/path";
-import { z } from "zod";
+import { parse } from "https://deno.land/std@0.224.0/yaml/mod.ts";
+import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { Config, ConfigSchema } from "./schema.ts";
-import { Result, ok, err } from "../utils/result.ts";
+import { err, ok, Result } from "../utils/result.ts";
 import { ConfigError, ConfigValidationError } from "../utils/errors.ts";
 
 let cachedConfig: Config | null = null;
@@ -15,7 +15,7 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
   try {
     const home = Deno.env.get("XDG_CONFIG_HOME") ??
       join(Deno.env.get("HOME") || "", ".config");
-    
+
     const candidates = [
       join(home, "locus", "settings.yml"),
       join(home, "locus", "settings.yaml"),
@@ -26,13 +26,13 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
           join(d, "locus", "settings.yaml"),
         ])),
     ];
-    
+
     for (const path of candidates) {
       if (await exists(path)) {
         return ok(path);
       }
     }
-    
+
     return ok(null);
   } catch (error) {
     return err(new ConfigError(`Failed to find config file: ${error.message}`));
@@ -45,11 +45,11 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
 function extractFromEnv(): Partial<Config> {
   const env = Deno.env.toObject();
   const config: Record<string, unknown> = {};
-  
+
   if (env.LOCUS_TASK_DIRECTORY) {
     config.task_directory = env.LOCUS_TASK_DIRECTORY;
   }
-  
+
   // Git config
   const git: Record<string, unknown> = {};
   if (env.LOCUS_GIT_EXTRACT_USERNAME !== undefined) {
@@ -61,7 +61,7 @@ function extractFromEnv(): Partial<Config> {
   if (Object.keys(git).length > 0) {
     config.git = git;
   }
-  
+
   // File naming config
   const file_naming: Record<string, unknown> = {};
   if (env.LOCUS_FILE_NAMING_PATTERN) {
@@ -79,7 +79,7 @@ function extractFromEnv(): Partial<Config> {
   if (Object.keys(file_naming).length > 0) {
     config.file_naming = file_naming;
   }
-  
+
   // Defaults config
   const defaults: Record<string, unknown> = {};
   if (env.LOCUS_DEFAULT_STATUS) {
@@ -94,7 +94,7 @@ function extractFromEnv(): Partial<Config> {
   if (Object.keys(defaults).length > 0) {
     config.defaults = defaults;
   }
-  
+
   return config;
 }
 
@@ -109,7 +109,7 @@ function deepMerge<T extends Record<string, unknown>>(
     for (const key in source) {
       const sourceValue = source[key];
       const targetValue = target[key];
-      
+
       if (
         sourceValue &&
         targetValue &&
@@ -137,18 +137,18 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
   if (!forceReload && cachedConfig) {
     return ok(cachedConfig);
   }
-  
+
   try {
     // Start with default config
     const defaultConfig = ConfigSchema.parse({});
-    
+
     // Load file config
     let fileConfig = {};
     const configFileResult = await findConfigFile();
     if (!configFileResult.ok) {
       return err(configFileResult.error);
     }
-    
+
     if (configFileResult.value) {
       try {
         const content = await Deno.readTextFile(configFileResult.value);
@@ -158,13 +158,13 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
         return err(new ConfigError(`Failed to load config file: ${error.message}`));
       }
     }
-    
+
     // Get environment config
     const envConfig = extractFromEnv();
-    
+
     // Merge configs
     const merged = deepMerge({}, defaultConfig, fileConfig, envConfig);
-    
+
     // Validate final config
     const parseResult = ConfigSchema.safeParse(merged);
     if (!parseResult.success) {
@@ -175,7 +175,7 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
         ),
       );
     }
-    
+
     cachedConfig = parseResult.data;
     return ok(cachedConfig);
   } catch (error) {
@@ -204,17 +204,17 @@ export async function createDefaultConfig(): Promise<Result<void, Error>> {
   if (!configDirResult.ok) {
     return err(configDirResult.error);
   }
-  
+
   const configDir = configDirResult.value;
   const configPath = join(configDir, "settings.yml");
-  
+
   if (await exists(configPath)) {
     return ok(undefined);
   }
-  
+
   try {
     await Deno.mkdir(configDir, { recursive: true });
-    
+
     const yamlContent = `# Locus configuration file
 # See documentation for all available options
 
@@ -244,7 +244,7 @@ defaults:
   priority: "normal"
   tags: []
 `;
-    
+
     await Deno.writeTextFile(configPath, yamlContent);
     return ok(undefined);
   } catch (error) {

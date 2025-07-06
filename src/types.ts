@@ -1,10 +1,5 @@
 // Re-export configuration types from schema
-export type { 
-  Config, 
-  GitConfig, 
-  FileNamingConfig, 
-  DefaultsConfig 
-} from "./config/schema.ts";
+export type { Config, DefaultsConfig, FileNamingConfig, GitConfig } from "./config/schema.ts";
 
 // Task file related types
 export interface TaskConfig {

@@ -1,4 +1,4 @@
-import { parse, stringify } from "@std/yaml";
+import { parse, stringify } from "https://deno.land/std@0.224.0/yaml/mod.ts";
 import { FrontMatter, ParsedMarkdown } from "../types.ts";
 
 /**
@@ -6,11 +6,11 @@ import { FrontMatter, ParsedMarkdown } from "../types.ts";
  */
 export function parseMarkdown(content: string): ParsedMarkdown {
   const lines = content.split("\n");
-  
+
   if (lines[0] !== "---") {
     return { frontmatter: null, body: content };
   }
-  
+
   let endIndex = -1;
   for (let i = 1; i < lines.length; i++) {
     if (lines[i] === "---") {
@@ -18,14 +18,14 @@ export function parseMarkdown(content: string): ParsedMarkdown {
       break;
     }
   }
-  
+
   if (endIndex === -1) {
     return { frontmatter: null, body: content };
   }
-  
+
   const yamlContent = lines.slice(1, endIndex).join("\n");
   const body = lines.slice(endIndex + 1).join("\n");
-  
+
   try {
     const frontmatter = parse(yamlContent) as FrontMatter;
     return { frontmatter, body };
@@ -44,12 +44,12 @@ export function generateMarkdown(
   if (!frontmatter || Object.keys(frontmatter).length === 0) {
     return body;
   }
-  
+
   const yamlContent = stringify(frontmatter, {
     lineWidth: -1, // Disable line wrapping
-    noRefs: true,  // Disable anchors and aliases
+    noRefs: true, // Disable anchors and aliases
   }).trim();
-  
+
   return `---\n${yamlContent}\n---\n${body}`;
 }
 
@@ -67,19 +67,19 @@ export function validateFileName(fileName: string): void {
   if (fileName.includes("/") || fileName.includes("\\")) {
     throw new Error("ファイル名にパス区切り文字（/や\\）を含めることはできません");
   }
-  
+
   if (fileName.includes("..")) {
     throw new Error("ファイル名に相対パス（..）を含めることはできません");
   }
-  
+
   if (fileName.length === 0) {
     throw new Error("ファイル名が空です");
   }
-  
+
   if (fileName.length > 255) {
     throw new Error("ファイル名が長すぎます（最大255文字）");
   }
-  
+
   // Check for invalid characters
   // deno-lint-ignore no-control-regex
   const invalidChars = /[<>:"|?*\x00-\x1f]/;
@@ -96,13 +96,13 @@ export function mergeFrontmatter(
   updates: Partial<FrontMatter>,
 ): FrontMatter {
   const base = existing || {};
-  
+
   // Handle special array fields
   if (updates.tags && Array.isArray(updates.tags)) {
     // Replace tags array entirely
     return { ...base, ...updates };
   }
-  
+
   return { ...base, ...updates };
 }
 
@@ -111,14 +111,14 @@ export function mergeFrontmatter(
  */
 export function extractTitle(body: string): string | null {
   const lines = body.trim().split("\n");
-  
+
   for (const line of lines) {
     const trimmed = line.trim();
     if (trimmed.startsWith("# ")) {
       return trimmed.substring(2).trim();
     }
   }
-  
+
   return null;
 }
 
@@ -131,14 +131,14 @@ export function createTaskMarkdown(
   frontmatter: FrontMatter = {},
 ): string {
   const now = new Date().toISOString();
-  
+
   const defaultFrontmatter: FrontMatter = {
     date: now.split("T")[0], // YYYY-MM-DD format
     created: now,
     ...frontmatter,
   };
-  
+
   const markdownBody = body || `# ${title}\n\n`;
-  
+
   return generateMarkdown(defaultFrontmatter, markdownBody);
 }

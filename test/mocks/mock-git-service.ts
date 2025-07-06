@@ -1,5 +1,5 @@
 import { GitService } from "../../src/services/git-service.ts";
-import { Result, ok } from "../../src/utils/result.ts";
+import { ok, Result } from "../../src/utils/result.ts";
 import { GitInfo, RepoInfo } from "../../src/types.ts";
 
 /**
@@ -8,28 +8,28 @@ import { GitInfo, RepoInfo } from "../../src/types.ts";
 export class MockGitService implements GitService {
   private mockGitInfo: GitInfo = { isRepo: false };
   private mockRepoInfo: RepoInfo | null = null;
-  
-  async hasGit(): Promise<Result<boolean, Error>> {
-    return ok(true);
+
+  hasGit(): Promise<Result<boolean, Error>> {
+    return Promise.resolve(ok(true));
   }
-  
-  async isGitRepo(_cwd?: string): Promise<Result<boolean, Error>> {
-    return ok(this.mockGitInfo.isRepo);
+
+  isGitRepo(_cwd?: string): Promise<Result<boolean, Error>> {
+    return Promise.resolve(ok(this.mockGitInfo.isRepo));
   }
-  
-  async getGitInfo(_cwd?: string): Promise<Result<GitInfo, Error>> {
-    return ok(this.mockGitInfo);
+
+  getGitInfo(_cwd?: string): Promise<Result<GitInfo, Error>> {
+    return Promise.resolve(ok(this.mockGitInfo));
   }
-  
-  async getRepoInfo(_cwd?: string): Promise<Result<RepoInfo | null, Error>> {
-    return ok(this.mockRepoInfo);
+
+  getRepoInfo(_cwd?: string): Promise<Result<RepoInfo | null, Error>> {
+    return Promise.resolve(ok(this.mockRepoInfo));
   }
-  
+
   // Test helpers
   setGitInfo(info: GitInfo): void {
     this.mockGitInfo = info;
   }
-  
+
   setRepoInfo(info: RepoInfo | null): void {
     this.mockRepoInfo = info;
     if (info) {
@@ -40,7 +40,7 @@ export class MockGitService implements GitService {
       };
     }
   }
-  
+
   setNotInRepo(): void {
     this.mockGitInfo = { isRepo: false };
     this.mockRepoInfo = null;
