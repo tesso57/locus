@@ -47,3 +47,10 @@ Thumbs.db
 
 # User task files (if testing locally)
 ~/locus/
+
+# Claude
+CLAUDE.md
+.claude/
+
+# Node
+node_modules/
