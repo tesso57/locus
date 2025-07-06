@@ -19,17 +19,46 @@ deno task check        # Run format check, lint, and tests
 # Build & Install
 deno task compile      # Compile to binary for all platforms
 deno task install-local # Install locally as 'locus' command
+
+# Running specific tests
+deno test test/commands/add.test.ts  # Run single test file
+deno test --filter "add command"      # Run tests matching pattern
 ```
 
 ## Architecture
 
-The project follows a modular architecture:
+The project is transitioning from a utility-based approach to a service-oriented architecture with dependency injection:
+
+### Core Architecture Patterns
+
+1. **Result<T,E> Error Handling**: All service methods return `Result<T, Error>` for explicit error handling
+   ```typescript
+   const result = await gitService.getRepoInfo();
+   if (!result.ok) {
+     console.error(result.error.message);
+     return;
+   }
+   const repoInfo = result.value;
+   ```
+
+2. **Service Layer**: Interface-based services for testability
+   - `PathResolver`: Handles all path operations (task dirs, config paths)
+   - `GitService`: Encapsulates Git operations
+   - `ConfigLoader`: Manages configuration with Zod validation
+
+3. **Dependency Injection**: Services are injected into commands (in progress)
+   - Mock implementations for testing
+   - `InMemoryFileSystem` for file system operations
+   - `MockGitService` and `MockPathResolver` for unit tests
+
+### Directory Structure
 
 - **`src/cli.ts`**: Main CLI entry point using Cliffy command framework
-- **`src/commands/`**: Command implementations (add, tags, etc.)
-- **`src/utils/`**: Utility modules for Git operations and Markdown parsing
-- **`src/types.ts`**: TypeScript type definitions
-- **`src/mod.ts`**: Library exports for programmatic usage
+- **`src/commands/`**: Command implementations (add, tags, config, list, update)
+- **`src/services/`**: Service interfaces and implementations
+- **`src/utils/`**: Utilities including Result type, errors, and legacy functions
+- **`src/config/`**: Configuration schemas and loader
+- **`test/mocks/`**: Mock implementations for testing
 
 ## Key Implementation Details
 
@@ -38,6 +67,7 @@ Tasks are stored as Markdown files with YAML frontmatter:
 ```markdown
 ---
 date: 2024-01-15
+created: 2024-01-15T10:30:00Z
 tags: [feature, backend]
 status: todo
 priority: high
@@ -48,29 +78,40 @@ priority: high
 Task description and details...
 ```
 
-### Git Integration
-The tool automatically detects Git repositories and organizes tasks accordingly:
-- Uses `git rev-parse` to detect repository info
-- Extracts username and repo name from remote URL
-- Creates directory structure: `~/locus/<username>/<repo>/`
+### File Naming Pattern
+Tasks use a configurable naming pattern (default: `{date}-{slug}-{hash}.md`):
+- `{date}`: Current date in YYYY-MM-DD format
+- `{slug}`: Sanitized title (lowercase, hyphens, alphanumeric)
+- `{hash}`: Random 8-character hash for uniqueness
 
-### Command Structure
-Commands are implemented using Cliffy's command pattern:
+### Configuration System
+
+Configuration follows a three-level hierarchy:
+1. **Default values** from Zod schema
+2. **File configuration** from `~/.config/locus/settings.yml`
+3. **Environment variables** (highest priority, e.g., `LOCUS_TASK_DIRECTORY`)
+
 ```typescript
-new Command()
-  .name("locus")
-  .version("1.0.0")
-  .description("Git-aware task management")
-  .command("add", addCommand)
-  .command("tags", tagsCommand)
+// Configuration is loaded and validated with Zod
+const config = await loadConfig();
+// Returns validated Config object with deep-merged values
 ```
 
-## Testing Approach
+### Error Handling Strategy
 
-- Use Deno's built-in test runner
-- Test files in `test/` directory matching `*_test.ts`
-- Mock file system operations and Git commands for unit tests
-- Integration tests for CLI commands
+The codebase uses custom error classes for different scenarios:
+- `GitNotRepoError`: Not in a Git repository
+- `GitNoRemoteError`: No remote configured
+- `ConfigValidationError`: Invalid configuration format
+- `FileSystemError`: File operation failures
+- `TaskError`: Task-related errors
+
+### Testing Approach
+
+- **Unit tests**: Use mock services and in-memory file system
+- **Test structure**: Arrange-Act-Assert pattern
+- **Mocking strategy**: Interface-based mocks for all external dependencies
+- **Test files**: Located in `test/` directory, matching `*.test.ts`
 
 ## Git Commit Guidelines
 
@@ -107,11 +148,37 @@ When making commits to this repository, follow these rules:
    Co-Authored-By: Claude <noreply@anthropic.com>
    ```
 
-## Important Specifications
+## Working with Services
 
-Refer to `docs/locus-specification.md` for detailed implementation requirements including:
-- Exact command syntax and options
-- File naming conventions (e.g., `YYYY-MM-DD-<hash>.md`)
-- Supported frontmatter properties
-- Tag management rules
-- Cross-platform compatibility requirements
+When implementing new features or fixing bugs in commands:
+
+1. **Use service interfaces** instead of direct utility functions:
+   ```typescript
+   // Good: Use injected services
+   const repoResult = await gitService.getRepoInfo();
+   
+   // Bad: Direct utility function call
+   const repoInfo = await getGitRepoInfo();
+   ```
+
+2. **Handle Result types** properly:
+   ```typescript
+   const result = await pathResolver.getTaskDir(repoInfo);
+   if (!result.ok) {
+     console.error(result.error.message);
+     return;
+   }
+   const taskDir = result.value;
+   ```
+
+3. **Create mock implementations** for new services:
+   - Implement the service interface
+   - Add configurable behavior for testing
+   - Store in `test/mocks/` directory
+
+## Important Files
+
+- **`docs/locus-specification.md`**: Original specification with command details
+- **`src/utils/result.ts`**: Result type implementation and utilities
+- **`src/config/schema.ts`**: Zod schemas defining configuration structure
+- **`test/mocks/in-memory-fs.ts`**: In-memory file system for testing
