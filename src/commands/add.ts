@@ -56,19 +56,25 @@ async function addTask(options: AddOptions, noGit: boolean = false): Promise<voi
 
     // Create frontmatter
     const frontmatter: FrontMatter = {
-      ...config.defaults,
+      ...(config.defaults || {}),
     };
 
     if (options.tags && options.tags.length > 0) {
       frontmatter.tags = options.tags;
+    } else if (!frontmatter.tags) {
+      frontmatter.tags = [];
     }
 
     if (options.priority) {
       frontmatter.priority = options.priority;
+    } else if (!frontmatter.priority) {
+      frontmatter.priority = "normal";
     }
 
     if (options.status) {
       frontmatter.status = options.status;
+    } else if (!frontmatter.status) {
+      frontmatter.status = "todo";
     }
 
     // Create task content
