@@ -58,6 +58,22 @@ export async function* getTaskFiles(dir: string): AsyncIterableIterator<string> 
 }
 
 /**
+ * Get all task files recursively from base directory
+ */
+export async function* getAllTaskFiles(baseDir: string): AsyncIterableIterator<string> {
+  try {
+    // Search for all .md files recursively
+    for await (const file of expandGlob(join(baseDir, "**/*.md"))) {
+      if (file.isFile) {
+        yield file.path;
+      }
+    }
+  } catch {
+    // Directory might not exist
+  }
+}
+
+/**
  * Find a task file by partial name
  */
 export async function findTaskFile(dir: string, partialName: string): Promise<string | null> {

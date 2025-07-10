@@ -1,6 +1,9 @@
 # Locus
 
-A Git-aware task management CLI tool that organizes your tasks by repository.
+A Git-aware task management CLI tool that organizes your tasks by repository. Each task is stored as a Markdown file with YAML frontmatter, automatically organized by Git repository.
+
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/tesso57/locus)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 [日本語版 README](docs/README_ja.md)
 
@@ -17,11 +20,11 @@ A Git-aware task management CLI tool that organizes your tasks by repository.
 ### Using Deno (Recommended)
 
 ```bash
-# Install globally
-deno install --allow-read --allow-write --allow-env --allow-run --name locus https://deno.land/x/locus/src/cli.ts
-
-# Or install from local source
+# Install from local source
 deno task install-local
+
+# Or install manually
+deno install --allow-read --allow-write --allow-env --allow-run -n locus -f src/cli.ts
 ```
 
 ### Pre-built Binaries
@@ -43,37 +46,50 @@ echo "Need to fix the JWT token validation" | locus add "Fix authentication bug"
 locus add "Implement dark mode" --tags ui,feature --priority high --status in-progress
 ```
 
-### List and search tasks
+### List tasks
 
 ```bash
-# List all tasks
+# List all tasks in current repository
 locus list
 
+# Filter by status
+locus list --status todo
+locus list --status in_progress
+
+# Filter by priority
+locus list --priority high
+
 # Filter by tags
+locus list --tags bug,critical
+
+# Sort tasks
+locus list --sort created    # Sort by creation date (default)
+locus list --sort status     # Sort by status
+locus list --sort priority   # Sort by priority
+
+# Show detailed view
+locus list --detail
+
+# List all tasks across repositories
+locus list --all
+
+# Output as JSON
+locus list --json
+```
+
+### Search by tags
+
+```bash
+# Search tasks by tag
 locus tags ui
 
 # Search by multiple tags (OR operation)
 locus tags ui,backend
-
-# Show tasks with specific status
-locus list --status todo
 ```
 
-### Update task properties
+### Update tasks (Coming Soon)
 
-```bash
-# Update single property
-locus update task-name --status done
-
-# Update multiple properties
-locus update task-name --priority low --tags bug,fixed
-
-# Add new tags (append mode)
-locus update task-name --tags +security,+reviewed
-
-# Remove tags
-locus update task-name --tags -wip,-draft
-```
+The update command is planned for a future release. It will allow you to modify existing task properties.
 
 ### Configuration
 
@@ -144,7 +160,7 @@ Add JWT-based authentication to the API endpoints.
 
 ### Prerequisites
 
-- [Deno](https://deno.land/) >= 1.40
+- [Deno](https://deno.com/) >= 2.0
 
 ### Setup
 

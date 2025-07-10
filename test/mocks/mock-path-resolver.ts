@@ -13,16 +13,24 @@ export class MockPathResolver implements PathResolver {
   ) {}
 
   getBaseDir(): Result<string, Error> {
-    return ok(this.baseDir);
+    // Expand tilde if present
+    const expandedDir = this.baseDir.replace(/^~/, this.fs.getHome());
+    return ok(expandedDir);
   }
 
   async getTaskDir(repoInfo: RepoInfo | null): Promise<Result<string, Error>> {
+    const baseDirResult = this.getBaseDir();
+    if (!baseDirResult.ok) {
+      return baseDirResult;
+    }
+    const baseDir = baseDirResult.value;
+    
     if (!repoInfo) {
-      await this.fs.mkdir(this.baseDir, true);
-      return ok(this.baseDir);
+      await this.fs.mkdir(baseDir, true);
+      return ok(baseDir);
     }
 
-    const taskDir = `${this.baseDir}/${repoInfo.owner}/${repoInfo.repo}`;
+    const taskDir = `${baseDir}/${repoInfo.owner}/${repoInfo.repo}`;
     await this.fs.mkdir(taskDir, true);
     return ok(taskDir);
   }

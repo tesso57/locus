@@ -4,6 +4,7 @@ import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
 import { createAddCommand } from "./commands/add.ts";
 import { createTagsCommand } from "./commands/tags.ts";
 import { createConfigCommand } from "./commands/config.ts";
+import { createListCommand } from "./commands/list.ts";
 
 const VERSION = "0.1.0";
 
@@ -20,6 +21,7 @@ async function main() {
   command.command("add", createAddCommand() as any);
   command.command("tags", createTagsCommand() as any);
   command.command("config", createConfigCommand() as any);
+  command.command("list", createListCommand() as any);
 
   // Help command
   command.command(
@@ -31,12 +33,13 @@ async function main() {
       }),
   );
 
-  // Default action shows help
-  command.action(() => {
-    command.showHelp();
-  });
-
   try {
+    // If no arguments provided, show help
+    if (Deno.args.length === 0) {
+      command.showHelp();
+      Deno.exit(0);
+    }
+
     await command.parse(Deno.args);
   } catch (error) {
     if (error instanceof Error) {
