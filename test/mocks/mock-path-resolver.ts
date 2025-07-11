@@ -24,7 +24,7 @@ export class MockPathResolver implements PathResolver {
       return baseDirResult;
     }
     const baseDir = baseDirResult.value;
-    
+
     if (!repoInfo) {
       await this.fs.mkdir(baseDir, true);
       return ok(baseDir);
@@ -69,15 +69,15 @@ export class MockPathResolver implements PathResolver {
 
     if (dirResult.ok) {
       const normalizedName = partialName.toLowerCase();
-      for (const file of dirResult.value) {
-        if (!file.endsWith(".md")) continue;
+      for await (const entry of dirResult.value) {
+        if (!entry.name.endsWith(".md")) continue;
 
-        const fileName = file.toLowerCase();
+        const fileName = entry.name.toLowerCase();
         if (fileName === normalizedName || fileName === `${normalizedName}.md`) {
-          return ok(`${taskDir}/${file}`);
+          return ok(`${taskDir}/${entry.name}`);
         }
         if (fileName.includes(normalizedName)) {
-          return ok(`${taskDir}/${file}`);
+          return ok(`${taskDir}/${entry.name}`);
         }
       }
     }

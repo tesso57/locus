@@ -5,6 +5,8 @@ import { createAddCommand } from "./commands/add.ts";
 import { createTagsCommand } from "./commands/tags.ts";
 import { createConfigCommand } from "./commands/config.ts";
 import { createListCommand } from "./commands/list.ts";
+import { createReadCommand } from "./commands/read.ts";
+import { createPathCommand } from "./commands/path.ts";
 
 const VERSION = "0.1.0";
 
@@ -22,6 +24,8 @@ async function main() {
   command.command("tags", createTagsCommand() as any);
   command.command("config", createConfigCommand() as any);
   command.command("list", createListCommand() as any);
+  command.command("read", createReadCommand() as any);
+  command.command("path", createPathCommand() as any);
 
   // Help command
   command.command(

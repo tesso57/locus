@@ -1,29 +1,29 @@
 import { err, ok, Result } from "../utils/result.ts";
 import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
-import { 
-  TaskService, 
-  TaskInfo, 
-  ListTaskOptions, 
+import {
   CreateTaskOptions,
-  UpdateTaskOptions 
+  ListTaskOptions,
+  TaskInfo,
+  TaskService,
+  UpdateTaskOptions,
 } from "./task-service.ts";
 import { PathResolver } from "./path-resolver.ts";
 import { GitService } from "./git-service.ts";
 import { FileSystem } from "./file-system.ts";
 import { Config, FrontMatter, RepoInfo } from "../types.ts";
-import { 
-  parseMarkdown, 
-  extractTitle, 
+import {
   createTaskMarkdown,
+  extractTitle,
   generateMarkdown,
-  validateFileName 
+  parseMarkdown,
+  validateFileName,
 } from "../utils/markdown.ts";
 import { generateFileName } from "../utils/filename.ts";
-import { 
-  FileSystemError, 
-  FileNotFoundError,
+import {
   FileAlreadyExistsError,
-  TaskNotFoundError 
+  FileNotFoundError,
+  FileSystemError,
+  TaskNotFoundError,
 } from "../utils/errors.ts";
 
 /**
@@ -94,7 +94,7 @@ export class DefaultTaskService implements TaskService {
       if (!contentResult.ok) {
         return err(contentResult.error);
       }
-      
+
       const { frontmatter, body } = parseMarkdown(contentResult.value);
 
       if (!frontmatter) {
@@ -190,8 +190,8 @@ export class DefaultTaskService implements TaskService {
 
     const task = taskResult.value;
     const filePathResult = await this.pathResolver.resolveTaskFile(
-      options.fileName, 
-      options.repoInfo ?? null
+      options.fileName,
+      options.repoInfo ?? null,
     );
     if (!filePathResult.ok) {
       return err(filePathResult.error);
@@ -287,7 +287,7 @@ export class DefaultTaskService implements TaskService {
       if (!dirResult.ok) {
         return err(dirResult.error);
       }
-      
+
       for await (const entry of dirResult.value) {
         if (entry.isFile && entry.name.endsWith(".md")) {
           const filePath = join(dir, entry.name);
@@ -311,7 +311,7 @@ export class DefaultTaskService implements TaskService {
       if (!contentResult.ok) {
         return err(contentResult.error);
       }
-      
+
       const { frontmatter, body } = parseMarkdown(contentResult.value);
 
       if (!frontmatter) {
@@ -374,7 +374,7 @@ export class DefaultTaskService implements TaskService {
     if (!dirResult.ok) {
       return;
     }
-    
+
     for await (const entry of dirResult.value) {
       const path = join(dir, entry.name);
       yield {

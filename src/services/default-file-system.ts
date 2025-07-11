@@ -40,9 +40,9 @@ export class DefaultFileSystem implements FileSystem {
   readDir(path: string): Promise<Result<AsyncIterable<Deno.DirEntry>, Error>> {
     try {
       const iter = Deno.readDir(path);
-      return ok(iter);
+      return Promise.resolve(ok(iter));
     } catch (error) {
-      return err(error instanceof Error ? error : new Error(String(error)));
+      return Promise.resolve(err(error instanceof Error ? error : new Error(String(error))));
     }
   }
 
@@ -50,6 +50,15 @@ export class DefaultFileSystem implements FileSystem {
     try {
       await Deno.mkdir(path, { recursive });
       return ok(undefined);
+    } catch (error) {
+      return err(error instanceof Error ? error : new Error(String(error)));
+    }
+  }
+
+  async stat(path: string): Promise<Result<Deno.FileInfo, Error>> {
+    try {
+      const fileInfo = await Deno.stat(path);
+      return ok(fileInfo);
     } catch (error) {
       return err(error instanceof Error ? error : new Error(String(error)));
     }

@@ -33,4 +33,9 @@ export interface FileSystem {
    * Create a directory
    */
   mkdir(path: string, recursive?: boolean): Promise<Result<void, Error>>;
+
+  /**
+   * Get file information
+   */
+  stat(path: string): Promise<Result<Deno.FileInfo, Error>>;
 }

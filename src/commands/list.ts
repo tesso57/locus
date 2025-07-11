@@ -1,10 +1,18 @@
 import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
 import { Table } from "https://deno.land/x/cliffy@v1.0.0-rc.4/table/mod.ts";
 import { colors } from "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts";
-import { TaskService, TaskInfo } from "../services/task-service.ts";
+import { TaskInfo, TaskService } from "../services/task-service.ts";
 import { GitService } from "../services/git-service.ts";
+import { PathResolver } from "../services/path-resolver.ts";
 import { ServiceContainer } from "../services/service-container.ts";
-import { formatStatus, formatPriority, formatDate, formatTags, priorityValue } from "../utils/format.ts";
+import {
+  formatDate,
+  formatPriority,
+  formatStatus,
+  formatTags,
+  priorityValue,
+} from "../utils/format.ts";
+import { join } from "https://deno.land/std@0.220.0/path/mod.ts";
 
 interface ListOptions {
   status?: string;
@@ -16,7 +24,6 @@ interface ListOptions {
   json?: boolean;
   groupByRepo?: boolean;
 }
-
 
 export function createListCommand(): Command {
   return new Command()
@@ -33,25 +40,31 @@ export function createListCommand(): Command {
     .action(async (options) => {
       const container = ServiceContainer.getInstance();
       await container.initialize();
-      
+
       const taskService = await container.getTaskService();
       const gitService = container.getGitService();
-      
-      await listTasks(taskService, gitService, options);
+      const pathResolver = await container.getPathResolver();
+
+      await listTasks(taskService, gitService, pathResolver, options);
     });
 }
 
 async function listTasks(
   taskService: TaskService,
   gitService: GitService,
-  options: ListOptions
+  pathResolver: PathResolver,
+  options: ListOptions,
 ): Promise<void> {
   try {
+    // Get base directory for full path reconstruction
+    const baseDirResult = pathResolver.getBaseDir();
+    const baseDir = baseDirResult.ok ? baseDirResult.value : "";
+
     // Get repository information
-    const repoInfoResult = options.all 
-      ? { ok: true as const, value: null } 
+    const repoInfoResult = options.all
+      ? { ok: true as const, value: null }
       : await gitService.getRepoInfo();
-    
+
     if (!repoInfoResult.ok) {
       console.error(`エラー: ${repoInfoResult.error.message}`);
       Deno.exit(1);
@@ -136,8 +149,10 @@ async function listTasks(
         if (options.detail) {
           // Detailed view for each repo
           for (const task of repoTasks) {
+            const fullPath = baseDir ? join(baseDir, task.path) : task.path;
             console.log(colors.bold(task.title));
             console.log(`  ファイル: ${colors.gray(task.fileName)}`);
+            console.log(`  フルパス: ${colors.gray(fullPath)}`);
             console.log(`  ステータス: ${formatStatus(task.status)}`);
             console.log(`  優先度: ${formatPriority(task.priority)}`);
             if (task.tags.length > 0) {
@@ -180,8 +195,10 @@ async function listTasks(
     if (options.detail) {
       // Detailed view
       for (const task of tasks) {
+        const fullPath = baseDir ? join(baseDir, task.path) : task.path;
         console.log(colors.bold(task.title));
         console.log(`  ファイル: ${colors.gray(task.fileName)}`);
+        console.log(`  フルパス: ${colors.gray(fullPath)}`);
         console.log(`  ステータス: ${formatStatus(task.status)}`);
         console.log(`  優先度: ${formatPriority(task.priority)}`);
         if (task.tags.length > 0) {

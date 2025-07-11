@@ -1,5 +1,5 @@
 import { Result } from "../utils/result.ts";
-import { RepoInfo, FrontMatter } from "../types.ts";
+import { FrontMatter, RepoInfo } from "../types.ts";
 
 /**
  * Represents a task file with metadata

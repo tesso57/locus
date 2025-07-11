@@ -1,12 +1,10 @@
 import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
-import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
-import { AddOptions, FrontMatter } from "../types.ts";
-import { getRepoInfo } from "../utils/git.ts";
-import { createTaskMarkdown, validateFileName } from "../utils/markdown.ts";
-import { resolveTaskDir } from "../utils/path.ts";
-import { generateFileName } from "../utils/filename.ts";
-import { loadConfig } from "../config/index.ts";
+import { colors } from "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts";
+import { CreateTaskOptions } from "../services/task-service.ts";
+import { ServiceContainer } from "../services/service-container.ts";
+import { createAction, executeCommand, getRepoInfoOptional } from "./utils/command-helpers.ts";
+import { AddOptions } from "./utils/option-types.ts";
+import { ok } from "../utils/result.ts";
 
 export function createAddCommand(): Command {
   return new Command()
@@ -18,95 +16,73 @@ export function createAddCommand(): Command {
     .option("-p, --priority <priority:string>", "優先度")
     .option("-s, --status <status:string>", "ステータス")
     .option("--no-git", "Git情報を使用しない")
-    .action(async (options, title: string) => {
-      await addTask({
-        title,
-        body: options.body,
-        tags: options.tags,
-        priority: options.priority,
-        status: options.status,
-      }, !options.git);
-    });
-}
+    .option("--json", "JSON形式で出力")
+    .action(createAction<AddOptions>(async (options, title: string) => {
+      await executeCommand(async ({ container }) => {
+        const taskService = await container.getTaskService();
+        const gitService = container.getGitService();
+        const config = await container.getConfig();
 
-async function addTask(options: AddOptions, noGit: boolean = false): Promise<void> {
-  try {
-    // Get repository information
-    const repoInfo = noGit ? null : await getRepoInfo();
+        // Get repository information
+        const repoInfo = await getRepoInfoOptional(gitService, options.noGit);
 
-    // Resolve task directory
-    const taskDir = await resolveTaskDir(repoInfo);
+        // Create task options
+        const createOptions: CreateTaskOptions = {
+          title,
+          body: options.body,
+          tags: options.tags || config.defaults?.tags || [],
+          priority: options.priority || config.defaults?.priority || "normal",
+          status: options.status || config.defaults?.status || "todo",
+          repoInfo,
+        };
 
-    // Generate filename
-    const fileName = await generateFileName(options.title);
+        // Create task
+        const result = await taskService.createTask(createOptions);
+        if (!result.ok) {
+          return result;
+        }
 
-    // Validate filename
-    validateFileName(fileName);
+        const fileName = result.value;
 
-    const taskPath = join(taskDir, fileName);
+        // Display result
+        if (options.json) {
+          console.log(JSON.stringify(
+            {
+              success: true,
+              fileName,
+              title,
+              status: createOptions.status,
+              priority: createOptions.priority,
+              tags: createOptions.tags,
+              repository: repoInfo ? `${repoInfo.owner}/${repoInfo.repo}` : null,
+            },
+            null,
+            2,
+          ));
+        } else {
+          const pathResolver = await container.getPathResolver();
+          const taskDirResult = await pathResolver.getTaskDir(repoInfo);
+          const taskPath = taskDirResult.ok ? `${taskDirResult.value}/${fileName}` : fileName;
 
-    // Check if file already exists
-    if (await exists(taskPath)) {
-      console.error(`エラー: ファイル '${taskPath}' は既に存在します`);
-      Deno.exit(1);
-    }
+          console.log(colors.green(`✨ タスクを作成しました: ${taskPath}`));
 
-    // Load config for defaults
-    const config = await loadConfig();
+          if (repoInfo) {
+            console.log(colors.blue(`📁 リポジトリ: ${repoInfo.owner}/${repoInfo.repo}`));
+          } else if (!options.noGit) {
+            console.log(colors.gray(`📁 場所: デフォルトのタスクディレクトリ`));
+          }
 
-    // Create frontmatter
-    const frontmatter: FrontMatter = {
-      ...(config.defaults || {}),
-    };
+          console.log(`\n${colors.bold("📋 タスク詳細:")}`);
+          console.log(`  タイトル: ${title}`);
+          console.log(`  ファイル名: ${fileName}`);
+          console.log(`  ステータス: ${createOptions.status}`);
+          console.log(`  優先度: ${createOptions.priority}`);
+          if (createOptions.tags && createOptions.tags.length > 0) {
+            console.log(`  タグ: ${createOptions.tags.join(", ")}`);
+          }
+        }
 
-    if (options.tags && options.tags.length > 0) {
-      frontmatter.tags = options.tags;
-    } else if (!frontmatter.tags) {
-      frontmatter.tags = [];
-    }
-
-    if (options.priority) {
-      frontmatter.priority = options.priority;
-    } else if (!frontmatter.priority) {
-      frontmatter.priority = "normal";
-    }
-
-    if (options.status) {
-      frontmatter.status = options.status;
-    } else if (!frontmatter.status) {
-      frontmatter.status = "todo";
-    }
-
-    // Create task content
-    const content = createTaskMarkdown(
-      options.title,
-      options.body,
-      frontmatter,
-    );
-
-    // Write file
-    await Deno.writeTextFile(taskPath, content);
-
-    // Success message
-    console.log(`✨ タスクを作成しました: ${taskPath}`);
-
-    if (repoInfo) {
-      console.log(`📁 リポジトリ: ${repoInfo.owner}/${repoInfo.repo}`);
-    } else if (!noGit) {
-      console.log(`📁 場所: デフォルトのタスクディレクトリ`);
-    }
-
-    // Show task details
-    console.log(`\n📋 タスク詳細:`);
-    console.log(`  タイトル: ${options.title}`);
-    console.log(`  ファイル名: ${fileName}`);
-    console.log(`  ステータス: ${frontmatter.status}`);
-    console.log(`  優先度: ${frontmatter.priority}`);
-    if (frontmatter.tags && frontmatter.tags.length > 0) {
-      console.log(`  タグ: ${frontmatter.tags.join(", ")}`);
-    }
-  } catch (error) {
-    console.error(`エラー: ${error.message}`);
-    Deno.exit(1);
-  }
+        return ok(undefined);
+      });
+    }));
 }

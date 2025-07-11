@@ -14,7 +14,7 @@ import { DefaultFileSystem } from "./default-file-system.ts";
  */
 export class ServiceContainer {
   private static instance: ServiceContainer | null = null;
-  
+
   private config: Config | null = null;
   private gitService: GitService | null = null;
   private pathResolver: PathResolver | null = null;
