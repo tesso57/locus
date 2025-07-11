@@ -26,7 +26,7 @@ export async function checkFileExists(
     }
 
     return ok(infoResult.value.isFile);
-  } catch (error) {
+  } catch (error: unknown) {
     return err(new Error(`Failed to check file: ${error}`));
   }
 }

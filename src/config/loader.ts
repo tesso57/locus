@@ -34,8 +34,9 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
     }
 
     return ok(null);
-  } catch (error) {
-    return err(new ConfigError(`Failed to find config file: ${error.message}`));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return err(new ConfigError(`Failed to find config file: ${message}`));
   }
 }
 
@@ -154,8 +155,9 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
         const content = await Deno.readTextFile(configFileResult.value);
         const parsed = parse(content);
         fileConfig = parsed || {};
-      } catch (error) {
-        return err(new ConfigError(`Failed to load config file: ${error.message}`));
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return err(new ConfigError(`Failed to load config file: ${message}`));
       }
     }
 
@@ -163,7 +165,7 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
     const envConfig = extractFromEnv();
 
     // Merge configs
-    const merged = deepMerge({}, defaultConfig, fileConfig, envConfig);
+    const merged = deepMerge({} as Config, defaultConfig, fileConfig as Partial<Config>, envConfig as Partial<Config>);
 
     // Validate final config
     const parseResult = ConfigSchema.safeParse(merged);
@@ -178,8 +180,9 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
 
     cachedConfig = parseResult.data;
     return ok(cachedConfig);
-  } catch (error) {
-    return err(new ConfigError(`Failed to load configuration: ${error.message}`));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return err(new ConfigError(`Failed to load configuration: ${message}`));
   }
 }
 
@@ -191,8 +194,9 @@ export function getConfigDir(): Result<string, Error> {
     const configHome = Deno.env.get("XDG_CONFIG_HOME") ??
       join(Deno.env.get("HOME") || "", ".config");
     return ok(join(configHome, "locus"));
-  } catch (error) {
-    return err(new ConfigError(`Failed to get config directory: ${error.message}`));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return err(new ConfigError(`Failed to get config directory: ${message}`));
   }
 }
 
@@ -247,8 +251,9 @@ defaults:
 
     await Deno.writeTextFile(configPath, yamlContent);
     return ok(undefined);
-  } catch (error) {
-    return err(new ConfigError(`Failed to create default config: ${error.message}`));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return err(new ConfigError(`Failed to create default config: ${message}`));
   }
 }
 

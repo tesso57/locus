@@ -41,7 +41,7 @@ export async function executeCommand<T>(
     if (!result.ok) {
       exitWithError(result.error.message);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     exitWithError(message);
   }

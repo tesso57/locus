@@ -45,7 +45,7 @@ async function main() {
     }
 
     await command.parse(Deno.args);
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Error) {
       console.error(`エラー: ${error.message}`);
     } else {

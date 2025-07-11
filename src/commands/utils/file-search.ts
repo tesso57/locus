@@ -103,7 +103,7 @@ export async function searchMarkdownFiles(
   try {
     await searchDir(baseDir);
     return ok(found);
-  } catch (error) {
+  } catch (error: unknown) {
     return err(new Error(`Failed to search files: ${error}`));
   }
 }

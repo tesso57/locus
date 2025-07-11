@@ -138,11 +138,12 @@ async function listTags(options: TagsListOptions, noGit: boolean): Promise<void>
         console.log(`  ${key}: ${value}`);
       }
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Deno.errors.NotFound) {
       console.error(`エラー: ファイル '${filePath}' が見つかりません`);
     } else {
-      console.error(`エラー: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`エラー: ${message}`);
     }
     Deno.exit(1);
   }
@@ -165,7 +166,7 @@ async function getTag(options: TagsGetOptions, noGit: boolean): Promise<void> {
     } else {
       console.log(value);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Deno.errors.NotFound) {
       console.error(`エラー: ファイル '${filePath}' が見つかりません`);
     }
@@ -204,8 +205,9 @@ async function setTag(options: TagsSetOptions, noGit: boolean): Promise<void> {
     await Deno.writeTextFile(filePath, newContent);
 
     console.log(`✅ プロパティ '${options.property}' を更新しました`);
-  } catch (error) {
-    console.error(`エラー: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`エラー: ${message}`);
     Deno.exit(1);
   }
 }
@@ -228,11 +230,12 @@ async function removeTag(options: TagsRemoveOptions, noGit: boolean): Promise<vo
     await Deno.writeTextFile(filePath, newContent);
 
     console.log(`✅ プロパティ '${options.property}' を削除しました`);
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Deno.errors.NotFound) {
       console.error(`エラー: ファイル '${filePath}' が見つかりません`);
     } else {
-      console.error(`エラー: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`エラー: ${message}`);
     }
     Deno.exit(1);
   }
@@ -248,11 +251,12 @@ async function clearTags(options: TagsClearOptions, noGit: boolean): Promise<voi
     await Deno.writeTextFile(filePath, body);
 
     console.log(`✅ 全てのプロパティを削除しました`);
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Deno.errors.NotFound) {
       console.error(`エラー: ファイル '${filePath}' が見つかりません`);
     } else {
-      console.error(`エラー: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`エラー: ${message}`);
     }
     Deno.exit(1);
   }

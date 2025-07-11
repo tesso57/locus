@@ -71,7 +71,7 @@ export class DefaultTaskService implements TaskService {
         const filteredTasks = this.filterTasks(tasksResult.value, options);
         return ok(filteredTasks);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to list tasks: ${message}`));
     }
@@ -119,7 +119,7 @@ export class DefaultTaskService implements TaskService {
       };
 
       return ok(taskInfo);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to read task: ${message}`));
     }
@@ -176,7 +176,7 @@ export class DefaultTaskService implements TaskService {
       }
 
       return ok(taskPath);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to create task: ${message}`));
     }
@@ -212,7 +212,7 @@ export class DefaultTaskService implements TaskService {
       }
 
       return ok(undefined);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to update task: ${message}`));
     }
@@ -234,7 +234,7 @@ export class DefaultTaskService implements TaskService {
         return err(removeResult.error);
       }
       return ok(undefined);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to delete task: ${message}`));
     }
@@ -273,7 +273,7 @@ export class DefaultTaskService implements TaskService {
       }
 
       return ok(tasks);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to collect tasks: ${message}`));
     }
@@ -299,7 +299,7 @@ export class DefaultTaskService implements TaskService {
       }
 
       return ok(tasks);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to collect tasks from directory: ${message}`));
     }
@@ -337,7 +337,7 @@ export class DefaultTaskService implements TaskService {
       };
 
       return ok(taskInfo);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to read task file ${filePath}: ${message}`));
     }

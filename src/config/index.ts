@@ -119,7 +119,7 @@ export async function loadConfig(forceReload = false): Promise<Config> {
     try {
       const content = await Deno.readTextFile(configFile);
       fileConfig = parse(content) as Partial<Config>;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         `Warning: Failed to load config file ${configFile}: ${
           error instanceof Error ? error.message : String(error)

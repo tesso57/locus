@@ -108,7 +108,7 @@ async function renderMarkdownBody(markdown: string, noColor: boolean = false): P
     }
 
     return rendered;
-  } catch (error) {
+  } catch (error: unknown) {
     // Fallback to basic formatting if charMD fails
     return formatMarkdownBasic(markdown, noColor);
   }

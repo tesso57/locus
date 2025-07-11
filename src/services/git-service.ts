@@ -104,7 +104,7 @@ export class DefaultGitService implements GitService {
       const url = this.normalizeGitUrl(gitInfo.remoteUrl);
       const repoInfo = this.parseRepoInfo(url);
       return ok(repoInfo);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new GitError(`Failed to parse repository info: ${message}`));
     }
@@ -127,7 +127,7 @@ export class DefaultGitService implements GitService {
 
       const root = new TextDecoder().decode(stdout).trim();
       return ok(root);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new GitError(`Failed to get git root: ${message}`));
     }
@@ -153,7 +153,7 @@ export class DefaultGitService implements GitService {
 
       const url = new TextDecoder().decode(stdout).trim();
       return ok(url);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new GitError(`Failed to get remote URL: ${message}`));
     }

@@ -52,7 +52,7 @@ export class DefaultPathResolver implements PathResolver {
     try {
       const baseDir = this.expandTilde(this.config.task_directory);
       return ok(baseDir);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to resolve base directory: ${message}`));
     }
@@ -70,7 +70,7 @@ export class DefaultPathResolver implements PathResolver {
       try {
         await ensureDir(baseDir);
         return ok(baseDir);
-      } catch (error) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         return err(new FileSystemError(`Failed to create base directory: ${message}`));
       }
@@ -81,7 +81,7 @@ export class DefaultPathResolver implements PathResolver {
     try {
       await ensureDir(taskDir);
       return ok(taskDir);
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(
         new FileSystemError(`Failed to create task directory: ${message}`),
@@ -116,7 +116,7 @@ export class DefaultPathResolver implements PathResolver {
       const configHome = Deno.env.get("XDG_CONFIG_HOME") ??
         join(Deno.env.get("HOME") || "", ".config");
       return ok(join(configHome, "locus"));
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to resolve config directory: ${message}`));
     }
@@ -156,7 +156,7 @@ export class DefaultPathResolver implements PathResolver {
       // If not found, return the path where it would be
       const fileName = partialName.endsWith(".md") ? partialName : `${partialName}.md`;
       return ok(join(taskDir, fileName));
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return err(new FileSystemError(`Failed to resolve task file: ${message}`));
     }

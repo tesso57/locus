@@ -61,8 +61,9 @@ async function showConfig(asJson: boolean = false): Promise<void> {
         }
       }
     }
-  } catch (error) {
-    console.error(`エラー: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`エラー: ${message}`);
     Deno.exit(1);
   }
 }
@@ -96,8 +97,9 @@ async function initConfig(force: boolean = false): Promise<void> {
     console.log(`✨ 設定ファイルを作成しました: ${configPath}`);
     console.log(`\n設定を編集するには、以下のコマンドを実行してください:`);
     console.log(`  $EDITOR ${configPath}`);
-  } catch (error) {
-    console.error(`エラー: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`エラー: ${message}`);
     Deno.exit(1);
   }
 }

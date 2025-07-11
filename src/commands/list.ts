@@ -226,8 +226,9 @@ async function listTasks(
 
       table.render();
     }
-  } catch (error) {
-    console.error(`エラー: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`エラー: ${message}`);
     Deno.exit(1);
   }
 }

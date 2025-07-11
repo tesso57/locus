@@ -10,7 +10,7 @@ export class DefaultFileSystem implements FileSystem {
     try {
       const content = await Deno.readTextFile(path);
       return ok(content);
-    } catch (error) {
+    } catch (error: unknown) {
       return err(error instanceof Error ? error : new Error(String(error)));
     }
   }
@@ -19,7 +19,7 @@ export class DefaultFileSystem implements FileSystem {
     try {
       await Deno.writeTextFile(path, content);
       return ok(undefined);
-    } catch (error) {
+    } catch (error: unknown) {
       return err(error instanceof Error ? error : new Error(String(error)));
     }
   }
@@ -32,7 +32,7 @@ export class DefaultFileSystem implements FileSystem {
     try {
       await Deno.remove(path);
       return ok(undefined);
-    } catch (error) {
+    } catch (error: unknown) {
       return err(error instanceof Error ? error : new Error(String(error)));
     }
   }
@@ -41,7 +41,7 @@ export class DefaultFileSystem implements FileSystem {
     try {
       const iter = Deno.readDir(path);
       return Promise.resolve(ok(iter));
-    } catch (error) {
+    } catch (error: unknown) {
       return Promise.resolve(err(error instanceof Error ? error : new Error(String(error))));
     }
   }
@@ -50,7 +50,7 @@ export class DefaultFileSystem implements FileSystem {
     try {
       await Deno.mkdir(path, { recursive });
       return ok(undefined);
-    } catch (error) {
+    } catch (error: unknown) {
       return err(error instanceof Error ? error : new Error(String(error)));
     }
   }
@@ -59,7 +59,7 @@ export class DefaultFileSystem implements FileSystem {
     try {
       const fileInfo = await Deno.stat(path);
       return ok(fileInfo);
-    } catch (error) {
+    } catch (error: unknown) {
       return err(error instanceof Error ? error : new Error(String(error)));
     }
   }
