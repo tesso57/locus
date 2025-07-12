@@ -4,7 +4,6 @@ import { colors } from "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts";
 import { TaskInfo, TaskService } from "../services/task-service.ts";
 import { GitService } from "../services/git-service.ts";
 import { PathResolver } from "../services/path-resolver.ts";
-import { ServiceContainer } from "../services/service-container.ts";
 import {
   formatDate,
   formatPriority,
@@ -13,6 +12,8 @@ import {
   priorityValue,
 } from "../utils/format.ts";
 import { join } from "https://deno.land/std@0.220.0/path/mod.ts";
+import { createAction, executeCommand } from "./utils/command-helpers.ts";
+import { ok } from "../utils/result.ts";
 
 interface ListOptions {
   status?: string;
@@ -37,16 +38,16 @@ export function createListCommand(): Command {
     .option("-a, --all", "全てのリポジトリのタスクを表示")
     .option("-g, --group-by-repo", "リポジトリごとにグループ化して表示")
     .option("--json", "JSON形式で出力")
-    .action(async (options) => {
-      const container = ServiceContainer.getInstance();
-      await container.initialize();
+    .action(createAction<ListOptions>(async (options) => {
+      await executeCommand(async ({ container }) => {
+        const taskService = await container.getTaskService();
+        const gitService = container.getGitService();
+        const pathResolver = await container.getPathResolver();
 
-      const taskService = await container.getTaskService();
-      const gitService = container.getGitService();
-      const pathResolver = await container.getPathResolver();
-
-      await listTasks(taskService, gitService, pathResolver, options);
-    });
+        await listTasks(taskService, gitService, pathResolver, options);
+        return ok(undefined);
+      });
+    }));
 }
 
 async function listTasks(

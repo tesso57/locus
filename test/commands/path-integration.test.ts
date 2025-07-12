@@ -23,7 +23,13 @@ describe("path command integration tests", () => {
 
       // Test without .md extension
       const command = createPathCommand();
-      await command.parse(["test-task", "--no-git"], { cwd: tempDir });
+      const originalCwd = Deno.cwd();
+      Deno.chdir(tempDir);
+      try {
+        await command.parse(["test-task", "--no-git"]);
+      } finally {
+        Deno.chdir(originalCwd);
+      }
 
       // Assert
       assertEquals(capturedOutput, filePath);
@@ -61,7 +67,13 @@ Task content`,
 
       // Test search by title
       const command = createPathCommand();
-      await command.parse(["My Specific", "--no-git"], { cwd: tempDir });
+      const originalCwd = Deno.cwd();
+      Deno.chdir(tempDir);
+      try {
+        await command.parse(["My Specific", "--no-git"]);
+      } finally {
+        Deno.chdir(originalCwd);
+      }
 
       // Assert
       assertEquals(capturedOutput, filePath);
@@ -100,10 +112,14 @@ Task content`,
 
       // Test partial match
       const command = createPathCommand();
+      const originalCwd = Deno.cwd();
+      Deno.chdir(tempDir);
       try {
-        await command.parse(["task", "--no-git"], { cwd: tempDir });
+        await command.parse(["task", "--no-git"]);
       } catch (e) {
         // Expected
+      } finally {
+        Deno.chdir(originalCwd);
       }
 
       // Assert

@@ -1,7 +1,7 @@
 import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
 import { colors } from "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts";
 import { TaskService } from "../services/task-service.ts";
-import { ServiceContainer } from "../services/service-container.ts";
+import { FileSystem } from "../services/file-system.ts";
 import { displayTask } from "../utils/display.ts";
 import { parseMarkdown, validateFileName } from "../utils/markdown.ts";
 import { isAbsolute } from "https://deno.land/std@0.224.0/path/mod.ts";
@@ -29,11 +29,12 @@ export function createReadCommand(): Command {
       await executeCommand(async ({ container }) => {
         const taskService = await container.getTaskService();
         const gitService = container.getGitService();
+        const fileSystem = container.getFileSystem();
 
         // Check if the provided path is absolute
         if (isAbsolute(fileName)) {
           // Handle absolute path directly
-          await readAbsolutePath(fileName, options);
+          await readAbsolutePath(fileName, options, fileSystem);
           return ok(undefined);
         }
 
@@ -85,15 +86,19 @@ export function createReadCommand(): Command {
     }));
 }
 
-async function readAbsolutePath(filePath: string, options: ReadOptions): Promise<void> {
+async function readAbsolutePath(
+  filePath: string,
+  options: ReadOptions,
+  fileSystem: FileSystem,
+): Promise<void> {
   // Check if file exists
-  const existsResult = await validateFileExists(filePath);
+  const existsResult = await validateFileExists(filePath, fileSystem);
   if (!existsResult.ok) {
     exitWithError(`ファイルが見つかりません: ${filePath}`);
   }
 
   // Read file content
-  const contentResult = await readTextFile(filePath);
+  const contentResult = await readTextFile(filePath, fileSystem);
   if (!contentResult.ok) {
     exitWithError(contentResult.error.message);
   }

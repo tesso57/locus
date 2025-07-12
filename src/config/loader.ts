@@ -165,7 +165,12 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
     const envConfig = extractFromEnv();
 
     // Merge configs
-    const merged = deepMerge({} as Config, defaultConfig, fileConfig as Partial<Config>, envConfig as Partial<Config>);
+    const merged = deepMerge(
+      {} as Config,
+      defaultConfig,
+      fileConfig as Partial<Config>,
+      envConfig as Partial<Config>,
+    );
 
     // Validate final config
     const parseResult = ConfigSchema.safeParse(merged);
