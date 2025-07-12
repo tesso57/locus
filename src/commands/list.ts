@@ -1,6 +1,6 @@
-import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
-import { Table } from "https://deno.land/x/cliffy@v1.0.0-rc.4/table/mod.ts";
-import { colors } from "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts";
+import { Command } from "@cliffy/command";
+import { Table } from "@cliffy/table";
+import { colors } from "@cliffy/ansi";
 import { TaskInfo, TaskService } from "../services/task-service.ts";
 import { GitService } from "../services/git-service.ts";
 import { PathResolver } from "../services/path-resolver.ts";
@@ -11,7 +11,7 @@ import {
   formatTags,
   priorityValue,
 } from "../utils/format.ts";
-import { join } from "https://deno.land/std@0.220.0/path/mod.ts";
+import { join } from "@std/path";
 import { createAction, executeCommand } from "./utils/command-helpers.ts";
 import { ok } from "../utils/result.ts";
 
@@ -26,7 +26,7 @@ interface ListOptions {
   groupByRepo?: boolean;
 }
 
-export function createListCommand(): Command {
+export function createListCommand(): any {
   return new Command()
     .name("list")
     .description("タスクの一覧を表示")

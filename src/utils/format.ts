@@ -1,4 +1,4 @@
-import { colors } from "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts";
+import { colors } from "@cliffy/ansi";
 
 /**
  * Format task status with color and icon

@@ -1,5 +1,5 @@
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
-import { ensureDir, expandGlob } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import { join } from "@std/path";
+import { ensureDir, expandGlob } from "@std/fs";
 import { RepoInfo } from "../types.ts";
 import { loadConfig } from "../config/index.ts";
 

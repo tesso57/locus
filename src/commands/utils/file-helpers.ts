@@ -1,5 +1,5 @@
 import { err, ok, Result } from "../../utils/result.ts";
-import { isAbsolute, resolve } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { isAbsolute, resolve } from "@std/path";
 import { FileNotFoundError } from "../../utils/errors.ts";
 import { FileSystem } from "../../services/file-system.ts";
 export { searchFile, searchMarkdownFiles } from "./file-search.ts";

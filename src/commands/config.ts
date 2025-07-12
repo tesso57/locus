@@ -1,10 +1,10 @@
-import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
-import { stringify } from "https://deno.land/std@0.224.0/yaml/mod.ts";
-import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { Command } from "@cliffy/command";
+import { stringify } from "@std/yaml";
+import { exists } from "@std/fs";
+import { join } from "@std/path";
 import { createDefaultConfig, findConfigFile, getConfigDir, loadConfig } from "../config/index.ts";
 
-export function createConfigCommand(): Command {
+export function createConfigCommand(): any {
   return new Command()
     .name("config")
     .description("設定の管理")

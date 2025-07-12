@@ -1,4 +1,4 @@
-import { parse, stringify } from "https://deno.land/std@0.224.0/yaml/mod.ts";
+import { parse, stringify } from "@std/yaml";
 import { FrontMatter, ParsedMarkdown } from "../types.ts";
 
 /**

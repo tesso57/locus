@@ -1,12 +1,12 @@
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { afterEach, beforeEach, describe, it } from "https://deno.land/std@0.224.0/testing/bdd.ts";
+import { assertEquals } from "@std/assert";
+import { afterEach, beforeEach, describe, it } from "@std/testing";
 import { createPathCommand } from "../../src/commands/path.ts";
 import { MockTaskService } from "../mocks/mock-task-service.ts";
 import { MockGitService } from "../mocks/mock-git-service.ts";
 import { MockPathResolver } from "../mocks/mock-path-resolver.ts";
 import { ServiceContainer } from "../../src/services/service-container.ts";
 import { ok } from "../../src/utils/result.ts";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { join } from "@std/path";
 import { InMemoryFileSystem } from "../mocks/in-memory-fs.ts";
 import { Config } from "../../src/types.ts";
 

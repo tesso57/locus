@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run
 
-import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
+import { Command } from "@cliffy/command";
 import { createAddCommand } from "./commands/add.ts";
 import { createTagsCommand } from "./commands/tags.ts";
 import { createConfigCommand } from "./commands/config.ts";
@@ -20,12 +20,12 @@ async function main() {
     .globalOption("--json", "JSON形式で出力", { hidden: true });
 
   // Add commands
-  command.command("add", createAddCommand() as any);
-  command.command("tags", createTagsCommand() as any);
-  command.command("config", createConfigCommand() as any);
-  command.command("list", createListCommand() as any);
-  command.command("read", createReadCommand() as any);
-  command.command("path", createPathCommand() as any);
+  command.command("add", createAddCommand());
+  command.command("tags", createTagsCommand());
+  command.command("config", createConfigCommand());
+  command.command("list", createListCommand());
+  command.command("read", createReadCommand());
+  command.command("path", createPathCommand());
 
   // Help command
   command.command(

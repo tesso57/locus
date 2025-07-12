@@ -1,4 +1,4 @@
-import { assertEquals, assertExists } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { assertEquals, assertExists } from "@std/assert";
 import { InMemoryFileSystem } from "../mocks/in-memory-fs.ts";
 import { MockGitService } from "../mocks/mock-git-service.ts";
 import { MockPathResolver } from "../mocks/mock-path-resolver.ts";

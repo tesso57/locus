@@ -1,8 +1,8 @@
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { describe, it } from "https://deno.land/std@0.224.0/testing/bdd.ts";
+import { assertEquals } from "@std/assert";
+import { describe, it } from "@std/testing";
 import { cleanupTempDir, createTempDir } from "../test-utils.ts";
 import { createPathCommand } from "../../src/commands/path.ts";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { join } from "@std/path";
 
 describe("path command integration tests", () => {
   it("should find file without .md extension", async () => {

@@ -1,6 +1,6 @@
-import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
-import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import { Command } from "@cliffy/command";
+import { join } from "@std/path";
+import { exists } from "@std/fs";
 import {
   FrontMatter,
   TagsClearOptions,
@@ -18,7 +18,7 @@ import {
 import { findTaskFile, getTaskBaseDir, getTaskFiles } from "../utils/path.ts";
 import { getRepoInfo } from "../utils/git.ts";
 
-export function createTagsCommand(): Command {
+export function createTagsCommand(): any {
   return new Command()
     .name("tags")
     .description("タスクファイルのプロパティ管理")

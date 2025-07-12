@@ -1,7 +1,7 @@
-import { parse } from "https://deno.land/std@0.224.0/yaml/mod.ts";
-import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { parse } from "@std/yaml";
+import { exists } from "@std/fs";
+import { join } from "@std/path";
+import { z } from "zod";
 import { Config, ConfigSchema } from "./schema.ts";
 import { err, ok, Result } from "../utils/result.ts";
 import { ConfigError, ConfigValidationError } from "../utils/errors.ts";

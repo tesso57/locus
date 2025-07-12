@@ -1,6 +1,6 @@
 import { FileSystem } from "./file-system.ts";
 import { err, ok, Result } from "../utils/result.ts";
-import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import { exists } from "@std/fs";
 
 /**
  * Default file system implementation using Deno APIs

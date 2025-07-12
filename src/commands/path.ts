@@ -1,6 +1,6 @@
-import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
+import { Command } from "@cliffy/command";
 import { ensureMarkdownExtension, validateFileName } from "../utils/markdown.ts";
-import { isAbsolute, resolve } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { isAbsolute, resolve } from "@std/path";
 import { createAction, executeCommand, getRepoInfoOptional } from "./utils/command-helpers.ts";
 import { PathOptions } from "./utils/option-types.ts";
 import { checkFileExists, searchFile, validateFileExists } from "./utils/file-helpers.ts";
@@ -162,7 +162,7 @@ async function findExactMatch(
   return null;
 }
 
-export function createPathCommand(): Command {
+export function createPathCommand(): any {
   return new Command()
     .name("path")
     .description("タスクファイルの絶対パスを表示")

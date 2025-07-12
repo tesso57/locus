@@ -1,7 +1,7 @@
-import { parse } from "https://deno.land/std@0.224.0/yaml/mod.ts";
-import { deepMerge } from "https://deno.land/std@0.224.0/collections/mod.ts";
-import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { parse } from "@std/yaml";
+import { deepMerge } from "@std/collections";
+import { exists } from "@std/fs";
+import { join } from "@std/path";
 import { Config } from "../types.ts";
 import { DEFAULT_CONFIG } from "./defaults.ts";
 

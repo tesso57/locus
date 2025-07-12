@@ -1,12 +1,12 @@
-import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
-import { colors } from "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts";
+import { Command } from "@cliffy/command";
+import { colors } from "@cliffy/ansi";
 import { CreateTaskOptions } from "../services/task-service.ts";
 import { ServiceContainer } from "../services/service-container.ts";
 import { createAction, executeCommand, getRepoInfoOptional } from "./utils/command-helpers.ts";
 import { AddOptions } from "./utils/option-types.ts";
 import { ok } from "../utils/result.ts";
 
-export function createAddCommand(): Command {
+export function createAddCommand(): any {
   return new Command()
     .name("add")
     .description("新しいタスクを追加")

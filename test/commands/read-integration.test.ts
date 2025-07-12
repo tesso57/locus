@@ -1,6 +1,6 @@
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
-import { ensureDir } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import { assertEquals } from "@std/assert";
+import { join } from "@std/path";
+import { ensureDir } from "@std/fs";
 
 Deno.test("read command integration - displays task content", async () => {
   // Create a temporary directory for testing

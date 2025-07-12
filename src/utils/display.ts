@@ -1,5 +1,5 @@
-import { colors } from "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts";
-import { renderMarkdown } from "https://deno.land/x/charmd@v0.1.2/mod.ts";
+import { colors } from "@cliffy/ansi";
+import { renderMarkdown } from "charmd";
 import { TaskInfo } from "../services/task-service.ts";
 import { RepoInfo } from "../types.ts";
 import { formatDate, formatPriority, formatStatus, formatTags } from "./format.ts";

@@ -4,6 +4,7 @@ import { BaseCommandOptions } from "./command-helpers.ts";
  * Options for the add command
  */
 export interface AddOptions extends BaseCommandOptions {
+  body?: string;
   tags?: string[];
   priority?: string;
   status?: string;

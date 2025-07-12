@@ -1,5 +1,5 @@
-import { assertEquals, assertRejects } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { afterEach, beforeEach, describe, it } from "https://deno.land/std@0.224.0/testing/bdd.ts";
+import { assertEquals, assertRejects } from "@std/assert";
+import { afterEach, beforeEach, describe, it } from "@std/testing";
 import { createReadCommand } from "../../src/commands/read.ts";
 import { MockTaskService } from "../mocks/mock-task-service.ts";
 import { MockGitService } from "../mocks/mock-git-service.ts";
