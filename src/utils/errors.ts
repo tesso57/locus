@@ -97,3 +97,17 @@ export class TaskNotFoundError extends TaskError {
     super(`Task not found: ${identifier}`, "TASK_NOT_FOUND");
   }
 }
+
+/**
+ * Extract error message from unknown error type
+ */
+export function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * Log error message with consistent format
+ */
+export function logError(message: string): void {
+  console.error(`エラー: ${message}`);
+}

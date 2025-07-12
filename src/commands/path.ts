@@ -9,6 +9,7 @@ import { FileSystem } from "../services/file-system.ts";
 import { PathResolver } from "../services/path-resolver.ts";
 import { GitService } from "../services/git-service.ts";
 import { RepoInfo } from "../types.ts";
+import { logError } from "../utils/errors.ts";
 import {
   handleSearchResults,
   normalizeFileName,
@@ -112,7 +113,7 @@ async function searchCurrentDirectory(
         ),
       );
     } else {
-      console.error(`エラー: タスクファイルが見つかりません: ${baseFileName}`);
+      logError(`タスクファイルが見つかりません: ${baseFileName}`);
       console.error(`ヒント: Gitリポジトリ外の場合は --no-git オプションを使用してください`);
     }
     Deno.exit(1);
@@ -162,7 +163,7 @@ async function findExactMatch(
   return null;
 }
 
-export function createPathCommand(): any {
+export function createPathCommand(): Command<any, any, any> {
   return new Command()
     .name("path")
     .description("タスクファイルの絶対パスを表示")

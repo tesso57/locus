@@ -6,7 +6,7 @@ import { createAction, executeCommand, getRepoInfoOptional } from "./utils/comma
 import { AddOptions } from "./utils/option-types.ts";
 import { ok } from "../utils/result.ts";
 
-export function createAddCommand(): any {
+export function createAddCommand(): Command<any, any, any> {
   return new Command()
     .name("add")
     .description("新しいタスクを追加")

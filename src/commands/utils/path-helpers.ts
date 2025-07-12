@@ -1,4 +1,5 @@
 import { PathOptions } from "./option-types.ts";
+import { logError } from "../../utils/errors.ts";
 
 interface PathResult {
   path: string | null;
@@ -27,7 +28,7 @@ export function outputNotFound(fileName: string, options: PathOptions): void {
     console.log(JSON.stringify({ path: null, found: false, error: "File not found" }, null, 2));
     Deno.exit(1);
   } else {
-    console.error(`エラー: タスクファイルが見つかりません: ${fileName}`);
+    logError(`タスクファイルが見つかりません: ${fileName}`);
     Deno.exit(1);
   }
 }

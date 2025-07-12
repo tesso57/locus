@@ -3,9 +3,10 @@ import { stringify } from "@std/yaml";
 import { exists } from "@std/fs";
 import { join } from "@std/path";
 import { createDefaultConfig, findConfigFile, getConfigDir, loadConfig } from "../config/index.ts";
-import { getErrorMessage } from "../utils/errors.ts";
+import { getErrorMessage, logError } from "../utils/errors.ts";
+import { output } from "./utils/command-helpers.ts";
 
-export function createConfigCommand(): any {
+export function createConfigCommand(): Command<any, any, any> {
   return new Command()
     .name("config")
     .description("設定の管理")
@@ -36,35 +37,35 @@ async function showConfig(asJson: boolean = false): Promise<void> {
   try {
     const config = await loadConfig();
 
-    if (asJson) {
-      console.log(JSON.stringify(config, null, 2));
-    } else {
-      console.log("🔧 現在の設定:\n");
-      console.log(stringify(config, {
+    output(config, { json: asJson }, async (data) => {
+      let result = "🔧 現在の設定:\n\n";
+      result += stringify(data, {
         lineWidth: -1,
         noRefs: true,
-      }));
+      });
 
       // Show source of configuration
       const configFile = await findConfigFile();
       if (configFile) {
-        console.log(`\n📁 設定ファイル: ${configFile}`);
+        result += `\n📁 設定ファイル: ${configFile}`;
       } else {
-        console.log(`\n📁 設定ファイル: なし（デフォルト設定を使用）`);
+        result += `\n📁 設定ファイル: なし（デフォルト設定を使用）`;
       }
 
       // Check for environment variables
       const envVars = Object.keys(Deno.env.toObject()).filter((key) => key.startsWith("LOCUS_"));
       if (envVars.length > 0) {
-        console.log(`\n🌍 環境変数による上書き:`);
+        result += `\n\n🌍 環境変数による上書き:`;
         for (const key of envVars) {
-          console.log(`  ${key}=${Deno.env.get(key)}`);
+          result += `\n  ${key}=${Deno.env.get(key)}`;
         }
       }
-    }
+
+      return result;
+    });
   } catch (error: unknown) {
     const message = getErrorMessage(error);
-    console.error(`エラー: ${message}`);
+    logError(message);
     Deno.exit(1);
   }
 }
@@ -89,7 +90,7 @@ async function initConfig(force: boolean = false): Promise<void> {
 
   try {
     if (await exists(configPath) && !force) {
-      console.error(`エラー: 設定ファイルは既に存在します: ${configPath}`);
+      logError(`設定ファイルは既に存在します: ${configPath}`);
       console.error(`上書きするには --force オプションを使用してください。`);
       Deno.exit(1);
     }
@@ -100,7 +101,7 @@ async function initConfig(force: boolean = false): Promise<void> {
     console.log(`  $EDITOR ${configPath}`);
   } catch (error: unknown) {
     const message = getErrorMessage(error);
-    console.error(`エラー: ${message}`);
+    logError(message);
     Deno.exit(1);
   }
 }

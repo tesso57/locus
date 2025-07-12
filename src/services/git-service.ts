@@ -1,5 +1,11 @@
 import { err, ok, Result } from "../utils/result.ts";
-import { GitCommandError, GitError, GitNoRemoteError, GitNotRepoError } from "../utils/errors.ts";
+import {
+  getErrorMessage,
+  GitCommandError,
+  GitError,
+  GitNoRemoteError,
+  GitNotRepoError,
+} from "../utils/errors.ts";
 import { GitInfo, RepoInfo } from "../types.ts";
 
 /**
@@ -105,7 +111,7 @@ export class DefaultGitService implements GitService {
       const repoInfo = this.parseRepoInfo(url);
       return ok(repoInfo);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new GitError(`Failed to parse repository info: ${message}`));
     }
   }
@@ -128,7 +134,7 @@ export class DefaultGitService implements GitService {
       const root = new TextDecoder().decode(stdout).trim();
       return ok(root);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new GitError(`Failed to get git root: ${message}`));
     }
   }
@@ -154,7 +160,7 @@ export class DefaultGitService implements GitService {
       const url = new TextDecoder().decode(stdout).trim();
       return ok(url);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new GitError(`Failed to get remote URL: ${message}`));
     }
   }

@@ -10,12 +10,13 @@ import {
   executeCommand,
   exitWithError,
   getRepoInfoOptional,
+  output,
 } from "./utils/command-helpers.ts";
 import { ReadOptions } from "./utils/option-types.ts";
 import { getFileName, readTextFile, validateFileExists } from "./utils/file-helpers.ts";
 import { ok } from "../utils/result.ts";
 
-export function createReadCommand(): any {
+export function createReadCommand(): Command<any, any, any> {
   return new Command()
     .name("read")
     .description("タスクの内容を表示（フルパスも対応）")
@@ -54,7 +55,7 @@ export function createReadCommand(): any {
 
         // Handle different output formats
         if (options.json) {
-          console.log(JSON.stringify(task, null, 2));
+          output(task, options, () => "");
           return ok(undefined);
         }
 
@@ -134,7 +135,7 @@ async function readAbsolutePath(
 
   // Handle different output formats
   if (options.json) {
-    console.log(JSON.stringify(task, null, 2));
+    output(task, options, () => "");
     return;
   }
 

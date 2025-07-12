@@ -17,9 +17,16 @@ import {
 } from "../utils/markdown.ts";
 import { findTaskFile, getTaskBaseDir, getTaskFiles } from "../utils/path.ts";
 import { getRepoInfo } from "../utils/git.ts";
-import { getErrorMessage } from "../utils/errors.ts";
+import { getErrorMessage, logError } from "../utils/errors.ts";
+import {
+  createAction,
+  executeCommand,
+  exitWithError,
+  getRepoInfoOptional,
+} from "./utils/command-helpers.ts";
+import { err, ok } from "../utils/result.ts";
 
-export function createTagsCommand(): any {
+export function createTagsCommand(): Command<any, any, any> {
   return new Command()
     .name("tags")
     .description("タスクファイルのプロパティ管理")
@@ -141,12 +148,11 @@ async function listTags(options: TagsListOptions, noGit: boolean): Promise<void>
     }
   } catch (error: unknown) {
     if (error instanceof Deno.errors.NotFound) {
-      console.error(`エラー: ファイル '${filePath}' が見つかりません`);
+      exitWithError(`ファイル '${filePath}' が見つかりません`);
     } else {
       const message = getErrorMessage(error);
-      console.error(`エラー: ${message}`);
+      exitWithError(message);
     }
-    Deno.exit(1);
   }
 }
 
@@ -158,7 +164,7 @@ async function getTag(options: TagsGetOptions, noGit: boolean): Promise<void> {
     const { frontmatter } = parseMarkdown(content);
 
     if (!frontmatter || !(options.property in frontmatter)) {
-      Deno.exit(1);
+      exitWithError(`プロパティ '${options.property}' が見つかりません`);
     }
 
     const value = frontmatter[options.property];
@@ -169,9 +175,9 @@ async function getTag(options: TagsGetOptions, noGit: boolean): Promise<void> {
     }
   } catch (error: unknown) {
     if (error instanceof Deno.errors.NotFound) {
-      console.error(`エラー: ファイル '${filePath}' が見つかりません`);
+      exitWithError(`ファイル '${filePath}' が見つかりません`);
     }
-    Deno.exit(1);
+    throw error;
   }
 }
 
@@ -208,8 +214,7 @@ async function setTag(options: TagsSetOptions, noGit: boolean): Promise<void> {
     console.log(`✅ プロパティ '${options.property}' を更新しました`);
   } catch (error: unknown) {
     const message = getErrorMessage(error);
-    console.error(`エラー: ${message}`);
-    Deno.exit(1);
+    exitWithError(message);
   }
 }
 
@@ -221,8 +226,7 @@ async function removeTag(options: TagsRemoveOptions, noGit: boolean): Promise<vo
     const { frontmatter, body } = parseMarkdown(content);
 
     if (!frontmatter || !(options.property in frontmatter)) {
-      console.log(`プロパティ '${options.property}' は存在しません`);
-      Deno.exit(1);
+      exitWithError(`プロパティ '${options.property}' は存在しません`);
     }
 
     delete frontmatter[options.property];
@@ -233,12 +237,11 @@ async function removeTag(options: TagsRemoveOptions, noGit: boolean): Promise<vo
     console.log(`✅ プロパティ '${options.property}' を削除しました`);
   } catch (error: unknown) {
     if (error instanceof Deno.errors.NotFound) {
-      console.error(`エラー: ファイル '${filePath}' が見つかりません`);
+      exitWithError(`ファイル '${filePath}' が見つかりません`);
     } else {
       const message = getErrorMessage(error);
-      console.error(`エラー: ${message}`);
+      exitWithError(message);
     }
-    Deno.exit(1);
   }
 }
 
@@ -254,11 +257,10 @@ async function clearTags(options: TagsClearOptions, noGit: boolean): Promise<voi
     console.log(`✅ 全てのプロパティを削除しました`);
   } catch (error: unknown) {
     if (error instanceof Deno.errors.NotFound) {
-      console.error(`エラー: ファイル '${filePath}' が見つかりません`);
+      exitWithError(`ファイル '${filePath}' が見つかりません`);
     } else {
       const message = getErrorMessage(error);
-      console.error(`エラー: ${message}`);
+      exitWithError(message);
     }
-    Deno.exit(1);
   }
 }

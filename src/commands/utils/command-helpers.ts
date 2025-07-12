@@ -2,6 +2,7 @@ import { Result } from "../../utils/result.ts";
 import { ServiceContainer } from "../../services/service-container.ts";
 import { GitService } from "../../services/git-service.ts";
 import { RepoInfo } from "../../types.ts";
+import { getErrorMessage, logError } from "../../utils/errors.ts";
 
 /**
  * Command execution context
@@ -22,7 +23,7 @@ export interface BaseCommandOptions {
  * Exit the process with an error message
  */
 export function exitWithError(message: string, code: number = 1): never {
-  console.error(`エラー: ${message}`);
+  logError(message);
 
   // In test environment, throw an error instead of exiting
   if (Deno.env.get("DENO_TEST") === "true" || (globalThis as any).__TEST__) {
@@ -48,7 +49,7 @@ export async function executeCommand<T>(
       exitWithError(result.error.message);
     }
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     exitWithError(message);
   }
 }

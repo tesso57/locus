@@ -23,6 +23,7 @@ import {
   FileAlreadyExistsError,
   FileNotFoundError,
   FileSystemError,
+  getErrorMessage,
   TaskNotFoundError,
 } from "../utils/errors.ts";
 
@@ -72,7 +73,7 @@ export class DefaultTaskService implements TaskService {
         return ok(filteredTasks);
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to list tasks: ${message}`));
     }
   }
@@ -120,7 +121,7 @@ export class DefaultTaskService implements TaskService {
 
       return ok(taskInfo);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to read task: ${message}`));
     }
   }
@@ -177,7 +178,7 @@ export class DefaultTaskService implements TaskService {
 
       return ok(taskPath);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to create task: ${message}`));
     }
   }
@@ -213,7 +214,7 @@ export class DefaultTaskService implements TaskService {
 
       return ok(undefined);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to update task: ${message}`));
     }
   }
@@ -235,7 +236,7 @@ export class DefaultTaskService implements TaskService {
       }
       return ok(undefined);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to delete task: ${message}`));
     }
   }
@@ -274,7 +275,7 @@ export class DefaultTaskService implements TaskService {
 
       return ok(tasks);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to collect tasks: ${message}`));
     }
   }
@@ -300,7 +301,7 @@ export class DefaultTaskService implements TaskService {
 
       return ok(tasks);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to collect tasks from directory: ${message}`));
     }
   }
@@ -338,7 +339,7 @@ export class DefaultTaskService implements TaskService {
 
       return ok(taskInfo);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to read task file ${filePath}: ${message}`));
     }
   }

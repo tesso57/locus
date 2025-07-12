@@ -2,7 +2,7 @@ import { join } from "@std/path";
 import { ensureDir } from "@std/fs";
 import { Config, RepoInfo } from "../types.ts";
 import { err, ok, Result } from "../utils/result.ts";
-import { FileSystemError } from "../utils/errors.ts";
+import { FileSystemError, getErrorMessage } from "../utils/errors.ts";
 
 /**
  * Interface for path resolution
@@ -53,7 +53,7 @@ export class DefaultPathResolver implements PathResolver {
       const baseDir = this.expandTilde(this.config.task_directory);
       return ok(baseDir);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to resolve base directory: ${message}`));
     }
   }
@@ -71,7 +71,7 @@ export class DefaultPathResolver implements PathResolver {
         await ensureDir(baseDir);
         return ok(baseDir);
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const message = getErrorMessage(error);
         return err(new FileSystemError(`Failed to create base directory: ${message}`));
       }
     }
@@ -82,7 +82,7 @@ export class DefaultPathResolver implements PathResolver {
       await ensureDir(taskDir);
       return ok(taskDir);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(
         new FileSystemError(`Failed to create task directory: ${message}`),
       );
@@ -117,7 +117,7 @@ export class DefaultPathResolver implements PathResolver {
         join(Deno.env.get("HOME") || "", ".config");
       return ok(join(configHome, "locus"));
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to resolve config directory: ${message}`));
     }
   }
@@ -157,7 +157,7 @@ export class DefaultPathResolver implements PathResolver {
       const fileName = partialName.endsWith(".md") ? partialName : `${partialName}.md`;
       return ok(join(taskDir, fileName));
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       return err(new FileSystemError(`Failed to resolve task file: ${message}`));
     }
   }

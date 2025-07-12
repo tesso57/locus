@@ -7,6 +7,7 @@ import { createConfigCommand } from "./commands/config.ts";
 import { createListCommand } from "./commands/list.ts";
 import { createReadCommand } from "./commands/read.ts";
 import { createPathCommand } from "./commands/path.ts";
+import { logError } from "./utils/errors.ts";
 
 const VERSION = "0.1.0";
 
@@ -47,9 +48,9 @@ async function main() {
     await command.parse(Deno.args);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(`エラー: ${error.message}`);
+      logError(error.message);
     } else {
-      console.error(`エラー: ${String(error)}`);
+      logError(String(error));
     }
     Deno.exit(1);
   }

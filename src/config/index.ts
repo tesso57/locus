@@ -122,9 +122,7 @@ export async function loadConfig(forceReload = false): Promise<Config> {
       fileConfig = parse(content) as Partial<Config>;
     } catch (error: unknown) {
       console.error(
-        `Warning: Failed to load config file ${configFile}: ${
-          getErrorMessage(error)
-        }`,
+        `Warning: Failed to load config file ${configFile}: ${getErrorMessage(error)}`,
       );
     }
   }

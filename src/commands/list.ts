@@ -12,22 +12,26 @@ import {
   priorityValue,
 } from "../utils/format.ts";
 import { join } from "@std/path";
-import { createAction, executeCommand } from "./utils/command-helpers.ts";
+import {
+  BaseCommandOptions,
+  createAction,
+  executeCommand,
+  output,
+} from "./utils/command-helpers.ts";
 import { ok } from "../utils/result.ts";
-import { getErrorMessage } from "../utils/errors.ts";
+import { getErrorMessage, logError } from "../utils/errors.ts";
 
-interface ListOptions {
+interface ListOptions extends BaseCommandOptions {
   status?: string;
   priority?: string;
   tags?: string[];
   sort?: string;
   detail?: boolean;
   all?: boolean;
-  json?: boolean;
   groupByRepo?: boolean;
 }
 
-export function createListCommand(): any {
+export function createListCommand(): Command<any, any, any> {
   return new Command()
     .name("list")
     .description("タスクの一覧を表示")
@@ -68,7 +72,7 @@ async function listTasks(
       : await gitService.getRepoInfo();
 
     if (!repoInfoResult.ok) {
-      console.error(`エラー: ${repoInfoResult.error.message}`);
+      logError(repoInfoResult.error.message);
       Deno.exit(1);
     }
 
@@ -84,7 +88,7 @@ async function listTasks(
     });
 
     if (!tasksResult.ok) {
-      console.error(`エラー: ${tasksResult.error.message}`);
+      logError(tasksResult.error.message);
       Deno.exit(1);
     }
 
@@ -112,16 +116,19 @@ async function listTasks(
     }
 
     // Output results
-    if (options.json) {
-      console.log(JSON.stringify(tasks, null, 2));
+    if (tasks.length === 0) {
+      output(tasks, options, () => {
+        let result = "タスクが見つかりませんでした。";
+        if (repoInfo) {
+          result += `\n📁 リポジトリ: ${repoInfo.owner}/${repoInfo.repo}`;
+        }
+        return result;
+      });
       return;
     }
 
-    if (tasks.length === 0) {
-      console.log("タスクが見つかりませんでした。");
-      if (repoInfo) {
-        console.log(`📁 リポジトリ: ${repoInfo.owner}/${repoInfo.repo}`);
-      }
+    if (options.json) {
+      output(tasks, options, () => "");
       return;
     }
 
@@ -230,7 +237,7 @@ async function listTasks(
     }
   } catch (error: unknown) {
     const message = getErrorMessage(error);
-    console.error(`エラー: ${message}`);
+    logError(message);
     Deno.exit(1);
   }
 }
