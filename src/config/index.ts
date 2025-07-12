@@ -4,6 +4,7 @@ import { exists } from "@std/fs";
 import { join } from "@std/path";
 import { Config } from "../types.ts";
 import { DEFAULT_CONFIG } from "./defaults.ts";
+import { getErrorMessage } from "../utils/errors.ts";
 
 let cachedConfig: Config | null = null;
 
@@ -122,7 +123,7 @@ export async function loadConfig(forceReload = false): Promise<Config> {
     } catch (error: unknown) {
       console.error(
         `Warning: Failed to load config file ${configFile}: ${
-          error instanceof Error ? error.message : String(error)
+          getErrorMessage(error)
         }`,
       );
     }

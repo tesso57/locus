@@ -14,6 +14,7 @@ import {
 import { join } from "@std/path";
 import { createAction, executeCommand } from "./utils/command-helpers.ts";
 import { ok } from "../utils/result.ts";
+import { getErrorMessage } from "../utils/errors.ts";
 
 interface ListOptions {
   status?: string;
@@ -228,7 +229,7 @@ async function listTasks(
       table.render();
     }
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     console.error(`エラー: ${message}`);
     Deno.exit(1);
   }

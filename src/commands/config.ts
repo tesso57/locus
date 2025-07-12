@@ -3,6 +3,7 @@ import { stringify } from "@std/yaml";
 import { exists } from "@std/fs";
 import { join } from "@std/path";
 import { createDefaultConfig, findConfigFile, getConfigDir, loadConfig } from "../config/index.ts";
+import { getErrorMessage } from "../utils/errors.ts";
 
 export function createConfigCommand(): any {
   return new Command()
@@ -62,7 +63,7 @@ async function showConfig(asJson: boolean = false): Promise<void> {
       }
     }
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     console.error(`エラー: ${message}`);
     Deno.exit(1);
   }
@@ -98,7 +99,7 @@ async function initConfig(force: boolean = false): Promise<void> {
     console.log(`\n設定を編集するには、以下のコマンドを実行してください:`);
     console.log(`  $EDITOR ${configPath}`);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     console.error(`エラー: ${message}`);
     Deno.exit(1);
   }

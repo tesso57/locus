@@ -17,6 +17,7 @@ import {
 } from "../utils/markdown.ts";
 import { findTaskFile, getTaskBaseDir, getTaskFiles } from "../utils/path.ts";
 import { getRepoInfo } from "../utils/git.ts";
+import { getErrorMessage } from "../utils/errors.ts";
 
 export function createTagsCommand(): any {
   return new Command()
@@ -142,7 +143,7 @@ async function listTags(options: TagsListOptions, noGit: boolean): Promise<void>
     if (error instanceof Deno.errors.NotFound) {
       console.error(`エラー: ファイル '${filePath}' が見つかりません`);
     } else {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       console.error(`エラー: ${message}`);
     }
     Deno.exit(1);
@@ -206,7 +207,7 @@ async function setTag(options: TagsSetOptions, noGit: boolean): Promise<void> {
 
     console.log(`✅ プロパティ '${options.property}' を更新しました`);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     console.error(`エラー: ${message}`);
     Deno.exit(1);
   }
@@ -234,7 +235,7 @@ async function removeTag(options: TagsRemoveOptions, noGit: boolean): Promise<vo
     if (error instanceof Deno.errors.NotFound) {
       console.error(`エラー: ファイル '${filePath}' が見つかりません`);
     } else {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       console.error(`エラー: ${message}`);
     }
     Deno.exit(1);
@@ -255,7 +256,7 @@ async function clearTags(options: TagsClearOptions, noGit: boolean): Promise<voi
     if (error instanceof Deno.errors.NotFound) {
       console.error(`エラー: ファイル '${filePath}' が見つかりません`);
     } else {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       console.error(`エラー: ${message}`);
     }
     Deno.exit(1);

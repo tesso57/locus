@@ -4,7 +4,7 @@ import { join } from "@std/path";
 import { z } from "zod";
 import { Config, ConfigSchema } from "./schema.ts";
 import { err, ok, Result } from "../utils/result.ts";
-import { ConfigError, ConfigValidationError } from "../utils/errors.ts";
+import { ConfigError, ConfigValidationError, getErrorMessage } from "../utils/errors.ts";
 
 let cachedConfig: Config | null = null;
 
@@ -35,7 +35,7 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
 
     return ok(null);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     return err(new ConfigError(`Failed to find config file: ${message}`));
   }
 }
@@ -156,7 +156,7 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
         const parsed = parse(content);
         fileConfig = parsed || {};
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const message = getErrorMessage(error);
         return err(new ConfigError(`Failed to load config file: ${message}`));
       }
     }
@@ -186,7 +186,7 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
     cachedConfig = parseResult.data;
     return ok(cachedConfig);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     return err(new ConfigError(`Failed to load configuration: ${message}`));
   }
 }
@@ -200,7 +200,7 @@ export function getConfigDir(): Result<string, Error> {
       join(Deno.env.get("HOME") || "", ".config");
     return ok(join(configHome, "locus"));
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     return err(new ConfigError(`Failed to get config directory: ${message}`));
   }
 }
@@ -257,7 +257,7 @@ defaults:
     await Deno.writeTextFile(configPath, yamlContent);
     return ok(undefined);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     return err(new ConfigError(`Failed to create default config: ${message}`));
   }
 }
