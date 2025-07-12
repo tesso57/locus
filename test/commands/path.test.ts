@@ -23,7 +23,7 @@ describe("path command", () => {
   beforeEach(() => {
     // Set test environment flag
     (globalThis as any).__TEST__ = true;
-    
+
     // Reset service container
     ServiceContainer.resetInstance();
 
@@ -88,7 +88,7 @@ describe("path command", () => {
     console.log = originalLog;
     console.error = originalError;
     Deno.exit = originalExit;
-    
+
     // Clean up test environment flag
     delete (globalThis as any).__TEST__;
   });

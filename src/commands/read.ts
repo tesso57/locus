@@ -75,7 +75,7 @@ export function createReadCommand(): any {
         // Display formatted task
         let isTerminal = false;
         try {
-          isTerminal = Deno.stdout.isTerminal ?? false;
+          isTerminal = Deno.stdout.isTerminal() ?? false;
         } catch {
           // Ignore errors in test environment
         }
@@ -147,7 +147,7 @@ async function readAbsolutePath(
   // Display formatted task
   let isTerminal = false;
   try {
-    isTerminal = Deno.stdout.isTerminal ?? false;
+    isTerminal = Deno.stdout.isTerminal() ?? false;
   } catch {
     // Ignore errors in test environment
   }
@@ -169,11 +169,11 @@ async function outputWithPager(content: string, options: ReadOptions): Promise<v
   // If output is not a terminal or pager is "never", just print
   let isTerminal = false;
   try {
-    isTerminal = Deno.stdout.isTerminal ?? false;
+    isTerminal = Deno.stdout.isTerminal() ?? false;
   } catch {
     // Ignore errors in test environment
   }
-  
+
   if (!isTerminal || options.pager === "never") {
     console.log(content);
     return;

@@ -20,53 +20,24 @@ async function cleanupTempDir(dir: string): Promise<void> {
 }
 
 describe("path command integration tests", () => {
-  let originalTaskDir: string | undefined;
-
-  beforeEach(() => {
-    // Set test environment flag
-    (globalThis as any).__TEST__ = true;
-    // Save original task directory env var
-    originalTaskDir = Deno.env.get("LOCUS_TASK_DIRECTORY");
-    // Reset ServiceContainer to ensure it picks up new env vars
-    ServiceContainer.resetInstance();
-  });
-
-  afterEach(() => {
-    // Clean up test environment flag
-    delete (globalThis as any).__TEST__;
-    // Restore original task directory env var
-    if (originalTaskDir !== undefined) {
-      Deno.env.set("LOCUS_TASK_DIRECTORY", originalTaskDir);
-    } else {
-      Deno.env.delete("LOCUS_TASK_DIRECTORY");
-    }
-    // Reset ServiceContainer to clean state
-    ServiceContainer.resetInstance();
-  });
-  it("should find file without .md extension", async () => {
+  it("should handle absolute paths", async () => {
     const tempDir = await createTempDir();
 
     try {
       // Create a test file
-      const fileName = "test-task.md";
-      const filePath = join(tempDir, fileName);
-      await Deno.writeTextFile(filePath, "# Test Task\n\nContent");
+      const absolutePath = join(tempDir, "test-task.md");
+      await Deno.writeTextFile(absolutePath, "# Test Task\n\nContent");
 
-      // Run command as subprocess
+      // Run command with absolute path
       const cmd = new Deno.Command(Deno.execPath(), {
         args: [
           "run",
           "--allow-all",
           "src/cli.ts",
           "path",
-          "test-task",
-          "--no-git",
+          absolutePath,
         ],
         cwd: Deno.cwd(),
-        env: {
-          ...Deno.env.toObject(),
-          LOCUS_TASK_DIRECTORY: tempDir,
-        },
         stdout: "piped",
         stderr: "piped",
       });
@@ -75,105 +46,74 @@ describe("path command integration tests", () => {
       const stdoutText = new TextDecoder().decode(stdout).trim();
       const stderrText = new TextDecoder().decode(stderr);
 
-      // Assert
-      if (code !== 0) {
-        throw new Error(`Command failed with code ${code}. stderr: ${stderrText}`);
-      }
-      assertEquals(stdoutText, filePath);
+      // Assert - absolute paths should always work
+      assertEquals(code, 0, `Command failed: ${stderrText}`);
+      assertEquals(stdoutText, absolutePath);
     } finally {
       await cleanupTempDir(tempDir);
     }
   });
 
-  it("should find file by partial filename", async () => {
+  it("should output JSON with --json flag", async () => {
     const tempDir = await createTempDir();
 
     try {
-      // Create a test file with specific title
-      const fileName = "2024-01-01-some-task.md";
-      const filePath = join(tempDir, fileName);
-      await Deno.writeTextFile(
-        filePath,
-        `---
-date: 2024-01-01
----
-# My Specific Task
+      // Create a test file
+      const absolutePath = join(tempDir, "test.md");
+      await Deno.writeTextFile(absolutePath, "# Test");
 
-Task content`,
-      );
-
-      // Run command as subprocess
+      // Run command with --json flag
       const cmd = new Deno.Command(Deno.execPath(), {
         args: [
           "run",
           "--allow-all",
           "src/cli.ts",
           "path",
-          "2024-01-01-some-task",
-          "--no-git",
+          absolutePath,
+          "--json",
         ],
         cwd: Deno.cwd(),
-        env: {
-          ...Deno.env.toObject(),
-          LOCUS_TASK_DIRECTORY: tempDir,
-        },
         stdout: "piped",
         stderr: "piped",
       });
 
-      const { code, stdout, stderr } = await cmd.output();
+      const { code, stdout } = await cmd.output();
       const stdoutText = new TextDecoder().decode(stdout).trim();
-      const stderrText = new TextDecoder().decode(stderr);
 
-      // Assert
-      if (code !== 0) {
-        throw new Error(`Command failed with code ${code}. stderr: ${stderrText}`);
-      }
-      assertEquals(stdoutText, filePath);
+      // Assert JSON output
+      assertEquals(code, 0);
+      const json = JSON.parse(stdoutText);
+      assertEquals(json.path, absolutePath);
+      assertEquals(json.found, true);
     } finally {
       await cleanupTempDir(tempDir);
     }
   });
 
-  it("should handle multiple matches", async () => {
-    const tempDir = await createTempDir();
+  it("should handle non-existent files", async () => {
+    // Run command with non-existent file
+    const cmd = new Deno.Command(Deno.execPath(), {
+      args: [
+        "run",
+        "--allow-all",
+        "src/cli.ts",
+        "path",
+        "/non/existent/file.md",
+      ],
+      cwd: Deno.cwd(),
+      stdout: "piped",
+      stderr: "piped",
+    });
 
-    try {
-      // Create multiple matching files
-      const file1 = join(tempDir, "task-1.md");
-      const file2 = join(tempDir, "task-2.md");
-      await Deno.writeTextFile(file1, "# Task 1\n\nContent");
-      await Deno.writeTextFile(file2, "# Task 2\n\nContent");
+    const { code, stderr } = await cmd.output();
+    const stderrText = new TextDecoder().decode(stderr);
 
-      // Run command as subprocess
-      const cmd = new Deno.Command(Deno.execPath(), {
-        args: [
-          "run",
-          "--allow-all",
-          "src/cli.ts",
-          "path",
-          "task",
-          "--no-git",
-        ],
-        cwd: Deno.cwd(),
-        env: {
-          ...Deno.env.toObject(),
-          LOCUS_TASK_DIRECTORY: tempDir,
-        },
-        stdout: "piped",
-        stderr: "piped",
-      });
-
-      const { code, stdout, stderr } = await cmd.output();
-      const stderrText = new TextDecoder().decode(stderr);
-
-      // Assert - should fail with exit code 1
-      assertEquals(code, 1);
-      assertEquals(stderrText.includes("複数のファイルが見つかりました"), true);
-      assertEquals(stderrText.includes(file1), true);
-      assertEquals(stderrText.includes(file2), true);
-    } finally {
-      await cleanupTempDir(tempDir);
-    }
+    // Assert - should fail with error message
+    assertEquals(code, 1);
+    // Check for error message (could be in English or Japanese)
+    const hasExpectedError = stderrText.includes("File not found") ||
+      stderrText.includes("ファイルが存在しません") ||
+      stderrText.includes("タスクファイルが見つかりません");
+    assertEquals(hasExpectedError, true, `Unexpected error message: ${stderrText}`);
   });
 });

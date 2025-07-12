@@ -26,22 +26,48 @@ export async function displayTask(task: TaskInfo, options: DisplayOptions = {}):
 
   // Metadata section
   output.push(noColor ? "📌 メタデータ:" : colors.bold("📌 メタデータ:"));
-  output.push(noColor ? `  ファイル: ${task.fileName}` : `  ${colors.gray("ファイル:")} ${task.fileName}`);
-  output.push(noColor ? `  ステータス: ${formatStatusPlain(task.status)}` : `  ${colors.gray("ステータス:")} ${formatStatus(task.status)}`);
-  output.push(noColor ? `  優先度: ${formatPriorityPlain(task.priority)}` : `  ${colors.gray("優先度:")} ${formatPriority(task.priority)}`);
+  output.push(
+    noColor ? `  ファイル: ${task.fileName}` : `  ${colors.gray("ファイル:")} ${task.fileName}`,
+  );
+  output.push(
+    noColor
+      ? `  ステータス: ${formatStatusPlain(task.status)}`
+      : `  ${colors.gray("ステータス:")} ${formatStatus(task.status)}`,
+  );
+  output.push(
+    noColor
+      ? `  優先度: ${formatPriorityPlain(task.priority)}`
+      : `  ${colors.gray("優先度:")} ${formatPriority(task.priority)}`,
+  );
 
   if (task.tags && task.tags.length > 0) {
-    output.push(noColor ? `  タグ: ${task.tags.map(t => `#${t}`).join(", ")}` : `  ${colors.gray("タグ:")} ${formatTags(task.tags)}`);
+    output.push(
+      noColor
+        ? `  タグ: ${task.tags.map((t) => `#${t}`).join(", ")}`
+        : `  ${colors.gray("タグ:")} ${formatTags(task.tags)}`,
+    );
   }
 
-  output.push(noColor ? `  作成日: ${formatDatePlain(task.created)}` : `  ${colors.gray("作成日:")} ${formatDate(task.created)}`);
+  output.push(
+    noColor
+      ? `  作成日: ${formatDatePlain(task.created)}`
+      : `  ${colors.gray("作成日:")} ${formatDate(task.created)}`,
+  );
 
   if (task.frontmatter.updated && typeof task.frontmatter.updated === "string") {
-    output.push(noColor ? `  更新日: ${formatDatePlain(task.frontmatter.updated)}` : `  ${colors.gray("更新日:")} ${formatDate(task.frontmatter.updated)}`);
+    output.push(
+      noColor
+        ? `  更新日: ${formatDatePlain(task.frontmatter.updated)}`
+        : `  ${colors.gray("更新日:")} ${formatDate(task.frontmatter.updated)}`,
+    );
   }
 
   if (task.frontmatter.due && typeof task.frontmatter.due === "string") {
-    output.push(noColor ? `  期限: ${formatDatePlain(task.frontmatter.due)}` : `  ${colors.gray("期限:")} ${formatDate(task.frontmatter.due)}`);
+    output.push(
+      noColor
+        ? `  期限: ${formatDatePlain(task.frontmatter.due)}`
+        : `  ${colors.gray("期限:")} ${formatDate(task.frontmatter.due)}`,
+    );
   }
 
   // Repository info
@@ -50,8 +76,8 @@ export async function displayTask(task: TaskInfo, options: DisplayOptions = {}):
       noColor
         ? `  リポジトリ: ${options.repoInfo.owner}/${options.repoInfo.repo}`
         : `  ${colors.gray("リポジトリ:")} ${
-            colors.blue(`${options.repoInfo.owner}/${options.repoInfo.repo}`)
-          }`,
+          colors.blue(`${options.repoInfo.owner}/${options.repoInfo.repo}`)
+        }`,
     );
   }
 
@@ -64,7 +90,11 @@ export async function displayTask(task: TaskInfo, options: DisplayOptions = {}):
     output.push("");
     output.push(noColor ? "🔧 カスタムフィールド:" : colors.bold("🔧 カスタムフィールド:"));
     for (const [key, value] of customFields) {
-      output.push(noColor ? `  ${key}: ${formatValuePlain(value)}` : `  ${colors.gray(key + ":")} ${formatValue(value)}`);
+      output.push(
+        noColor
+          ? `  ${key}: ${formatValuePlain(value)}`
+          : `  ${colors.gray(key + ":")} ${formatValue(value)}`,
+      );
     }
   }
 
@@ -95,7 +125,7 @@ async function renderMarkdownBody(markdown: string, noColor: boolean = false): P
   if (noColor) {
     return formatMarkdownBasic(markdown, noColor);
   }
-  
+
   try {
     // Use charMD to render markdown for terminal
     const rendered = await renderMarkdown(markdown);
