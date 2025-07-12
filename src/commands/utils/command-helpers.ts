@@ -23,6 +23,12 @@ export interface BaseCommandOptions {
  */
 export function exitWithError(message: string, code: number = 1): never {
   console.error(`エラー: ${message}`);
+  
+  // In test environment, throw an error instead of exiting
+  if (Deno.env.get("DENO_TEST") === "true" || (globalThis as any).__TEST__) {
+    throw new Error(message);
+  }
+  
   Deno.exit(code);
 }
 

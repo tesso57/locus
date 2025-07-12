@@ -1,10 +1,48 @@
 import { assertEquals } from "@std/assert";
-import { describe, it } from "@std/testing";
-import { cleanupTempDir, createTempDir } from "../test-utils.ts";
-import { createPathCommand } from "../../src/commands/path.ts";
+import { afterEach, beforeEach, describe, it } from "@std/testing";
 import { join } from "@std/path";
+import { createPathCommand } from "../../src/commands/path.ts";
+import { ServiceContainer } from "../../src/services/service-container.ts";
+
+// Helper functions for integration tests
+async function createTempDir(): Promise<string> {
+  const tempDir = await Deno.makeTempDir();
+  await Deno.mkdir(tempDir, { recursive: true });
+  return tempDir;
+}
+
+async function cleanupTempDir(dir: string): Promise<void> {
+  try {
+    await Deno.remove(dir, { recursive: true });
+  } catch {
+    // Ignore errors during cleanup
+  }
+}
 
 describe("path command integration tests", () => {
+  let originalTaskDir: string | undefined;
+
+  beforeEach(() => {
+    // Set test environment flag
+    (globalThis as any).__TEST__ = true;
+    // Save original task directory env var
+    originalTaskDir = Deno.env.get("LOCUS_TASK_DIRECTORY");
+    // Reset ServiceContainer to ensure it picks up new env vars
+    ServiceContainer.resetInstance();
+  });
+
+  afterEach(() => {
+    // Clean up test environment flag
+    delete (globalThis as any).__TEST__;
+    // Restore original task directory env var
+    if (originalTaskDir !== undefined) {
+      Deno.env.set("LOCUS_TASK_DIRECTORY", originalTaskDir);
+    } else {
+      Deno.env.delete("LOCUS_TASK_DIRECTORY");
+    }
+    // Reset ServiceContainer to clean state
+    ServiceContainer.resetInstance();
+  });
   it("should find file without .md extension", async () => {
     const tempDir = await createTempDir();
 
@@ -14,34 +52,40 @@ describe("path command integration tests", () => {
       const filePath = join(tempDir, fileName);
       await Deno.writeTextFile(filePath, "# Test Task\n\nContent");
 
-      // Capture output
-      let capturedOutput = "";
-      const originalLog = console.log;
-      console.log = (msg: string) => {
-        capturedOutput = msg;
-      };
+      // Run command as subprocess
+      const cmd = new Deno.Command(Deno.execPath(), {
+        args: [
+          "run",
+          "--allow-all",
+          "src/cli.ts",
+          "path",
+          "test-task",
+          "--no-git",
+        ],
+        cwd: Deno.cwd(),
+        env: {
+          ...Deno.env.toObject(),
+          LOCUS_TASK_DIRECTORY: tempDir,
+        },
+        stdout: "piped",
+        stderr: "piped",
+      });
 
-      // Test without .md extension
-      const command = createPathCommand();
-      const originalCwd = Deno.cwd();
-      Deno.chdir(tempDir);
-      try {
-        await command.parse(["test-task", "--no-git"]);
-      } finally {
-        Deno.chdir(originalCwd);
-      }
+      const { code, stdout, stderr } = await cmd.output();
+      const stdoutText = new TextDecoder().decode(stdout).trim();
+      const stderrText = new TextDecoder().decode(stderr);
 
       // Assert
-      assertEquals(capturedOutput, filePath);
-
-      // Restore
-      console.log = originalLog;
+      if (code !== 0) {
+        throw new Error(`Command failed with code ${code}. stderr: ${stderrText}`);
+      }
+      assertEquals(stdoutText, filePath);
     } finally {
       await cleanupTempDir(tempDir);
     }
   });
 
-  it("should find file by task title", async () => {
+  it("should find file by partial filename", async () => {
     const tempDir = await createTempDir();
 
     try {
@@ -58,28 +102,34 @@ date: 2024-01-01
 Task content`,
       );
 
-      // Capture output
-      let capturedOutput = "";
-      const originalLog = console.log;
-      console.log = (msg: string) => {
-        capturedOutput = msg;
-      };
+      // Run command as subprocess
+      const cmd = new Deno.Command(Deno.execPath(), {
+        args: [
+          "run",
+          "--allow-all",
+          "src/cli.ts",
+          "path",
+          "2024-01-01-some-task",
+          "--no-git",
+        ],
+        cwd: Deno.cwd(),
+        env: {
+          ...Deno.env.toObject(),
+          LOCUS_TASK_DIRECTORY: tempDir,
+        },
+        stdout: "piped",
+        stderr: "piped",
+      });
 
-      // Test search by title
-      const command = createPathCommand();
-      const originalCwd = Deno.cwd();
-      Deno.chdir(tempDir);
-      try {
-        await command.parse(["My Specific", "--no-git"]);
-      } finally {
-        Deno.chdir(originalCwd);
-      }
+      const { code, stdout, stderr } = await cmd.output();
+      const stdoutText = new TextDecoder().decode(stdout).trim();
+      const stderrText = new TextDecoder().decode(stderr);
 
       // Assert
-      assertEquals(capturedOutput, filePath);
-
-      // Restore
-      console.log = originalLog;
+      if (code !== 0) {
+        throw new Error(`Command failed with code ${code}. stderr: ${stderrText}`);
+      }
+      assertEquals(stdoutText, filePath);
     } finally {
       await cleanupTempDir(tempDir);
     }
@@ -95,43 +145,33 @@ Task content`,
       await Deno.writeTextFile(file1, "# Task 1\n\nContent");
       await Deno.writeTextFile(file2, "# Task 2\n\nContent");
 
-      // Capture output and exit
-      const capturedOutput: string[] = [];
-      const originalLog = console.log;
-      const originalError = console.error;
-      const originalExit = Deno.exit;
+      // Run command as subprocess
+      const cmd = new Deno.Command(Deno.execPath(), {
+        args: [
+          "run",
+          "--allow-all",
+          "src/cli.ts",
+          "path",
+          "task",
+          "--no-git",
+        ],
+        cwd: Deno.cwd(),
+        env: {
+          ...Deno.env.toObject(),
+          LOCUS_TASK_DIRECTORY: tempDir,
+        },
+        stdout: "piped",
+        stderr: "piped",
+      });
 
-      console.log = (msg: string) => capturedOutput.push(msg);
-      console.error = (msg: string) => capturedOutput.push(`ERROR: ${msg}`);
+      const { code, stdout, stderr } = await cmd.output();
+      const stderrText = new TextDecoder().decode(stderr);
 
-      let exitCode: number | undefined;
-      Deno.exit = (code?: number) => {
-        exitCode = code;
-        throw new Error("Exit called");
-      };
-
-      // Test partial match
-      const command = createPathCommand();
-      const originalCwd = Deno.cwd();
-      Deno.chdir(tempDir);
-      try {
-        await command.parse(["task", "--no-git"]);
-      } catch (e) {
-        // Expected
-      } finally {
-        Deno.chdir(originalCwd);
-      }
-
-      // Assert
-      assertEquals(exitCode, 1);
-      assertEquals(capturedOutput.some((o) => o.includes("複数のファイルが見つかりました")), true);
-      assertEquals(capturedOutput.some((o) => o.includes(file1)), true);
-      assertEquals(capturedOutput.some((o) => o.includes(file2)), true);
-
-      // Restore
-      console.log = originalLog;
-      console.error = originalError;
-      Deno.exit = originalExit;
+      // Assert - should fail with exit code 1
+      assertEquals(code, 1);
+      assertEquals(stderrText.includes("複数のファイルが見つかりました"), true);
+      assertEquals(stderrText.includes(file1), true);
+      assertEquals(stderrText.includes(file2), true);
     } finally {
       await cleanupTempDir(tempDir);
     }

@@ -73,7 +73,12 @@ export function createReadCommand(): any {
         }
 
         // Display formatted task
-        const isTerminal = Deno.stdout.isTerminal ?? false;
+        let isTerminal = false;
+        try {
+          isTerminal = Deno.stdout.isTerminal ?? false;
+        } catch {
+          // Ignore errors in test environment
+        }
         const formattedOutput = await displayTask(task, {
           noColor: options.noColor || !isTerminal,
           repoInfo,
@@ -140,7 +145,12 @@ async function readAbsolutePath(
   }
 
   // Display formatted task
-  const isTerminal = Deno.stdout.isTerminal ?? false;
+  let isTerminal = false;
+  try {
+    isTerminal = Deno.stdout.isTerminal ?? false;
+  } catch {
+    // Ignore errors in test environment
+  }
   const formattedOutput = await displayTask(task, {
     noColor: options.noColor || !isTerminal,
     repoInfo: null,
@@ -150,8 +160,20 @@ async function readAbsolutePath(
 }
 
 async function outputWithPager(content: string, options: ReadOptions): Promise<void> {
+  // In test environment, always output directly
+  if ((globalThis as any).__TEST__) {
+    console.log(content);
+    return;
+  }
+
   // If output is not a terminal or pager is "never", just print
-  const isTerminal = Deno.stdout.isTerminal ?? false;
+  let isTerminal = false;
+  try {
+    isTerminal = Deno.stdout.isTerminal ?? false;
+  } catch {
+    // Ignore errors in test environment
+  }
+  
   if (!isTerminal || options.pager === "never") {
     console.log(content);
     return;
@@ -159,7 +181,12 @@ async function outputWithPager(content: string, options: ReadOptions): Promise<v
 
   // Count lines to determine if pager is needed
   const lines = content.split("\n").length;
-  const terminalHeight = Deno.consoleSize?.().rows || 24;
+  let terminalHeight = 24;
+  try {
+    terminalHeight = Deno.consoleSize?.().rows || 24;
+  } catch {
+    // Use default height in test environment
+  }
 
   // If content fits on screen, just print it
   if (lines < terminalHeight - 2) {

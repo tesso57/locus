@@ -17,6 +17,8 @@ describe("read command", () => {
   let originalError: typeof console.error;
 
   beforeEach(() => {
+    // Set test environment flag
+    (globalThis as any).__TEST__ = true;
     // Reset service container
     ServiceContainer.resetInstance();
 
@@ -46,6 +48,8 @@ describe("read command", () => {
   afterEach(() => {
     console.log = originalLog;
     console.error = originalError;
+    // Clean up test environment flag
+    delete (globalThis as any).__TEST__;
   });
 
   it("should display task content", async () => {
@@ -160,27 +164,19 @@ describe("read command", () => {
       err(new TaskNotFoundError("nonexistent.md")),
     );
 
-    // Act
+    // Act & Assert
     const command = createReadCommand();
-    let exitCode: number | undefined;
-    const originalExit = Deno.exit;
-    Deno.exit = (code?: number) => {
-      exitCode = code;
-      throw new Error("exit");
-    };
+    await assertRejects(
+      async () => {
+        await command.parse(["nonexistent.md", "--no-git"]);
+      },
+      Error,
+      "Task not found",
+    );
 
-    try {
-      await command.parse(["nonexistent.md", "--no-git"]);
-    } catch (e) {
-      if (e instanceof Error && e.message !== "exit") throw e;
-    } finally {
-      Deno.exit = originalExit;
-    }
-
-    // Assert
-    assertEquals(exitCode, 1);
+    // Check that error was logged
     const output = capturedOutput.join("\n");
-    assertEquals(output.includes("ERROR:"), true);
+    assertEquals(output.includes("エラー:"), true);
   });
 
   it("should handle task without body", async () => {
@@ -270,30 +266,29 @@ describe("read command", () => {
     const output = capturedOutput.join("\n");
     // Should not contain ANSI escape codes
     // deno-lint-ignore no-control-regex
-    assertEquals(/\x1b\[[0-9;]*m/.test(output), false);
+    const hasAnsiCodes = /\x1b\[[0-9;]*m/.test(output);
+    if (hasAnsiCodes) {
+      // Log output for debugging
+      originalError("Output still contains ANSI codes:");
+      originalError("Raw output:", JSON.stringify(output));
+      originalError("Captured output array:", capturedOutput);
+    }
+    assertEquals(hasAnsiCodes, false);
   });
 
   it("should reject invalid file names", async () => {
-    // Act
+    // Act & Assert
     const command = createReadCommand();
-    let exitCode: number | undefined;
-    const originalExit = Deno.exit;
-    Deno.exit = (code?: number) => {
-      exitCode = code;
-      throw new Error("exit");
-    };
+    await assertRejects(
+      async () => {
+        await command.parse(["../../../etc/passwd", "--no-git"]);
+      },
+      Error,
+      "ファイル名にパス区切り文字",
+    );
 
-    try {
-      await command.parse(["../../../etc/passwd", "--no-git"]);
-    } catch (e) {
-      if (e instanceof Error && e.message !== "exit") throw e;
-    } finally {
-      Deno.exit = originalExit;
-    }
-
-    // Assert
-    assertEquals(exitCode, 1);
+    // Check that error was logged
     const output = capturedOutput.join("\n");
-    assertEquals(output.includes("ERROR:"), true);
+    assertEquals(output.includes("エラー:"), true);
   });
 });

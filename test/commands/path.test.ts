@@ -21,6 +21,9 @@ describe("path command", () => {
   let originalExit: typeof Deno.exit;
 
   beforeEach(() => {
+    // Set test environment flag
+    (globalThis as any).__TEST__ = true;
+    
     // Reset service container
     ServiceContainer.resetInstance();
 
@@ -85,6 +88,9 @@ describe("path command", () => {
     console.log = originalLog;
     console.error = originalError;
     Deno.exit = originalExit;
+    
+    // Clean up test environment flag
+    delete (globalThis as any).__TEST__;
   });
 
   it("should display absolute path for task file", async () => {
@@ -112,25 +118,26 @@ describe("path command", () => {
           exitedWith = match ? parseInt(match[1]) : null;
           exited = true;
         } else {
-          console.error("Unexpected error:", e);
+          originalError("Unexpected error:", e);
         }
       } else {
-        console.error("Unexpected error:", e);
+        originalError("Unexpected error:", e);
       }
     }
 
     // Assert
-    console.log("Captured output:", capturedOutput);
-    console.log("Exited:", exited, "with code:", exitedWith);
+    // Debug logs are using originalLog to avoid being captured
+    originalLog("Captured output:", capturedOutput);
+    originalLog("Exited:", exited, "with code:", exitedWith);
 
     // If it exited with error, show why
     if (exited && exitedWith === 1) {
-      console.log("Error outputs:", capturedOutput.filter((o) => o.includes("ERROR:")));
+      originalLog("Error outputs:", capturedOutput.filter((o) => o.includes("ERROR:")));
     }
 
     const nonErrorOutputs = capturedOutput.filter((o) => !o.includes("ERROR:") && o.trim() !== "");
-    console.log("Non-error outputs:", nonErrorOutputs);
-    console.log("Expected path:", expectedPath);
+    originalLog("Non-error outputs:", nonErrorOutputs);
+    originalLog("Expected path:", expectedPath);
     assertEquals(nonErrorOutputs.length, 1);
     assertEquals(nonErrorOutputs[0], expectedPath);
   });

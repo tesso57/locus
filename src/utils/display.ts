@@ -14,46 +14,44 @@ interface DisplayOptions {
  */
 export async function displayTask(task: TaskInfo, options: DisplayOptions = {}): Promise<string> {
   const output: string[] = [];
-
-  // If no color is requested, disable colors
-  if (options.noColor) {
-    colors.setColorEnabled(false);
-  }
+  const noColor = options.noColor ?? false;
 
   // Add header separator
-  output.push(colors.gray("─".repeat(60)));
+  output.push(noColor ? "─".repeat(60) : colors.gray("─".repeat(60)));
   output.push("");
 
   // Task title
-  output.push(colors.bold(colors.cyan(`📋 ${task.title}`)));
+  output.push(noColor ? `📋 ${task.title}` : colors.bold(colors.cyan(`📋 ${task.title}`)));
   output.push("");
 
   // Metadata section
-  output.push(colors.bold("📌 メタデータ:"));
-  output.push(`  ${colors.gray("ファイル:")} ${task.fileName}`);
-  output.push(`  ${colors.gray("ステータス:")} ${formatStatus(task.status)}`);
-  output.push(`  ${colors.gray("優先度:")} ${formatPriority(task.priority)}`);
+  output.push(noColor ? "📌 メタデータ:" : colors.bold("📌 メタデータ:"));
+  output.push(noColor ? `  ファイル: ${task.fileName}` : `  ${colors.gray("ファイル:")} ${task.fileName}`);
+  output.push(noColor ? `  ステータス: ${formatStatusPlain(task.status)}` : `  ${colors.gray("ステータス:")} ${formatStatus(task.status)}`);
+  output.push(noColor ? `  優先度: ${formatPriorityPlain(task.priority)}` : `  ${colors.gray("優先度:")} ${formatPriority(task.priority)}`);
 
   if (task.tags && task.tags.length > 0) {
-    output.push(`  ${colors.gray("タグ:")} ${formatTags(task.tags)}`);
+    output.push(noColor ? `  タグ: ${task.tags.map(t => `#${t}`).join(", ")}` : `  ${colors.gray("タグ:")} ${formatTags(task.tags)}`);
   }
 
-  output.push(`  ${colors.gray("作成日:")} ${formatDate(task.created)}`);
+  output.push(noColor ? `  作成日: ${formatDatePlain(task.created)}` : `  ${colors.gray("作成日:")} ${formatDate(task.created)}`);
 
   if (task.frontmatter.updated && typeof task.frontmatter.updated === "string") {
-    output.push(`  ${colors.gray("更新日:")} ${formatDate(task.frontmatter.updated)}`);
+    output.push(noColor ? `  更新日: ${formatDatePlain(task.frontmatter.updated)}` : `  ${colors.gray("更新日:")} ${formatDate(task.frontmatter.updated)}`);
   }
 
   if (task.frontmatter.due && typeof task.frontmatter.due === "string") {
-    output.push(`  ${colors.gray("期限:")} ${formatDate(task.frontmatter.due)}`);
+    output.push(noColor ? `  期限: ${formatDatePlain(task.frontmatter.due)}` : `  ${colors.gray("期限:")} ${formatDate(task.frontmatter.due)}`);
   }
 
   // Repository info
   if (options.repoInfo) {
     output.push(
-      `  ${colors.gray("リポジトリ:")} ${
-        colors.blue(`${options.repoInfo.owner}/${options.repoInfo.repo}`)
-      }`,
+      noColor
+        ? `  リポジトリ: ${options.repoInfo.owner}/${options.repoInfo.repo}`
+        : `  ${colors.gray("リポジトリ:")} ${
+            colors.blue(`${options.repoInfo.owner}/${options.repoInfo.repo}`)
+          }`,
     );
   }
 
@@ -64,32 +62,27 @@ export async function displayTask(task: TaskInfo, options: DisplayOptions = {}):
 
   if (customFields.length > 0) {
     output.push("");
-    output.push(colors.bold("🔧 カスタムフィールド:"));
+    output.push(noColor ? "🔧 カスタムフィールド:" : colors.bold("🔧 カスタムフィールド:"));
     for (const [key, value] of customFields) {
-      output.push(`  ${colors.gray(key + ":")} ${formatValue(value)}`);
+      output.push(noColor ? `  ${key}: ${formatValuePlain(value)}` : `  ${colors.gray(key + ":")} ${formatValue(value)}`);
     }
   }
 
   // Body section
   output.push("");
-  output.push(colors.gray("─".repeat(60)));
+  output.push(noColor ? "─".repeat(60) : colors.gray("─".repeat(60)));
   output.push("");
 
   if (task.body.trim()) {
     // Render markdown body
-    const renderedBody = await renderMarkdownBody(task.body, options.noColor);
+    const renderedBody = await renderMarkdownBody(task.body, noColor);
     output.push(renderedBody);
   } else {
-    output.push(colors.gray("（本文なし）"));
+    output.push(noColor ? "（本文なし）" : colors.gray("（本文なし）"));
   }
 
   output.push("");
-  output.push(colors.gray("─".repeat(60)));
-
-  // Re-enable colors if they were disabled
-  if (options.noColor) {
-    colors.setColorEnabled(true);
-  }
+  output.push(noColor ? "─".repeat(60) : colors.gray("─".repeat(60)));
 
   return output.join("\n");
 }
@@ -98,15 +91,14 @@ export async function displayTask(task: TaskInfo, options: DisplayOptions = {}):
  * Render markdown body with terminal formatting
  */
 async function renderMarkdownBody(markdown: string, noColor: boolean = false): Promise<string> {
+  // If no color is requested, use basic formatting instead of charmd
+  if (noColor) {
+    return formatMarkdownBasic(markdown, noColor);
+  }
+  
   try {
     // Use charMD to render markdown for terminal
     const rendered = await renderMarkdown(markdown);
-
-    // If no color is requested, strip ANSI codes
-    if (noColor) {
-      return stripAnsi(rendered);
-    }
-
     return rendered;
   } catch (error: unknown) {
     // Fallback to basic formatting if charMD fails
@@ -189,5 +181,99 @@ function formatValue(value: unknown): string {
  */
 function stripAnsi(str: string): string {
   // deno-lint-ignore no-control-regex
-  return str.replace(/\x1B[[(?);]{0,2}(;?\d)*./g, "");
+  return str.replace(/\x1b\[[0-9;]*m/g, "");
+}
+
+/**
+ * Format status without color
+ */
+function formatStatusPlain(status: string): string {
+  switch (status) {
+    case "todo":
+      return "⏳ TODO";
+    case "in_progress":
+      return "🔄 進行中";
+    case "done":
+      return "✅ 完了";
+    case "cancelled":
+      return "❌ キャンセル";
+    default:
+      return status;
+  }
+}
+
+/**
+ * Format priority without color
+ */
+function formatPriorityPlain(priority?: string): string {
+  switch (priority) {
+    case "high":
+      return "🔴 高";
+    case "normal":
+      return "🟡 中";
+    case "low":
+      return "🟢 低";
+    default:
+      return priority || "medium";
+  }
+}
+
+/**
+ * Format value without color
+ */
+function formatValuePlain(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "null";
+  }
+
+  if (typeof value === "boolean") {
+    return String(value);
+  }
+
+  if (typeof value === "number") {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.map(String).join(", ")}]`;
+  }
+
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+
+  return String(value);
+}
+
+/**
+ * Format date without color
+ */
+function formatDatePlain(dateStr: string): string {
+  if (!dateStr) return "不明";
+
+  try {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return "今日";
+    } else if (diffDays === 1) {
+      return "昨日";
+    } else if (diffDays < 7) {
+      return `${diffDays}日前`;
+    } else if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      return `${weeks}週間前`;
+    } else if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `${months}ヶ月前`;
+    } else {
+      const years = Math.floor(diffDays / 365);
+      return `${years}年前`;
+    }
+  } catch {
+    return "不明";
+  }
 }
