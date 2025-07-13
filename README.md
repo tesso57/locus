@@ -108,6 +108,45 @@ locus tags ui
 locus tags ui,backend
 ```
 
+### Read task content
+
+```bash
+# Read a task file (automatic pager for long content)
+locus read "fix-auth-bug"
+
+# Read with raw markdown (including frontmatter)
+locus read "implement-dark-mode" --raw
+
+# Read without pager
+locus read "update-readme" --pager never
+
+# Output as JSON for scripting
+locus read "add-tests" --json
+
+# Read by absolute path
+locus read /path/to/task.md
+```
+
+### Find task file paths
+
+```bash
+# Get the absolute path of a task
+locus path "fix-auth-bug"
+
+# Search for task across all repositories
+locus path "implement-feature" --all
+
+# Search by partial filename or title
+locus path "auth"  # Finds files matching "auth" in name or title
+
+# Output as JSON with additional metadata
+locus path "task-name" --json
+
+# Use in scripts or with other commands
+cat $(locus path "my-task")
+editor $(locus path "todo-task")
+```
+
 ### Update tasks (Coming Soon)
 
 The update command is planned for a future release. It will allow you to modify existing task properties.

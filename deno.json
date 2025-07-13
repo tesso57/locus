@@ -6,6 +6,7 @@
     "./cli": "./src/cli.ts"
   },
   "imports": {
+    "@deno/dnt": "jsr:@deno/dnt@^0.42.1",
     "@std/": "https://deno.land/std@0.224.0/",
     "@cliffy/command": "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts",
     "@cliffy/table": "https://deno.land/x/cliffy@v1.0.0-rc.4/table/mod.ts",
@@ -29,7 +30,8 @@
     "fmt": "deno fmt",
     "check": "deno fmt --check && deno lint && deno test --allow-read --allow-write --allow-env --allow-run",
     "compile": "deno compile --no-check --allow-read --allow-write --allow-env --allow-run -o locus src/cli.ts",
-    "install-local": "deno install --allow-read --allow-write --allow-env --allow-run -n locus -f src/cli.ts"
+    "install-local": "deno install --allow-read --allow-write --allow-env --allow-run -n locus -f src/cli.ts",
+    "npm": "deno run -A scripts/build_npm.ts"
   },
   "compilerOptions": {
     "strict": true,
@@ -39,17 +41,36 @@
     "noImplicitThis": true
   },
   "lint": {
-    "include": ["src/", "test/"],
-    "exclude": ["examples/"],
+    "include": [
+      "src/",
+      "test/"
+    ],
+    "exclude": [
+      "examples/"
+    ],
     "rules": {
-      "tags": ["recommended"],
-      "include": ["ban-untagged-todo"],
-      "exclude": ["no-unused-vars", "no-explicit-any"]
+      "tags": [
+        "recommended"
+      ],
+      "include": [
+        "ban-untagged-todo"
+      ],
+      "exclude": [
+        "no-unused-vars",
+        "no-explicit-any"
+      ]
     }
   },
   "fmt": {
-    "include": ["src/", "test/", "*.md", "*.json"],
-    "exclude": ["examples/"],
+    "include": [
+      "src/",
+      "test/",
+      "*.md",
+      "*.json"
+    ],
+    "exclude": [
+      "examples/"
+    ],
     "options": {
       "useTabs": false,
       "lineWidth": 100,

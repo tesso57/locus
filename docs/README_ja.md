@@ -85,6 +85,45 @@ locus tags ui
 locus tags ui,backend
 ```
 
+### タスクの内容を読む
+
+```bash
+# タスクファイルを読む（長い内容は自動的にページャーで表示）
+locus read "認証バグ修正"
+
+# Markdownのままで表示（フロントマター含む）
+locus read "ダークモード実装" --raw
+
+# ページャーなしで表示
+locus read "README更新" --pager never
+
+# スクリプト用にJSON形式で出力
+locus read "テスト追加" --json
+
+# 絶対パスで読む
+locus read /path/to/task.md
+```
+
+### タスクファイルのパスを取得
+
+```bash
+# タスクの絶対パスを取得
+locus path "認証バグ修正"
+
+# 全リポジトリから検索
+locus path "機能実装" --all
+
+# 部分的なファイル名やタイトルで検索
+locus path "認証"  # ファイル名やタイトルに"認証"を含むファイルを検索
+
+# 追加のメタデータとともにJSON形式で出力
+locus path "タスク名" --json
+
+# スクリプトや他のコマンドと組み合わせて使用
+cat $(locus path "my-task")
+editor $(locus path "todo-task")
+```
+
 ### タスクの更新（今後実装予定）
 
 Updateコマンドは将来のリリースで実装予定です。既存のタスクプロパティを変更できるようになります。
