@@ -9,13 +9,14 @@ import { FileSystem } from "../services/file-system.ts";
 import { PathResolver } from "../services/path-resolver.ts";
 import { GitService } from "../services/git-service.ts";
 import { RepoInfo } from "../types.ts";
-import { logError } from "../utils/errors.ts";
+import { logError } from "../utils/errors-i18n.ts";
 import {
   handleSearchResults,
   normalizeFileName,
   outputNotFound,
   outputSinglePath,
 } from "./utils/path-helpers.ts";
+import { I18nService } from "../services/i18n.ts";
 
 /**
  * Handle absolute path
@@ -70,6 +71,7 @@ async function searchCurrentDirectory(
   repoInfo: RepoInfo | null,
   pathResolver: PathResolver,
   fileSystem: FileSystem,
+  i18n: I18nService,
 ): Promise<Result<void, Error>> {
   const taskDirResult = await pathResolver.getTaskDir(repoInfo);
   if (!taskDirResult.ok) {
@@ -113,8 +115,8 @@ async function searchCurrentDirectory(
         ),
       );
     } else {
-      logError(`タスクファイルが見つかりません: ${baseFileName}`);
-      console.error(`ヒント: Gitリポジトリ外の場合は --no-git オプションを使用してください`);
+      logError(i18n.t("path.errors.notFound", { filename: baseFileName }), i18n);
+      console.error(i18n.t("path.errors.hint"));
     }
     Deno.exit(1);
     return ok(undefined);
@@ -163,16 +165,19 @@ async function findExactMatch(
   return null;
 }
 
-export function createPathCommand(): Command<any, any, any> {
+export function createPathCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()
     .name("path")
-    .description("タスクファイルの絶対パスを表示")
+    .description(i18n.t("path.description"))
     .arguments("<fileName:string>")
-    .option("--no-git", "Git情報を使用しない")
-    .option("-a, --all", "すべてのタスクディレクトリから検索")
-    .option("--json", "JSON形式で出力")
+    .option("--no-git", i18n.t("path.options.noGit.description"))
+    .option("-a, --all", i18n.t("path.options.all.description"))
+    .option("--json", i18n.t("path.options.json.description"))
     .action(createAction<PathOptions>(async (options, fileName: string) => {
       await executeCommand(async ({ container }) => {
+        // Set the i18n service on the container
+        container.setI18nService(i18n);
+
         const gitService = container.getGitService();
         const pathResolver = await container.getPathResolver();
         const fileSystem = container.getFileSystem();
@@ -200,6 +205,7 @@ export function createPathCommand(): Command<any, any, any> {
             repoInfo,
             pathResolver,
             fileSystem,
+            i18n,
           );
         }
       });

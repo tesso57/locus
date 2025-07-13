@@ -1,0 +1,216 @@
+# Main CLI command
+cli:
+  description: "Git-aware task management CLI tool"
+  help:
+    description: "Show help"
+  json:
+    description: "Output in JSON format"
+
+# Common messages
+common:
+  error:
+    prefix: "Error: "
+    fileNotFound: "File not found: {{filename}}"
+    multipleFilesFound: "Multiple files found:"
+    homeNotSet: "HOME environment variable is not set"
+    invalidRepoUrl: "Invalid repository URL: missing owner or repo name"
+  success:
+    taskCreated: "✨ Task created: {{path}}"
+    configCreated: "✨ Config file created: {{path}}"
+  info:
+    noTasks: "No tasks found."
+    configNotFound: "Config file not found."
+    defaultLocation: "Default location: {{path}}"
+    runToCreate: "Run 'locus config init' to create a config file."
+    runToEdit: "To edit the configuration, run the following command:"
+
+# add command
+add:
+  description: "Add a new task"
+  options:
+    body:
+      description: "Task body content"
+    tags:
+      description: "Tags (comma-separated)"
+    priority:
+      description: "Priority"
+    status:
+      description: "Status"
+    noGit:
+      description: "Don't use Git information"
+    json:
+      description: "Output in JSON format"
+  messages:
+    repository: "📁 Repository: {{repo}}"
+    location: "📁 Location: Default task directory"
+    taskDetails: "📋 Task details:"
+    title: "Title: {{title}}"
+    filename: "Filename: {{filename}}"
+    status: "Status: {{status}}"
+    priority: "Priority: {{priority}}"
+    tags: "Tags: {{tags}}"
+
+# config command
+config:
+  description: "Manage configuration"
+  messages:
+    specifySubcommand: "Please specify a subcommand."
+    availableSubcommands: "Available subcommands: show, path, init"
+    currentSettings: "🔧 Current settings:"
+    configFile: "📁 Config file: {{path}}"
+    configFileNone: "📁 Config file: none (using defaults)"
+    envOverrides: "🌍 Environment variable overrides:"
+    fileExists: "Config file already exists: {{path}}"
+    useForce: "Use --force option to overwrite."
+  show:
+    description: "Show current configuration"
+  path:
+    description: "Show config file path"
+  init:
+    description: "Create default config file"
+    options:
+      force:
+        description: "Overwrite existing file"
+
+# list command
+list:
+  description: "List tasks"
+  options:
+    status:
+      description: "Filter by status"
+    priority:
+      description: "Filter by priority"
+    tags:
+      description: "Filter by tags (comma-separated)"
+    sort:
+      description: "Sort by (created, status, priority, title)"
+    detailed:
+      description: "Show detailed information"
+    all:
+      description: "Show tasks from all repositories"
+    group:
+      description: "Group by repository"
+    json:
+      description: "Output in JSON format"
+  messages:
+    repository: "📁 Repository: {{repo}}"
+    allRepositories: "📁 All repositories"
+    totalTasks: "📋 Total tasks: {{count}}"
+    taskCount: "📋 Tasks: {{count}}"
+    allTasks: "📁 All tasks"
+    file: "File: {{filename}}"
+    fullPath: "Full path: {{path}}"
+    status: "Status: {{status}}"
+    priority: "Priority: {{priority}}"
+    tags: "Tags: {{tags}}"
+    created: "Created: {{date}}"
+  table:
+    headers:
+      title: "Title"
+      status: "Status"
+      priority: "Priority"
+      tags: "Tags"
+      created: "Created"
+
+# path command
+path:
+  description: "Show absolute path of task file"
+  options:
+    noGit:
+      description: "Don't use Git information"
+    all:
+      description: "Search in all task directories"
+    json:
+      description: "Output in JSON format"
+  errors:
+    notFound: "Task file not found: {{filename}}"
+    hint: "Hint: If outside a Git repository, use the --no-git option"
+
+# read command
+read:
+  description: "Display task content (supports full paths)"
+  options:
+    raw:
+      description: "Display raw markdown"
+    noGit:
+      description: "Don't use Git information"
+    json:
+      description: "Output in JSON format"
+    noColor:
+      description: "Output without colors"
+    pager:
+      description: "Specify pager (less, more, cat, never)"
+
+# tags command
+tags:
+  description: "Manage task file properties"
+  messages:
+    specifySubcommand: "Please specify a subcommand."
+    availableSubcommands: "Available subcommands: list, get, set, rm, clear"
+    taskFileList: "📁 Task files:"
+    noTaskFiles: "(no task files)"
+    total: "Total: {{count}} files"
+    noProperties: "No properties set"
+    properties: "📋 Properties for {{filename}}:"
+    fileNotFound: "File '{{filename}}' not found"
+    propertyNotFound: "Property '{{property}}' not found"
+    propertyUpdated: "✅ Property '{{property}}' updated"
+    propertyNotExists: "Property '{{property}}' does not exist"
+    propertyDeleted: "✅ Property '{{property}}' deleted"
+    allPropertiesDeleted: "✅ All properties deleted"
+  list:
+    description: "List task files or properties"
+  get:
+    description: "Get specific property value"
+  set:
+    description: "Add or update property"
+  rm:
+    description: "Remove property"
+  clear:
+    description: "Remove all properties"
+  options:
+    noGit:
+      description: "Don't use Git information"
+
+# Format related
+format:
+  status:
+    todo: "⏳ TODO"
+    inProgress: "🔄 In Progress"
+    done: "✅ Done"
+    cancelled: "❌ Cancelled"
+  priority:
+    high: "🔴 High"
+    medium: "🟡 Medium"
+    low: "🟢 Low"
+  date:
+    unknown: "Unknown"
+    today: "Today"
+    yesterday: "Yesterday"
+    daysAgo: "{{n}} days ago"
+    weeksAgo: "{{n}} weeks ago"
+    monthsAgo: "{{n}} months ago"
+    yearsAgo: "{{n}} years ago"
+
+# Display related
+display:
+  metadata: "📌 Metadata:"
+  file: "File: {{filename}}"
+  status: "Status: {{status}}"
+  priority: "Priority: {{priority}}"
+  tags: "Tags: {{tags}}"
+  created: "Created: {{date}}"
+  updated: "Updated: {{date}}"
+  due: "Due: {{date}}"
+  repository: "Repository: {{repo}}"
+  customFields: "🔧 Custom fields:"
+  noContent: "(no content)"
+
+# Validation
+validation:
+  filename:
+    pathSeparator: "Filename cannot contain path separators (/ or \\)"
+    relativePath: "Filename cannot contain relative paths (..)"
+    empty: "Filename is empty"
+    tooLong: "Filename is too long (max 255 characters)"
+    invalidCharacters: "Filename contains invalid characters"

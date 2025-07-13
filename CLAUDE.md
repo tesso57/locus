@@ -25,6 +25,21 @@ deno test test/commands/add.test.ts  # Run single test file
 deno test --filter "add command"      # Run tests matching pattern
 ```
 
+## Internationalization (i18n)
+
+The project supports multiple languages (Japanese and English) through a custom i18n service:
+
+- **I18nService**: Manages translations and language switching
+- **Embedded messages**: All translations are embedded in the binary (src/i18n/messages.ts)
+- **Language detection**: Automatic detection from environment variables and config
+- **Consistent formatting**: Formatters support i18n for dates, status, and priorities
+
+Language priority order:
+1. `LOCUS_LANG` environment variable
+2. Configuration file `language.default` setting
+3. System `LANG` environment variable
+4. Default to Japanese ("ja")
+
 ## Architecture
 
 The project is transitioning from a utility-based approach to a service-oriented architecture with dependency injection:

@@ -22,6 +22,9 @@ const mockConfig: Config = {
     priority: "normal",
     tags: [],
   },
+  language: {
+    default: "ja",
+  },
 };
 
 // Helper to create task

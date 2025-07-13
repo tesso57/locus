@@ -3,37 +3,38 @@ import { stringify } from "@std/yaml";
 import { exists } from "@std/fs";
 import { join } from "@std/path";
 import { createDefaultConfig, findConfigFile, getConfigDir, loadConfig } from "../config/index.ts";
-import { getErrorMessage, logError } from "../utils/errors.ts";
+import { getErrorMessage, logError } from "../utils/errors-i18n.ts";
 import { output } from "./utils/command-helpers.ts";
+import { I18nService } from "../services/i18n.ts";
 
-export function createConfigCommand(): Command<any, any, any> {
+export function createConfigCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()
     .name("config")
-    .description("設定の管理")
+    .description(i18n.t("config.description"))
     .action(() => {
-      console.log("サブコマンドを指定してください。");
-      console.log("使用可能なサブコマンド: show, path, init");
+      console.log(i18n.t("config.messages.specifySubcommand"));
+      console.log(i18n.t("config.messages.availableSubcommands"));
     })
     // show subcommand
-    .command("show", "現在の設定を表示")
-    .option("--json", "JSON形式で出力")
+    .command("show", i18n.t("config.show.description"))
+    .option("--json", i18n.t("cli.json.description"))
     .action(async (options) => {
-      await showConfig(options.json);
+      await showConfig(options.json, i18n);
     })
     // path subcommand
-    .command("path", "設定ファイルのパスを表示")
+    .command("path", i18n.t("config.path.description"))
     .action(async () => {
-      await showConfigPath();
+      await showConfigPath(i18n);
     })
     // init subcommand
-    .command("init", "デフォルト設定ファイルを作成")
-    .option("-f, --force", "既存のファイルを上書き")
+    .command("init", i18n.t("config.init.description"))
+    .option("-f, --force", i18n.t("config.init.options.force.description"))
     .action(async (options) => {
-      await initConfig(options.force);
+      await initConfig(options.force, i18n);
     });
 }
 
-async function showConfig(asJson: boolean = false): Promise<void> {
+async function showConfig(asJson: boolean = false, i18n: I18nService): Promise<void> {
   try {
     const config = await loadConfig();
 
@@ -84,20 +85,20 @@ async function showConfigPath(): Promise<void> {
   }
 }
 
-async function initConfig(force: boolean = false): Promise<void> {
+async function initConfig(force: boolean = false, i18n: I18nService): Promise<void> {
   const configDir = getConfigDir();
   const configPath = join(configDir, "settings.yml");
 
   try {
     if (await exists(configPath) && !force) {
-      logError(`設定ファイルは既に存在します: ${configPath}`);
-      console.error(`上書きするには --force オプションを使用してください。`);
+      logError(i18n.t("config.messages.fileExists", { path: configPath }));
+      console.error(i18n.t("config.messages.useForce"));
       Deno.exit(1);
     }
 
     await createDefaultConfig();
-    console.log(`✨ 設定ファイルを作成しました: ${configPath}`);
-    console.log(`\n設定を編集するには、以下のコマンドを実行してください:`);
+    console.log(i18n.t("common.success.configCreated", { path: configPath }));
+    console.log(`\n${i18n.t("common.info.runToEdit")}`);
     console.log(`  $EDITOR ${configPath}`);
   } catch (error: unknown) {
     const message = getErrorMessage(error);

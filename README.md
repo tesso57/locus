@@ -13,6 +13,7 @@ A Git-aware task management CLI tool that organizes your tasks by repository. Ea
 - **Markdown-based**: Tasks are stored as Markdown files with YAML frontmatter
 - **Flexible tagging**: Support for tags, status, priority, and custom properties
 - **Smart file naming**: Automatic file naming with date, slug, and hash
+- **Internationalization**: Full support for English and Japanese interfaces
 - **Cross-platform**: Works on macOS, Linux, and Windows
 
 ## Installation
@@ -77,6 +78,26 @@ locus list --all
 locus list --json
 ```
 
+### Language Settings
+
+Locus supports both English and Japanese interfaces. The language can be configured in multiple ways:
+
+```bash
+# Set language via environment variable (highest priority)
+export LOCUS_LANG=en  # or "ja" for Japanese
+locus add "New task"
+
+# Set language in configuration file
+locus config init
+# Edit ~/.config/locus/settings.yml and set language.default to "en" or "ja"
+
+# The language detection order is:
+# 1. LOCUS_LANG environment variable
+# 2. Configuration file setting
+# 3. System LANG environment variable
+# 4. Default to Japanese ("ja")
+```
+
 ### Search by tags
 
 ```bash
@@ -110,6 +131,10 @@ Configuration is stored in `~/.config/locus/settings.yml` (follows XDG Base Dire
 ```yaml
 # Task storage directory
 task_directory: "~/locus"
+
+# Language settings
+language:
+  default: "ja" # Available: "ja" (Japanese) or "en" (English)
 
 # Git integration settings
 git:

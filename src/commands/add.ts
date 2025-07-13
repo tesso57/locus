@@ -5,20 +5,25 @@ import { ServiceContainer } from "../services/service-container.ts";
 import { createAction, executeCommand, getRepoInfoOptional } from "./utils/command-helpers.ts";
 import { AddOptions } from "./utils/option-types.ts";
 import { ok } from "../utils/result.ts";
+import { I18nService } from "../services/i18n.ts";
+import * as formatI18n from "../utils/format-i18n.ts";
 
-export function createAddCommand(): Command<any, any, any> {
+export function createAddCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()
     .name("add")
-    .description("新しいタスクを追加")
+    .description(i18n.t("add.description"))
     .arguments("<title:string>")
-    .option("-b, --body <body:string>", "タスクの本文")
-    .option("-t, --tags <tags:string[]>", "タグ（カンマ区切り）")
-    .option("-p, --priority <priority:string>", "優先度")
-    .option("-s, --status <status:string>", "ステータス")
-    .option("--no-git", "Git情報を使用しない")
-    .option("--json", "JSON形式で出力")
+    .option("-b, --body <body:string>", i18n.t("add.options.body.description"))
+    .option("-t, --tags <tags:string[]>", i18n.t("add.options.tags.description"))
+    .option("-p, --priority <priority:string>", i18n.t("add.options.priority.description"))
+    .option("-s, --status <status:string>", i18n.t("add.options.status.description"))
+    .option("--no-git", i18n.t("add.options.noGit.description"))
+    .option("--json", i18n.t("add.options.json.description"))
     .action(createAction<AddOptions>(async (options, title: string) => {
       await executeCommand(async ({ container }) => {
+        // Set the i18n service on the container
+        container.setI18nService(i18n);
+
         const taskService = await container.getTaskService();
         const gitService = container.getGitService();
         const config = await container.getConfig();
@@ -64,21 +69,41 @@ export function createAddCommand(): Command<any, any, any> {
           const taskDirResult = await pathResolver.getTaskDir(repoInfo);
           const taskPath = taskDirResult.ok ? `${taskDirResult.value}/${fileName}` : fileName;
 
-          console.log(colors.green(`✨ タスクを作成しました: ${taskPath}`));
+          console.log(colors.green(i18n.t("common.success.taskCreated", { path: taskPath })));
 
           if (repoInfo) {
-            console.log(colors.blue(`📁 リポジトリ: ${repoInfo.owner}/${repoInfo.repo}`));
+            console.log(
+              colors.blue(
+                i18n.t("add.messages.repository", { repo: `${repoInfo.owner}/${repoInfo.repo}` }),
+              ),
+            );
           } else if (!options.noGit) {
-            console.log(colors.gray(`📁 場所: デフォルトのタスクディレクトリ`));
+            console.log(colors.gray(i18n.t("add.messages.location")));
           }
 
-          console.log(`\n${colors.bold("📋 タスク詳細:")}`);
-          console.log(`  タイトル: ${title}`);
-          console.log(`  ファイル名: ${fileName}`);
-          console.log(`  ステータス: ${createOptions.status}`);
-          console.log(`  優先度: ${createOptions.priority}`);
+          console.log(`\n${colors.bold(i18n.t("add.messages.taskDetails"))}`);
+          console.log(`  ${i18n.t("add.messages.title", { title })}`);
+          console.log(`  ${i18n.t("add.messages.filename", { filename: fileName })}`);
+          console.log(
+            `  ${
+              i18n.t("add.messages.status", {
+                status: formatI18n.formatStatus(createOptions.status, i18n),
+              })
+            }`,
+          );
+          console.log(
+            `  ${
+              i18n.t("add.messages.priority", {
+                priority: formatI18n.formatPriority(createOptions.priority, i18n),
+              })
+            }`,
+          );
           if (createOptions.tags && createOptions.tags.length > 0) {
-            console.log(`  タグ: ${createOptions.tags.join(", ")}`);
+            console.log(
+              `  ${
+                i18n.t("add.messages.tags", { tags: formatI18n.formatTags(createOptions.tags) })
+              }`,
+            );
           }
         }
 

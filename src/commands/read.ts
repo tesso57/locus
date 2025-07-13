@@ -15,19 +15,23 @@ import {
 import { ReadOptions } from "./utils/option-types.ts";
 import { getFileName, readTextFile, validateFileExists } from "./utils/file-helpers.ts";
 import { ok } from "../utils/result.ts";
+import { I18nService } from "../services/i18n.ts";
 
-export function createReadCommand(): Command<any, any, any> {
+export function createReadCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()
     .name("read")
-    .description("タスクの内容を表示（フルパスも対応）")
+    .description(i18n.t("read.description"))
     .arguments("<fileName:string>")
-    .option("-r, --raw", "マークダウンをそのまま表示")
-    .option("--no-git", "Git情報を使用しない")
-    .option("--json", "JSON形式で出力")
-    .option("--no-color", "色なしで出力")
-    .option("--pager <pager:string>", "ページャーを指定 (less, more, cat, never)")
+    .option("-r, --raw", i18n.t("read.options.raw.description"))
+    .option("--no-git", i18n.t("read.options.noGit.description"))
+    .option("--json", i18n.t("read.options.json.description"))
+    .option("--no-color", i18n.t("read.options.noColor.description"))
+    .option("--pager <pager:string>", i18n.t("read.options.pager.description"))
     .action(createAction<ReadOptions>(async (options, fileName: string) => {
       await executeCommand(async ({ container }) => {
+        // Set the i18n service on the container
+        container.setI18nService(i18n);
+
         const taskService = await container.getTaskService();
         const gitService = container.getGitService();
         const fileSystem = container.getFileSystem();
@@ -35,7 +39,7 @@ export function createReadCommand(): Command<any, any, any> {
         // Check if the provided path is absolute
         if (isAbsolute(fileName)) {
           // Handle absolute path directly
-          await readAbsolutePath(fileName, options, fileSystem);
+          await readAbsolutePath(fileName, options, fileSystem, i18n);
           return ok(undefined);
         }
 
@@ -83,7 +87,7 @@ export function createReadCommand(): Command<any, any, any> {
         const formattedOutput = await displayTask(task, {
           noColor: options.noColor || !isTerminal,
           repoInfo,
-        });
+        }, i18n);
 
         await outputWithPager(formattedOutput, options);
 
@@ -96,11 +100,12 @@ async function readAbsolutePath(
   filePath: string,
   options: ReadOptions,
   fileSystem: FileSystem,
+  i18n: I18nService,
 ): Promise<void> {
   // Check if file exists
   const existsResult = await validateFileExists(filePath, fileSystem);
   if (!existsResult.ok) {
-    exitWithError(`ファイルが見つかりません: ${filePath}`);
+    exitWithError(i18n.t("common.error.fileNotFound", { filename: filePath }));
   }
 
   // Read file content
@@ -155,7 +160,7 @@ async function readAbsolutePath(
   const formattedOutput = await displayTask(task, {
     noColor: options.noColor || !isTerminal,
     repoInfo: null,
-  });
+  }, i18n);
 
   await outputWithPager(formattedOutput, options);
 }

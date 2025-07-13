@@ -10,7 +10,7 @@ import {
   formatStatus,
   formatTags,
   priorityValue,
-} from "../utils/format.ts";
+} from "../utils/format-i18n.ts";
 import { join } from "@std/path";
 import {
   BaseCommandOptions,
@@ -20,6 +20,7 @@ import {
 } from "./utils/command-helpers.ts";
 import { ok } from "../utils/result.ts";
 import { getErrorMessage, logError } from "../utils/errors.ts";
+import { I18nService } from "../services/i18n.ts";
 
 interface ListOptions extends BaseCommandOptions {
   status?: string;
@@ -31,25 +32,28 @@ interface ListOptions extends BaseCommandOptions {
   groupByRepo?: boolean;
 }
 
-export function createListCommand(): Command<any, any, any> {
+export function createListCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()
     .name("list")
-    .description("タスクの一覧を表示")
-    .option("-s, --status <status:string>", "ステータスでフィルタ")
-    .option("-p, --priority <priority:string>", "優先度でフィルタ")
-    .option("-t, --tags <tags:string[]>", "タグでフィルタ（カンマ区切り）")
-    .option("--sort <field:string>", "ソート項目 (created, status, priority, title)")
-    .option("-d, --detail", "詳細情報を表示")
-    .option("-a, --all", "全てのリポジトリのタスクを表示")
-    .option("-g, --group-by-repo", "リポジトリごとにグループ化して表示")
-    .option("--json", "JSON形式で出力")
+    .description(i18n.t("list.description"))
+    .option("-s, --status <status:string>", i18n.t("list.options.status.description"))
+    .option("-p, --priority <priority:string>", i18n.t("list.options.priority.description"))
+    .option("-t, --tags <tags:string[]>", i18n.t("list.options.tags.description"))
+    .option("--sort <field:string>", i18n.t("list.options.sort.description"))
+    .option("-d, --detail", i18n.t("list.options.detailed.description"))
+    .option("-a, --all", i18n.t("list.options.all.description"))
+    .option("-g, --group-by-repo", i18n.t("list.options.group.description"))
+    .option("--json", i18n.t("list.options.json.description"))
     .action(createAction<ListOptions>(async (options) => {
       await executeCommand(async ({ container }) => {
+        // Set the i18n service on the container
+        container.setI18nService(i18n);
+
         const taskService = await container.getTaskService();
         const gitService = container.getGitService();
         const pathResolver = await container.getPathResolver();
 
-        await listTasks(taskService, gitService, pathResolver, options);
+        await listTasks(taskService, gitService, pathResolver, options, i18n);
         return ok(undefined);
       });
     }));
@@ -60,6 +64,7 @@ async function listTasks(
   gitService: GitService,
   pathResolver: PathResolver,
   options: ListOptions,
+  i18n: I18nService,
 ): Promise<void> {
   try {
     // Get base directory for full path reconstruction
@@ -118,9 +123,11 @@ async function listTasks(
     // Output results
     if (tasks.length === 0) {
       output(tasks, options, () => {
-        let result = "タスクが見つかりませんでした。";
+        let result = i18n.t("common.info.noTasks");
         if (repoInfo) {
-          result += `\n📁 リポジトリ: ${repoInfo.owner}/${repoInfo.repo}`;
+          result += `\n${
+            i18n.t("list.messages.repository", { repo: `${repoInfo.owner}/${repoInfo.repo}` })
+          }`;
         }
         return result;
       });
@@ -147,40 +154,56 @@ async function listTasks(
       // Sort repositories
       const sortedRepos = Array.from(tasksByRepo.keys()).sort();
 
-      console.log(`📁 全リポジトリのタスク`);
-      console.log(`📋 総タスク数: ${tasks.length}\n`);
+      console.log(i18n.t("list.messages.allRepositories"));
+      console.log(i18n.t("list.messages.totalTasks", { count: tasks.length }) + "\n");
 
       for (const repo of sortedRepos) {
         const repoTasks = tasksByRepo.get(repo)!;
         console.log(colors.cyan(`\n━━━ ${repo} ━━━`));
-        console.log(`📋 タスク数: ${repoTasks.length}\n`);
+        console.log(i18n.t("list.messages.taskCount", { count: repoTasks.length }) + "\n");
 
         if (options.detail) {
           // Detailed view for each repo
           for (const task of repoTasks) {
             const fullPath = baseDir ? join(baseDir, task.path) : task.path;
             console.log(colors.bold(task.title));
-            console.log(`  ファイル: ${colors.gray(task.fileName)}`);
-            console.log(`  フルパス: ${colors.gray(fullPath)}`);
-            console.log(`  ステータス: ${formatStatus(task.status)}`);
-            console.log(`  優先度: ${formatPriority(task.priority)}`);
+            console.log(
+              `  ${i18n.t("list.messages.file", { filename: colors.gray(task.fileName) })}`,
+            );
+            console.log(`  ${i18n.t("list.messages.fullPath", { path: colors.gray(fullPath) })}`);
+            console.log(
+              `  ${i18n.t("list.messages.status", { status: formatStatus(task.status, i18n) })}`,
+            );
+            console.log(
+              `  ${
+                i18n.t("list.messages.priority", { priority: formatPriority(task.priority, i18n) })
+              }`,
+            );
             if (task.tags.length > 0) {
-              console.log(`  タグ: ${formatTags(task.tags)}`);
+              console.log(`  ${i18n.t("list.messages.tags", { tags: formatTags(task.tags) })}`);
             }
-            console.log(`  作成日: ${formatDate(task.created)}`);
+            console.log(
+              `  ${i18n.t("list.messages.created", { date: formatDate(task.created, i18n) })}`,
+            );
             console.log();
           }
         } else {
           // Table view for each repo
           const table = new Table()
-            .header(["タイトル", "ステータス", "優先度", "タグ", "作成日"])
+            .header([
+              i18n.t("list.table.headers.title"),
+              i18n.t("list.table.headers.status"),
+              i18n.t("list.table.headers.priority"),
+              i18n.t("list.table.headers.tags"),
+              i18n.t("list.table.headers.created"),
+            ])
             .body(
               repoTasks.map((task) => [
                 task.title,
-                formatStatus(task.status),
-                formatPriority(task.priority),
+                formatStatus(task.status, i18n),
+                formatPriority(task.priority, i18n),
                 formatTags(task.tags),
-                formatDate(task.created),
+                formatDate(task.created, i18n),
               ]),
             )
             .maxColWidth(40)
@@ -195,38 +218,56 @@ async function listTasks(
 
     // Display header
     if (repoInfo) {
-      console.log(`📁 リポジトリ: ${colors.cyan(repoInfo.owner + "/" + repoInfo.repo)}`);
+      console.log(
+        i18n.t("list.messages.repository", {
+          repo: colors.cyan(repoInfo.owner + "/" + repoInfo.repo),
+        }),
+      );
     } else {
-      console.log(`📁 全てのタスク`);
+      console.log(i18n.t("list.messages.allTasks"));
     }
-    console.log(`📋 タスク数: ${tasks.length}\n`);
+    console.log(i18n.t("list.messages.taskCount", { count: tasks.length }) + "\n");
 
     if (options.detail) {
       // Detailed view
       for (const task of tasks) {
         const fullPath = baseDir ? join(baseDir, task.path) : task.path;
         console.log(colors.bold(task.title));
-        console.log(`  ファイル: ${colors.gray(task.fileName)}`);
-        console.log(`  フルパス: ${colors.gray(fullPath)}`);
-        console.log(`  ステータス: ${formatStatus(task.status)}`);
-        console.log(`  優先度: ${formatPriority(task.priority)}`);
+        console.log(`  ${i18n.t("list.messages.file", { filename: colors.gray(task.fileName) })}`);
+        console.log(`  ${i18n.t("list.messages.fullPath", { path: colors.gray(fullPath) })}`);
+        console.log(
+          `  ${i18n.t("list.messages.status", { status: formatStatus(task.status, i18n) })}`,
+        );
+        console.log(
+          `  ${
+            i18n.t("list.messages.priority", { priority: formatPriority(task.priority, i18n) })
+          }`,
+        );
         if (task.tags.length > 0) {
-          console.log(`  タグ: ${formatTags(task.tags)}`);
+          console.log(`  ${i18n.t("list.messages.tags", { tags: formatTags(task.tags) })}`);
         }
-        console.log(`  作成日: ${formatDate(task.created)}`);
+        console.log(
+          `  ${i18n.t("list.messages.created", { date: formatDate(task.created, i18n) })}`,
+        );
         console.log();
       }
     } else {
       // Table view
       const table = new Table()
-        .header(["タイトル", "ステータス", "優先度", "タグ", "作成日"])
+        .header([
+          i18n.t("list.table.headers.title"),
+          i18n.t("list.table.headers.status"),
+          i18n.t("list.table.headers.priority"),
+          i18n.t("list.table.headers.tags"),
+          i18n.t("list.table.headers.created"),
+        ])
         .body(
           tasks.map((task) => [
             task.title,
-            formatStatus(task.status),
-            formatPriority(task.priority),
+            formatStatus(task.status, i18n),
+            formatPriority(task.priority, i18n),
             formatTags(task.tags),
-            formatDate(task.created),
+            formatDate(task.created, i18n),
           ]),
         )
         .maxColWidth(40)

@@ -98,6 +98,12 @@ export class TaskNotFoundError extends TaskError {
   }
 }
 
+export class PropertyNotFoundError extends TaskError {
+  constructor(property: string) {
+    super(`Property not found: ${property}`, "PROPERTY_NOT_FOUND");
+  }
+}
+
 /**
  * Extract error message from unknown error type
  */

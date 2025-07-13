@@ -2,6 +2,9 @@ import { Config } from "../types.ts";
 
 export const DEFAULT_CONFIG: Config = {
   task_directory: "~/locus",
+  language: {
+    default: "ja",
+  },
   git: {
     extract_username: true,
     username_from_remote: true,

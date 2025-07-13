@@ -27,10 +27,18 @@ export const DefaultsConfigSchema = z.object({
 });
 
 /**
+ * Language configuration schema
+ */
+export const LanguageConfigSchema = z.object({
+  default: z.enum(["ja", "en"]).default("ja"),
+});
+
+/**
  * Main configuration schema
  */
 export const ConfigSchema = z.object({
   task_directory: z.string().default("~/locus"),
+  language: LanguageConfigSchema,
   git: GitConfigSchema,
   file_naming: FileNamingConfigSchema,
   defaults: DefaultsConfigSchema,
@@ -42,4 +50,5 @@ export const ConfigSchema = z.object({
 export type GitConfig = z.infer<typeof GitConfigSchema>;
 export type FileNamingConfig = z.infer<typeof FileNamingConfigSchema>;
 export type DefaultsConfig = z.infer<typeof DefaultsConfigSchema>;
+export type LanguageConfig = z.infer<typeof LanguageConfigSchema>;
 export type Config = z.infer<typeof ConfigSchema>;

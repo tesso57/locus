@@ -2,7 +2,15 @@ import { Result } from "../../utils/result.ts";
 import { ServiceContainer } from "../../services/service-container.ts";
 import { GitService } from "../../services/git-service.ts";
 import { RepoInfo } from "../../types.ts";
-import { getErrorMessage, logError } from "../../utils/errors.ts";
+import {
+  getErrorMessage as getOriginalErrorMessage,
+  logError as logOriginalError,
+} from "../../utils/errors.ts";
+import { I18nService } from "../../services/i18n.ts";
+import {
+  getErrorMessage as getI18nErrorMessage,
+  logError as logI18nError,
+} from "../../utils/errors-i18n.ts";
 
 /**
  * Command execution context
@@ -23,7 +31,7 @@ export interface BaseCommandOptions {
  * Exit the process with an error message
  */
 export function exitWithError(message: string, code: number = 1): never {
-  logError(message);
+  logOriginalError(message);
 
   // In test environment, throw an error instead of exiting
   if (Deno.env.get("DENO_TEST") === "true" || (globalThis as any).__TEST__) {
@@ -34,10 +42,32 @@ export function exitWithError(message: string, code: number = 1): never {
 }
 
 /**
+ * Get error message with i18n support
+ */
+export function getErrorMessage(error: unknown, i18n?: I18nService): string {
+  if (i18n) {
+    return getI18nErrorMessage(error, i18n);
+  }
+  return getOriginalErrorMessage(error);
+}
+
+/**
+ * Log error with i18n support
+ */
+export function logError(message: string, i18n?: I18nService): void {
+  if (i18n) {
+    logI18nError(message, i18n);
+  } else {
+    logOriginalError(message);
+  }
+}
+
+/**
  * Execute a command with proper initialization and error handling
  */
 export async function executeCommand<T>(
   action: (ctx: CommandContext) => Promise<Result<T, Error>>,
+  i18n?: I18nService,
 ): Promise<void> {
   const container = ServiceContainer.getInstance();
 
@@ -46,10 +76,13 @@ export async function executeCommand<T>(
     const result = await action({ container });
 
     if (!result.ok) {
-      exitWithError(result.error.message);
+      const message = getErrorMessage(result.error, i18n);
+      logError(message, i18n);
+      exitWithError(message);
     }
   } catch (error: unknown) {
-    const message = getErrorMessage(error);
+    const message = getErrorMessage(error, i18n);
+    logError(message, i18n);
     exitWithError(message);
   }
 }

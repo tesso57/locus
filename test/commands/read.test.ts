@@ -8,10 +8,12 @@ import { TaskInfo } from "../../src/services/task-service.ts";
 import { err, ok } from "../../src/utils/result.ts";
 import { TaskNotFoundError } from "../../src/utils/errors.ts";
 import { stripAnsi } from "../test-utils.ts";
+import { MockI18nService } from "../mocks/mock-i18n-service.ts";
 
 describe("read command", () => {
   let mockTaskService: MockTaskService;
   let mockGitService: MockGitService;
+  let mockI18n: MockI18nService;
   let capturedOutput: string[];
   let originalLog: typeof console.log;
   let originalError: typeof console.error;
@@ -25,12 +27,14 @@ describe("read command", () => {
     // Create mocks
     mockTaskService = new MockTaskService();
     mockGitService = new MockGitService();
+    mockI18n = new MockI18nService();
 
     // Set up service container with mocks
     const container = ServiceContainer.getInstance();
     container.setServices({
       taskService: mockTaskService,
       gitService: mockGitService,
+      i18nService: mockI18n,
     });
 
     // Capture console output
@@ -81,7 +85,7 @@ describe("read command", () => {
     });
 
     // Act
-    const command = createReadCommand();
+    const command = createReadCommand(mockI18n);
     await command.parse(["2024-01-15-test-task-abc123.md"]);
 
     // Assert
@@ -118,7 +122,7 @@ describe("read command", () => {
     mockTaskService.setTask("test.md", testTask);
 
     // Act
-    const command = createReadCommand();
+    const command = createReadCommand(mockI18n);
     await command.parse(["test.md", "--raw", "--no-git"]);
 
     // Assert
@@ -146,7 +150,7 @@ describe("read command", () => {
     mockTaskService.setTask("test.md", testTask);
 
     // Act
-    const command = createReadCommand();
+    const command = createReadCommand(mockI18n);
     await command.parse(["test.md", "--json", "--no-git"]);
 
     // Assert
@@ -165,7 +169,7 @@ describe("read command", () => {
     );
 
     // Act & Assert
-    const command = createReadCommand();
+    const command = createReadCommand(mockI18n);
     await assertRejects(
       async () => {
         await command.parse(["nonexistent.md", "--no-git"]);
@@ -196,7 +200,7 @@ describe("read command", () => {
     mockTaskService.setTask("empty.md", testTask);
 
     // Act
-    const command = createReadCommand();
+    const command = createReadCommand(mockI18n);
     await command.parse(["empty.md", "--no-git"]);
 
     // Assert
@@ -229,7 +233,7 @@ describe("read command", () => {
     mockTaskService.setTask("custom.md", testTask);
 
     // Act
-    const command = createReadCommand();
+    const command = createReadCommand(mockI18n);
     await command.parse(["custom.md", "--no-git"]);
 
     // Assert
@@ -259,7 +263,7 @@ describe("read command", () => {
     mockTaskService.setTask("test.md", testTask);
 
     // Act
-    const command = createReadCommand();
+    const command = createReadCommand(mockI18n);
     await command.parse(["test.md", "--no-color", "--no-git"]);
 
     // Assert
@@ -278,7 +282,7 @@ describe("read command", () => {
 
   it("should reject invalid file names", async () => {
     // Act & Assert
-    const command = createReadCommand();
+    const command = createReadCommand(mockI18n);
     await assertRejects(
       async () => {
         await command.parse(["../../../etc/passwd", "--no-git"]);

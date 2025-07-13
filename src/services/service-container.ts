@@ -4,10 +4,13 @@ import { GitService } from "./git-service.ts";
 import { PathResolver } from "./path-resolver.ts";
 import { TaskService } from "./task-service.ts";
 import { FileSystem } from "./file-system.ts";
+import { TagsService } from "./tags-service.ts";
 import { DefaultGitService } from "./git-service.ts";
 import { DefaultPathResolver } from "./path-resolver.ts";
 import { DefaultTaskService } from "./default-task-service.ts";
 import { DefaultFileSystem } from "./default-file-system.ts";
+import { DefaultTagsService } from "./default-tags-service.ts";
+import { I18nService } from "./i18n.ts";
 
 /**
  * Service container for dependency injection
@@ -20,6 +23,8 @@ export class ServiceContainer {
   private pathResolver: PathResolver | null = null;
   private taskService: TaskService | null = null;
   private fileSystem: FileSystem | null = null;
+  private tagsService: TagsService | null = null;
+  private i18nService: I18nService | null = null;
 
   private constructor() {}
 
@@ -98,6 +103,35 @@ export class ServiceContainer {
   }
 
   /**
+   * Get TagsService instance
+   */
+  async getTagsService(): Promise<TagsService> {
+    if (!this.tagsService) {
+      const pathResolver = await this.getPathResolver();
+      const fileSystem = this.getFileSystem();
+      this.tagsService = new DefaultTagsService(pathResolver, fileSystem);
+    }
+    return this.tagsService;
+  }
+
+  /**
+   * Get I18nService instance
+   */
+  getI18nService(): I18nService {
+    if (!this.i18nService) {
+      throw new Error("I18n service not initialized. Call setI18nService first.");
+    }
+    return this.i18nService;
+  }
+
+  /**
+   * Set I18nService instance
+   */
+  setI18nService(i18nService: I18nService): void {
+    this.i18nService = i18nService;
+  }
+
+  /**
    * Set custom services for testing
    */
   setServices(services: {
@@ -106,12 +140,16 @@ export class ServiceContainer {
     pathResolver?: PathResolver;
     taskService?: TaskService;
     fileSystem?: FileSystem;
+    tagsService?: TagsService;
+    i18nService?: I18nService;
   }): void {
     if (services.config) this.config = services.config;
     if (services.gitService) this.gitService = services.gitService;
     if (services.pathResolver) this.pathResolver = services.pathResolver;
     if (services.taskService) this.taskService = services.taskService;
     if (services.fileSystem) this.fileSystem = services.fileSystem;
+    if (services.tagsService) this.tagsService = services.tagsService;
+    if (services.i18nService) this.i18nService = services.i18nService;
   }
 
   /**
@@ -123,6 +161,8 @@ export class ServiceContainer {
     this.pathResolver = null;
     this.taskService = null;
     this.fileSystem = null;
+    this.tagsService = null;
+    this.i18nService = null;
   }
 
   /**

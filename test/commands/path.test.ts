@@ -9,12 +9,14 @@ import { ok } from "../../src/utils/result.ts";
 import { join } from "@std/path";
 import { InMemoryFileSystem } from "../mocks/in-memory-fs.ts";
 import { Config } from "../../src/types.ts";
+import { MockI18nService } from "../mocks/mock-i18n-service.ts";
 
 describe("path command", () => {
   let mockTaskService: MockTaskService;
   let mockGitService: MockGitService;
   let mockPathResolver: MockPathResolver;
   let mockFs: InMemoryFileSystem;
+  let mockI18n: MockI18nService;
   let capturedOutput: string[];
   let originalLog: typeof console.log;
   let originalError: typeof console.error;
@@ -32,9 +34,10 @@ describe("path command", () => {
     mockGitService = new MockGitService();
     mockFs = new InMemoryFileSystem();
     mockPathResolver = new MockPathResolver(mockFs, "/home/user/locus/tasks");
+    mockI18n = new MockI18nService();
 
     // Create mock config
-    const mockConfig = {
+    const mockConfig: Config = {
       task_directory: "/home/user/locus/tasks",
       git: {
         extract_username: true,
@@ -50,6 +53,9 @@ describe("path command", () => {
         priority: "medium",
         tags: [],
       },
+      language: {
+        default: "ja",
+      },
     };
 
     // Set up service container with mocks
@@ -64,6 +70,7 @@ describe("path command", () => {
       gitService: mockGitService,
       pathResolver: mockPathResolver,
       fileSystem: mockFs,
+      i18nService: mockI18n,
     });
 
     // Capture console output
@@ -106,7 +113,7 @@ describe("path command", () => {
     await mockFs.writeTextFile(expectedPath, "# Test Task\n\nContent");
 
     // Execute
-    const command = createPathCommand();
+    const command = createPathCommand(mockI18n);
     let exited = false;
     let exitedWith = null;
     try {
@@ -151,7 +158,7 @@ describe("path command", () => {
     await mockFs.writeTextFile(absolutePath, "# Absolute Path Task\n\nContent");
 
     // Execute
-    const command = createPathCommand();
+    const command = createPathCommand(mockI18n);
     await command.parse([absolutePath]);
 
     // Assert
@@ -177,7 +184,7 @@ describe("path command", () => {
       throw new Error("Exit called");
     };
 
-    const command = createPathCommand();
+    const command = createPathCommand(mockI18n);
 
     try {
       await command.parse([fileName, "--no-git"]);
@@ -209,7 +216,7 @@ describe("path command", () => {
     await mockFs.writeTextFile(expectedPath, "# Test Task\n\nContent");
 
     // Execute
-    const command = createPathCommand();
+    const command = createPathCommand(mockI18n);
     await command.parse([fileName, "--no-git"]);
 
     // Assert
@@ -238,7 +245,7 @@ Task content`,
     );
 
     // Execute
-    const command = createPathCommand();
+    const command = createPathCommand(mockI18n);
     await command.parse([searchTerm, "--no-git"]);
 
     // Assert
@@ -286,7 +293,7 @@ Content`,
     };
 
     // Execute
-    const command = createPathCommand();
+    const command = createPathCommand(mockI18n);
 
     try {
       await command.parse([searchTerm, "--no-git"]);
