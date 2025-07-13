@@ -1,0 +1,38 @@
+# Development files
+test/
+test-repo/
+examples/
+coverage/
+.vscode/
+.idea/
+
+# Build files
+npm/
+locus
+
+# Configuration files
+.gitignore
+.editorconfig
+deno.json
+deno.lock
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Scripts (except postinstall)
+scripts/
+!scripts/postinstall.js
+
+# Source files (except what's needed)
+src/
+!bin/
+
+# CI/CD
+.github/
+
+# Other
+CLAUDE.md
+.env
+.env.*

@@ -28,7 +28,7 @@ export class MockI18nService implements I18nService {
   t(key: string, params?: Record<string, unknown>): string {
     // Try to get from default messages first
     let message = this.defaultMessages[key] || key;
-    
+
     // Return the message with params interpolated if provided
     if (params) {
       for (const [paramKey, value] of Object.entries(params)) {
