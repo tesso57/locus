@@ -3,9 +3,7 @@
   "version": "0.1.1",
   "description": "Git-aware task management CLI tool built with Deno",
   "exports": {
-    ".": "./src/mod.ts",
-    "./cli": "./src/cli.ts",
-    "./jsr-cli": "./src/jsr-cli.ts"
+    ".": "./src/cli.ts"
   },
   "imports": {
     "@deno/dnt": "jsr:@deno/dnt@^0.42.1",
@@ -89,6 +87,5 @@
       "src/**/*.test.ts",
       "test/**/*"
     ]
-  },
-  "bin": "./src/jsr-cli.ts"
+  }
 }
