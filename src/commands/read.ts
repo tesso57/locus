@@ -1,5 +1,5 @@
 import { Command } from "@cliffy/command";
-import { colors } from "@cliffy/ansi";
+import { colors } from "@cliffy/ansi/colors";
 import { TaskService } from "../services/task-service.ts";
 import { FileSystem } from "../services/file-system.ts";
 import { displayTask } from "../utils/display.ts";
@@ -84,7 +84,7 @@ export function createReadCommand(i18n: I18nService): Command<any, any, any> {
         } catch {
           // Ignore errors in test environment
         }
-        const formattedOutput = await displayTask(task, {
+        const formattedOutput = displayTask(task, {
           noColor: options.noColor || !isTerminal,
           repoInfo,
         }, i18n);
@@ -157,7 +157,7 @@ async function readAbsolutePath(
   } catch {
     // Ignore errors in test environment
   }
-  const formattedOutput = await displayTask(task, {
+  const formattedOutput = displayTask(task, {
     noColor: options.noColor || !isTerminal,
     repoInfo: null,
   }, i18n);

@@ -31,7 +31,7 @@ export function createTagsCommand(i18n: I18nService): Command<any, any, any> {
       const tagsService = await container.getTagsService();
       const gitService = container.getGitService();
       const repoInfo = await getRepoInfoOptional(gitService, !options.git);
-      await listTags(tagsService, { fileName, repoInfo }, i18n);
+      await listTags(tagsService, { fileName }, i18n);
     })
     // get subcommand
     .command("get", i18n.t("tags.get.description"))
@@ -43,7 +43,7 @@ export function createTagsCommand(i18n: I18nService): Command<any, any, any> {
       const tagsService = await container.getTagsService();
       const gitService = container.getGitService();
       const repoInfo = await getRepoInfoOptional(gitService, !options.git);
-      await getTag(tagsService, { fileName, property, repoInfo }, i18n);
+      await getTag(tagsService, { fileName, property }, i18n);
     })
     // set subcommand
     .command("set", i18n.t("tags.set.description"))
@@ -65,7 +65,7 @@ export function createTagsCommand(i18n: I18nService): Command<any, any, any> {
         // Keep as string if not valid JSON
       }
 
-      await setTag(tagsService, { fileName, property, value: parsedValue, repoInfo }, i18n);
+      await setTag(tagsService, { fileName, property, value: String(parsedValue) }, i18n);
     })
     // rm subcommand
     .command("rm", i18n.t("tags.rm.description"))
@@ -78,7 +78,7 @@ export function createTagsCommand(i18n: I18nService): Command<any, any, any> {
       const tagsService = await container.getTagsService();
       const gitService = container.getGitService();
       const repoInfo = await getRepoInfoOptional(gitService, !options.git);
-      await removeTag(tagsService, { fileName, property, repoInfo }, i18n);
+      await removeTag(tagsService, { fileName, property }, i18n);
     })
     // clear subcommand
     .command("clear", i18n.t("tags.clear.description"))
@@ -90,7 +90,7 @@ export function createTagsCommand(i18n: I18nService): Command<any, any, any> {
       const tagsService = await container.getTagsService();
       const gitService = container.getGitService();
       const repoInfo = await getRepoInfoOptional(gitService, !options.git);
-      await clearTags(tagsService, { fileName, repoInfo }, i18n);
+      await clearTags(tagsService, { fileName }, i18n);
     });
 }
 

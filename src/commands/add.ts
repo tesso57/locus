@@ -1,5 +1,5 @@
 import { Command } from "@cliffy/command";
-import { colors } from "@cliffy/ansi";
+import { colors } from "@cliffy/ansi/colors";
 import { CreateTaskOptions } from "../services/task-service.ts";
 import { ServiceContainer } from "../services/service-container.ts";
 import { createAction, executeCommand, getRepoInfoOptional } from "./utils/command-helpers.ts";
@@ -87,14 +87,14 @@ export function createAddCommand(i18n: I18nService): Command<any, any, any> {
           console.log(
             `  ${
               i18n.t("add.messages.status", {
-                status: formatI18n.formatStatus(createOptions.status, i18n),
+                status: formatI18n.formatStatus(createOptions.status || "todo", i18n),
               })
             }`,
           );
           console.log(
             `  ${
               i18n.t("add.messages.priority", {
-                priority: formatI18n.formatPriority(createOptions.priority, i18n),
+                priority: formatI18n.formatPriority(createOptions.priority || "normal", i18n),
               })
             }`,
           );

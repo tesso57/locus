@@ -24,7 +24,7 @@ export function createConfigCommand(i18n: I18nService): Command<any, any, any> {
     // path subcommand
     .command("path", i18n.t("config.path.description"))
     .action(async () => {
-      await showConfigPath(i18n);
+      await showConfigPath();
     })
     // init subcommand
     .command("init", i18n.t("config.init.description"))
@@ -37,16 +37,16 @@ export function createConfigCommand(i18n: I18nService): Command<any, any, any> {
 async function showConfig(asJson: boolean = false, i18n: I18nService): Promise<void> {
   try {
     const config = await loadConfig();
+    const configFile = await findConfigFile();
 
-    output(config, { json: asJson }, async (data) => {
+    output(config, { json: asJson }, (data) => {
       let result = "🔧 現在の設定:\n\n";
       result += stringify(data, {
         lineWidth: -1,
-        noRefs: true,
+        useAnchors: false,
       });
 
       // Show source of configuration
-      const configFile = await findConfigFile();
       if (configFile) {
         result += `\n📁 設定ファイル: ${configFile}`;
       } else {
@@ -65,8 +65,8 @@ async function showConfig(asJson: boolean = false, i18n: I18nService): Promise<v
       return result;
     });
   } catch (error: unknown) {
-    const message = getErrorMessage(error);
-    logError(message);
+    const message = getErrorMessage(error, i18n);
+    logError(message, i18n);
     Deno.exit(1);
   }
 }
@@ -91,7 +91,7 @@ async function initConfig(force: boolean = false, i18n: I18nService): Promise<vo
 
   try {
     if (await exists(configPath) && !force) {
-      logError(i18n.t("config.messages.fileExists", { path: configPath }));
+      logError(i18n.t("config.messages.fileExists", { path: configPath }), i18n);
       console.error(i18n.t("config.messages.useForce"));
       Deno.exit(1);
     }
@@ -101,8 +101,8 @@ async function initConfig(force: boolean = false, i18n: I18nService): Promise<vo
     console.log(`\n${i18n.t("common.info.runToEdit")}`);
     console.log(`  $EDITOR ${configPath}`);
   } catch (error: unknown) {
-    const message = getErrorMessage(error);
-    logError(message);
+    const message = getErrorMessage(error, i18n);
+    logError(message, i18n);
     Deno.exit(1);
   }
 }

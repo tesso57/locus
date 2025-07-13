@@ -1,4 +1,4 @@
-import { colors } from "@cliffy/ansi";
+import { colors } from "@cliffy/ansi/colors";
 import { I18nService } from "../services/i18n.ts";
 
 /**

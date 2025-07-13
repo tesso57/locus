@@ -4,7 +4,7 @@
  * for parts of the codebase that haven't been updated to use i18n yet.
  */
 
-import { colors } from "@cliffy/ansi";
+import { colors } from "@cliffy/ansi/colors";
 
 /**
  * Format task status with color and icon (Japanese)

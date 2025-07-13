@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { afterEach, beforeEach, describe, it } from "@std/testing";
+import { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 import { join } from "@std/path";
 import { createPathCommand } from "../../src/commands/path.ts";
 import { ServiceContainer } from "../../src/services/service-container.ts";

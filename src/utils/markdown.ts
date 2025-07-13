@@ -47,7 +47,7 @@ export function generateMarkdown(
 
   const yamlContent = stringify(frontmatter, {
     lineWidth: -1, // Disable line wrapping
-    noRefs: true, // Disable anchors and aliases
+    useAnchors: false, // Disable anchors and aliases
   }).trim();
 
   return `---\n${yamlContent}\n---\n${body}`;

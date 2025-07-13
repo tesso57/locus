@@ -3,7 +3,10 @@ import { z } from "zod";
 /**
  * Git configuration schema
  */
-export const GitConfigSchema = z.object({
+export const GitConfigSchema: z.ZodObject<{
+  extract_username: z.ZodDefault<z.ZodBoolean>;
+  username_from_remote: z.ZodDefault<z.ZodBoolean>;
+}> = z.object({
   extract_username: z.boolean().default(true),
   username_from_remote: z.boolean().default(true),
 });
@@ -11,7 +14,11 @@ export const GitConfigSchema = z.object({
 /**
  * File naming configuration schema
  */
-export const FileNamingConfigSchema = z.object({
+export const FileNamingConfigSchema: z.ZodObject<{
+  pattern: z.ZodDefault<z.ZodString>;
+  date_format: z.ZodDefault<z.ZodString>;
+  hash_length: z.ZodDefault<z.ZodNumber>;
+}> = z.object({
   pattern: z.string().regex(/\{date\}|\{slug\}|\{hash\}/).default("{date}-{slug}-{hash}.md"),
   date_format: z.string().default("YYYY-MM-DD"),
   hash_length: z.number().int().min(4).max(32).default(8),
@@ -20,7 +27,11 @@ export const FileNamingConfigSchema = z.object({
 /**
  * Defaults configuration schema
  */
-export const DefaultsConfigSchema = z.object({
+export const DefaultsConfigSchema: z.ZodObject<{
+  status: z.ZodDefault<z.ZodString>;
+  priority: z.ZodDefault<z.ZodString>;
+  tags: z.ZodDefault<z.ZodArray<z.ZodString>>;
+}> = z.object({
   status: z.string().default("todo"),
   priority: z.string().default("normal"),
   tags: z.array(z.string()).default([]),
@@ -29,14 +40,22 @@ export const DefaultsConfigSchema = z.object({
 /**
  * Language configuration schema
  */
-export const LanguageConfigSchema = z.object({
+export const LanguageConfigSchema: z.ZodObject<{
+  default: z.ZodDefault<z.ZodEnum<["ja", "en"]>>;
+}> = z.object({
   default: z.enum(["ja", "en"]).default("ja"),
 });
 
 /**
  * Main configuration schema
  */
-export const ConfigSchema = z.object({
+export const ConfigSchema: z.ZodObject<{
+  task_directory: z.ZodDefault<z.ZodString>;
+  language: typeof LanguageConfigSchema;
+  git: typeof GitConfigSchema;
+  file_naming: typeof FileNamingConfigSchema;
+  defaults: typeof DefaultsConfigSchema;
+}> = z.object({
   task_directory: z.string().default("~/locus"),
   language: LanguageConfigSchema,
   git: GitConfigSchema,

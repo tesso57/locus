@@ -1,4 +1,4 @@
-import { colors } from "@cliffy/ansi";
+import { colors } from "@cliffy/ansi/colors";
 
 /**
  * Format task status with color and icon

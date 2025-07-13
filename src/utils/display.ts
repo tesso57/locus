@@ -1,5 +1,4 @@
-import { colors } from "@cliffy/ansi";
-import { renderMarkdown } from "charmd";
+import { colors } from "@cliffy/ansi/colors";
 import { TaskInfo } from "../services/task-service.ts";
 import { RepoInfo } from "../types.ts";
 import { formatDate, formatPriority, formatStatus, formatTags } from "./format-i18n.ts";
@@ -13,11 +12,11 @@ interface DisplayOptions {
 /**
  * Display a task with formatted output
  */
-export async function displayTask(
+export function displayTask(
   task: TaskInfo,
   options: DisplayOptions = {},
   i18n: I18nService,
-): Promise<string> {
+): string {
   const output: string[] = [];
   const noColor = options.noColor ?? false;
 
@@ -130,7 +129,7 @@ export async function displayTask(
 
   if (task.body.trim()) {
     // Render markdown body
-    const renderedBody = await renderMarkdownBody(task.body, noColor);
+    const renderedBody = renderMarkdownBody(task.body, noColor);
     output.push(renderedBody);
   } else {
     output.push(noColor ? i18n.t("display.noContent") : colors.gray(i18n.t("display.noContent")));
@@ -145,20 +144,9 @@ export async function displayTask(
 /**
  * Render markdown body with terminal formatting
  */
-async function renderMarkdownBody(markdown: string, noColor: boolean = false): Promise<string> {
-  // If no color is requested, use basic formatting instead of charmd
-  if (noColor) {
-    return formatMarkdownBasic(markdown, noColor);
-  }
-
-  try {
-    // Use charMD to render markdown for terminal
-    const rendered = await renderMarkdown(markdown);
-    return rendered;
-  } catch (error: unknown) {
-    // Fallback to basic formatting if charMD fails
-    return formatMarkdownBasic(markdown, noColor);
-  }
+function renderMarkdownBody(markdown: string, noColor: boolean = false): string {
+  // Always use basic formatting
+  return formatMarkdownBasic(markdown, noColor);
 }
 
 /**

@@ -1,6 +1,6 @@
 import { Command } from "@cliffy/command";
 import { Table } from "@cliffy/table";
-import { colors } from "@cliffy/ansi";
+import { colors } from "@cliffy/ansi/colors";
 import { TaskInfo, TaskService } from "../services/task-service.ts";
 import { GitService } from "../services/git-service.ts";
 import { PathResolver } from "../services/path-resolver.ts";
