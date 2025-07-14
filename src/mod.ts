@@ -15,9 +15,7 @@ export {
 export { DEFAULT_CONFIG } from "./config/defaults.ts";
 
 // Utility exports
-export * from "./utils/git.ts";
 export * from "./utils/markdown.ts";
-export * from "./utils/path.ts";
 export * from "./utils/filename.ts";
 
 // Command creation functions for extensibility

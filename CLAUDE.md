@@ -23,6 +23,10 @@ deno task install-local # Install locally as 'locus' command
 # Running specific tests
 deno test test/commands/add.test.ts  # Run single test file
 deno test --filter "add command"      # Run tests matching pattern
+
+# Direct execution (without tasks)
+deno run --allow-all src/cli.ts       # Run CLI directly
+npx deno run --allow-all src/cli.ts   # Run via npx (if Deno is installed via npm)
 ```
 
 ## Internationalization (i18n)

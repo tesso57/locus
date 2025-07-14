@@ -21,6 +21,9 @@ A Git-aware task management CLI tool that organizes your tasks by repository. Ea
 ### Using Deno (Recommended)
 
 ```bash
+# Install from JSR
+deno install -n locus jsr:@tesso/locus
+
 # Install from local source
 deno task install-local
 
@@ -252,6 +255,24 @@ deno task compile
 - `deno task check` - Run format check, lint, and tests
 - `deno task compile` - Build binaries for all platforms
 - `deno task install-local` - Install locally as 'locus' command
+
+### Direct Execution
+
+You can also run the CLI directly without using tasks:
+
+```bash
+# Run with deno
+deno run --allow-all src/cli.ts
+
+# Run with npx (if Deno is installed via npm)
+npx deno run --allow-all src/cli.ts
+
+# Run directly from JSR
+deno run jsr:@tesso/locus
+
+# Run with npx from JSR
+npx @tesso/locus
+```
 
 ## License
 

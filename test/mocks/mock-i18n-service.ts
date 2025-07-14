@@ -9,17 +9,18 @@ export class MockI18nService implements I18nService {
   private defaultMessages: Record<string, string> = {
     "path.messages.fileNotFound": "タスクファイルが見つかりません",
     "path.messages.taskFileNotFound": "タスクファイルが見つかりません：{filename}",
+    "path.errors.notFound": "タスクファイルが見つかりません: {filename}",
+    "path.errors.hint": "--no-gitオプションを使用してください",
     "display.metadata": "メタデータ",
     "display.file": "ファイル",
     "display.status": "ステータス",
     "display.priority": "優先度",
     "display.tags": "タグ: {tags}",
     "display.created": "作成日: {date}",
-    "display.customFields": "カスタムフィールド",
     "display.content": "内容",
-    "display.noContent": "(内容なし)",
+    "display.noContent": "（本文なし）",
     "display.noBody": "（本文なし）",
-    "display.customFields:": "カスタムフィールド:",
+    "display.customFields": "🔧 カスタムフィールド:",
   };
 
   /**

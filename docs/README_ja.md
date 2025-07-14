@@ -18,6 +18,9 @@ Gitリポジトリごとにタスクを整理する、Git対応のタスク管�
 ### Denoを使用（推奨）
 
 ```bash
+# JSRからインストール
+deno install -n locus jsr:@tesso/locus
+
 # ローカルソースからインストール
 deno task install-local
 
@@ -224,6 +227,24 @@ deno task compile
 - `deno task check` - フォーマットチェック、リント、テストを実行
 - `deno task compile` - 全プラットフォーム用のバイナリをビルド
 - `deno task install-local` - ローカルに 'locus' コマンドとしてインストール
+
+### 直接実行
+
+タスクを使わずにCLIを直接実行することもできます：
+
+```bash
+# denoで実行
+deno run --allow-all src/cli.ts
+
+# npxで実行（npmでDenoがインストールされている場合）
+npx deno run --allow-all src/cli.ts
+
+# JSRから直接実行
+deno run jsr:@tesso/locus
+
+# JSRからnpxで実行
+npx @tesso/locus
+```
 
 ## ライセンス
 
