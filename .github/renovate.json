@@ -1,0 +1,47 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitTypeAll(⬆️)"
+  ],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["every monday"],
+  "labels": ["dependencies", "renovate"],
+  "packageRules": [
+    {
+      "matchManagers": ["deno"],
+      "enabled": true,
+      "rangeStrategy": "bump",
+      "groupName": "Deno JSR dependencies",
+      "matchPackagePatterns": ["^jsr:"],
+      "prPriority": 1
+    },
+    {
+      "matchManagers": ["deno"],
+      "enabled": true,
+      "rangeStrategy": "bump",
+      "groupName": "Deno npm dependencies",
+      "matchPackagePatterns": ["^npm:"],
+      "prPriority": 0
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "enabled": true,
+      "groupName": "GitHub Actions",
+      "automerge": true,
+      "automergeType": "pr",
+      "prPriority": -1
+    }
+  ],
+  "deno": {
+    "enabled": true
+  },
+  "postUpdateOptions": [
+    "denoCache"
+  ],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "semanticCommits": "enabled",
+  "semanticCommitType": "⬆️",
+  "semanticCommitScope": "deps"
+}

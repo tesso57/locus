@@ -107,7 +107,7 @@ export class DefaultTaskService implements TaskService {
       const repository = this.extractRepository(relativePath, repoInfo);
 
       const taskInfo: TaskInfo = {
-        fileName: filePath.split("/").pop() || "",
+        fileName: filePath.split(/[/\\]/).pop() || "",
         title,
         status: frontmatter.status || "todo",
         priority: frontmatter.priority || "normal",
@@ -319,7 +319,7 @@ export class DefaultTaskService implements TaskService {
         return err(new FileSystemError(`Invalid task file: ${filePath}`));
       }
 
-      const fileName = filePath.split("/").pop() || "";
+      const fileName = filePath.split(/[/\\]/).pop() || "";
       const title = extractTitle(body) || fileName.replace(/\.md$/, "");
       const relativePath = this.getRelativePath(filePath);
       const repository = this.extractRepositoryFromPath(relativePath);

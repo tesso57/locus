@@ -47,6 +47,8 @@ This is a test task description.
         env: {
           ...Deno.env.toObject(),
           LOCUS_TASK_DIRECTORY: tempDir,
+          LANG: "ja_JP.UTF-8",
+          LOCUS_LANG: "ja",
         },
         stdout: "piped",
         stderr: "piped",
@@ -114,6 +116,8 @@ Content here.`;
         env: {
           ...Deno.env.toObject(),
           LOCUS_TASK_DIRECTORY: tempDir,
+          LANG: "ja_JP.UTF-8",
+          LOCUS_LANG: "ja",
         },
         stdout: "piped",
         stderr: "piped",
