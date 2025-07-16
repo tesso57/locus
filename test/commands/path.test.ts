@@ -60,10 +60,6 @@ describe("path command", () => {
 
     // Set up service container with mocks
     const container = ServiceContainer.getInstance();
-
-    // Set initialized flag to true to prevent re-initialization
-    // We need to ensure the services are already set and won't be overridden
-
     container.setServices({
       config: mockConfig,
       taskService: mockTaskService,

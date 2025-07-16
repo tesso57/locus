@@ -1,10 +1,10 @@
 import { Config } from "../types.ts";
+import { loadConfig } from "../config/index.ts";
 import { GitService } from "./git-service.ts";
 import { PathResolver } from "./path-resolver.ts";
 import { TaskService } from "./task-service.ts";
 import { FileSystem } from "./file-system.ts";
 import { TagsService } from "./tags-service.ts";
-import { ConfigLoader } from "./config-loader.ts";
 import { SearchService } from "./search-service.ts";
 import { FormatService } from "./format-service.ts";
 import { DefaultGitService } from "./git-service.ts";
@@ -12,7 +12,6 @@ import { DefaultPathResolver } from "./path-resolver.ts";
 import { DefaultTaskService } from "./default-task-service.ts";
 import { DefaultFileSystem } from "./default-file-system.ts";
 import { DefaultTagsService } from "./default-tags-service.ts";
-import { DefaultConfigLoader } from "./default-config-loader.ts";
 import { DefaultSearchService } from "./default-search-service.ts";
 import { DefaultFormatService } from "./default-format-service.ts";
 import { I18nService } from "./i18n.ts";
@@ -24,7 +23,6 @@ export class ServiceContainer {
   private static instance: ServiceContainer | null = null;
 
   private config: Config | null = null;
-  private configLoader: ConfigLoader | null = null;
   private gitService: GitService | null = null;
   private pathResolver: PathResolver | null = null;
   private taskService: TaskService | null = null;
@@ -51,12 +49,7 @@ export class ServiceContainer {
    */
   async initialize(): Promise<void> {
     if (!this.config) {
-      const configLoader = this.getConfigLoader();
-      const result = await configLoader.loadConfig();
-      if (!result.ok) {
-        throw result.error;
-      }
-      this.config = result.value;
+      this.config = await loadConfig();
     }
   }
 
@@ -68,17 +61,6 @@ export class ServiceContainer {
       await this.initialize();
     }
     return this.config!;
-  }
-
-  /**
-   * Get ConfigLoader instance
-   */
-  getConfigLoader(): ConfigLoader {
-    if (!this.configLoader) {
-      const fileSystem = this.getFileSystem();
-      this.configLoader = new DefaultConfigLoader(fileSystem);
-    }
-    return this.configLoader;
   }
 
   /**
@@ -184,7 +166,6 @@ export class ServiceContainer {
    */
   setServices(services: {
     config?: Config;
-    configLoader?: ConfigLoader;
     gitService?: GitService;
     pathResolver?: PathResolver;
     taskService?: TaskService;
@@ -195,7 +176,6 @@ export class ServiceContainer {
     formatService?: FormatService;
   }): void {
     if (services.config) this.config = services.config;
-    if (services.configLoader) this.configLoader = services.configLoader;
     if (services.gitService) this.gitService = services.gitService;
     if (services.pathResolver) this.pathResolver = services.pathResolver;
     if (services.taskService) this.taskService = services.taskService;
@@ -211,7 +191,6 @@ export class ServiceContainer {
    */
   reset(): void {
     this.config = null;
-    this.configLoader = null;
     this.gitService = null;
     this.pathResolver = null;
     this.taskService = null;

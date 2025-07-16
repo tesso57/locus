@@ -51,10 +51,13 @@ export class InMemoryFileSystem implements FileSystem {
     const canonicalPath = this.canonical(path);
     // Ensure parent directory exists
     const parentPath = this.getParentPath(canonicalPath);
-    if (parentPath && !(await this.exists(parentPath))) {
-      const mkdirResult = await this.mkdir(parentPath, true);
-      if (!mkdirResult.ok) {
-        return mkdirResult;
+    if (parentPath) {
+      const parentExistsResult = await this.exists(parentPath);
+      if (!parentExistsResult.ok || !parentExistsResult.value) {
+        const mkdirResult = await this.mkdir(parentPath, true);
+        if (!mkdirResult.ok) {
+          return mkdirResult;
+        }
       }
     }
 
@@ -91,14 +94,18 @@ export class InMemoryFileSystem implements FileSystem {
       for (const part of parts) {
         currentPath += "/" + part;
         const currentCanonical = this.canonical(currentPath);
-        if (!(await this.exists(currentCanonical))) {
+        const existsResult = await this.exists(currentCanonical);
+        if (!existsResult.ok || !existsResult.value) {
           this.files.set(currentCanonical, { content: "", isDirectory: true });
         }
       }
     } else {
       const parentPath = this.getParentPath(canonicalPath);
-      if (parentPath && !(await this.exists(parentPath))) {
-        return err(new Error(`Parent directory does not exist: ${parentPath}`));
+      if (parentPath) {
+        const parentExistsResult = await this.exists(parentPath);
+        if (!parentExistsResult.ok || !parentExistsResult.value) {
+          return err(new Error(`Parent directory does not exist: ${parentPath}`));
+        }
       }
       this.files.set(canonicalPath, { content: "", isDirectory: true });
     }
@@ -178,7 +185,8 @@ export class InMemoryFileSystem implements FileSystem {
 
   async remove(path: string): Promise<Result<void, Error>> {
     const canonicalPath = this.canonical(path);
-    if (!(await this.exists(canonicalPath))) {
+    const existsResult = await this.exists(canonicalPath);
+    if (!existsResult.ok || !existsResult.value) {
       return err(new FileNotFoundError(path));
     }
     this.files.delete(canonicalPath);

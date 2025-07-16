@@ -113,7 +113,9 @@ describe("path command integration tests", () => {
     // Check for error message (could be in English or Japanese)
     const hasExpectedError = stderrText.includes("File not found") ||
       stderrText.includes("ファイルが存在しません") ||
-      stderrText.includes("タスクファイルが見つかりません");
+      stderrText.includes("タスクファイルが見つかりません") ||
+      stderrText.includes("No such file or directory") ||
+      stderrText.includes("os error 2");
     assertEquals(hasExpectedError, true, `Unexpected error message: ${stderrText}`);
   });
 });

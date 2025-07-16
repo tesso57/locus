@@ -34,8 +34,18 @@ export function exitWithError(message: string, code: number = 1): never {
   logOriginalError(message);
 
   // In test environment, throw an error instead of exiting
-  if (Deno.env.get("DENO_TEST") === "true" || (globalThis as any).__TEST__) {
+  // Check for __TEST__ first to avoid env permission issues in tests
+  if ((globalThis as any).__TEST__) {
     throw new Error(message);
+  }
+
+  // Try to check DENO_TEST env var only if we have permission
+  try {
+    if (Deno.env.get("DENO_TEST") === "true") {
+      throw new Error(message);
+    }
+  } catch {
+    // If we don't have env permission, just continue to exit
   }
 
   Deno.exit(code);
