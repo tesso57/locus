@@ -10,6 +10,7 @@ import { join } from "@std/path";
 import { InMemoryFileSystem } from "../mocks/in-memory-fs.ts";
 import { Config } from "../../src/types.ts";
 import { MockI18nService } from "../mocks/mock-i18n-service.ts";
+import { testUserPath } from "../utils/test-paths.ts";
 
 describe("path command", () => {
   let mockTaskService: MockTaskService;
@@ -33,12 +34,12 @@ describe("path command", () => {
     mockTaskService = new MockTaskService();
     mockGitService = new MockGitService();
     mockFs = new InMemoryFileSystem();
-    mockPathResolver = new MockPathResolver(mockFs, "/home/user/locus/tasks");
+    mockPathResolver = new MockPathResolver(mockFs, testUserPath("locus", "tasks"));
     mockI18n = new MockI18nService();
 
     // Create mock config
     const mockConfig: Config = {
-      task_directory: "/home/user/locus/tasks",
+      task_directory: testUserPath("locus", "tasks"),
       git: {
         extract_username: true,
         username_from_remote: false,
@@ -98,7 +99,7 @@ describe("path command", () => {
 
   it("should display absolute path for task file", async () => {
     // Setup
-    const taskDir = "/home/user/locus/tasks";
+    const taskDir = testUserPath("locus", "tasks");
     const fileName = "test-task.md";
     const expectedPath = join(taskDir, fileName);
 
@@ -164,7 +165,7 @@ describe("path command", () => {
 
   it("should error when file not found", async () => {
     // Setup
-    const taskDir = "/home/user/locus/tasks";
+    const taskDir = testUserPath("locus", "tasks");
     const fileName = "non-existent.md";
 
     mockGitService.setRepoInfo(null);
@@ -201,7 +202,7 @@ describe("path command", () => {
 
   it("should find file without .md extension", async () => {
     // Setup
-    const taskDir = "/home/user/locus/tasks";
+    const taskDir = testUserPath("locus", "tasks");
     const fileName = "test-task"; // Without .md
     const expectedPath = join(taskDir, "test-task.md");
 
@@ -222,7 +223,7 @@ describe("path command", () => {
 
   it("should find file by task title", async () => {
     // Setup
-    const taskDir = "/home/user/locus/tasks";
+    const taskDir = testUserPath("locus", "tasks");
     const searchTerm = "My Task"; // Search by title
     const expectedPath = join(taskDir, "2024-01-01-some-task.md");
 
@@ -251,7 +252,7 @@ Task content`,
 
   it("should handle multiple matches", async () => {
     // Setup
-    const taskDir = "/home/user/locus/tasks";
+    const taskDir = testUserPath("locus", "tasks");
     const searchTerm = "task"; // Partial match
     const paths = [
       join(taskDir, "task-1.md"),

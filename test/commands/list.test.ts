@@ -8,6 +8,7 @@ import { FrontMatter } from "../../src/types.ts";
 import { generateMarkdown } from "../../src/utils/markdown.ts";
 import { DefaultTaskService } from "../../src/services/default-task-service.ts";
 import { TaskService } from "../../src/services/task-service.ts";
+import { testPath } from "../utils/test-paths.ts";
 
 // Mock dependencies
 const mockConfig: Config = {
@@ -55,7 +56,7 @@ Deno.test("list command - shows tasks in default directory", async () => {
 
   git.setNotInRepo();
 
-  const taskDir = "/home/test/locus";
+  const taskDir = testPath("locus");
   await fs.mkdir(taskDir, true);
 
   // Create test tasks
@@ -107,7 +108,7 @@ Deno.test("list command - shows tasks in git repository directory", async () => 
   };
   git.setRepoInfo(repoInfo);
 
-  const taskDir = "/home/test/locus/testuser/testrepo";
+  const taskDir = testPath("locus", "testuser", "testrepo");
   await fs.mkdir(taskDir, true);
 
   await createTestTask(
@@ -141,7 +142,7 @@ Deno.test("list command - filters by status", async () => {
 
   git.setNotInRepo();
 
-  const taskDir = "/home/test/locus";
+  const taskDir = testPath("locus");
   await fs.mkdir(taskDir, true);
 
   // Create tasks with different statuses
@@ -209,7 +210,7 @@ Deno.test("list command - filters by priority", async () => {
 
   git.setNotInRepo();
 
-  const taskDir = "/home/test/locus";
+  const taskDir = testPath("locus");
   await fs.mkdir(taskDir, true);
 
   // Create tasks with different priorities
@@ -256,7 +257,7 @@ Deno.test("list command - filters by tags", async () => {
 
   git.setNotInRepo();
 
-  const taskDir = "/home/test/locus";
+  const taskDir = testPath("locus");
   await fs.mkdir(taskDir, true);
 
   // Create tasks with different tags
@@ -327,7 +328,7 @@ Deno.test("list command - handles empty directory", async () => {
 
   git.setNotInRepo();
 
-  const taskDir = "/home/test/locus";
+  const taskDir = testPath("locus");
   await fs.mkdir(taskDir, true);
 
   const result = await taskService.listTasks({ all: false });
@@ -347,7 +348,7 @@ Deno.test("list command - handles missing frontmatter", async () => {
 
   git.setNotInRepo();
 
-  const taskDir = "/home/test/locus";
+  const taskDir = testPath("locus");
   await fs.mkdir(taskDir, true);
 
   // Create task without frontmatter

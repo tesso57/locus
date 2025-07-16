@@ -21,6 +21,10 @@ export class InMemoryFileSystem implements FileSystem {
   }
 
   getHome(): string {
+    // Use platform-appropriate home directory for tests
+    if (Deno.build.os === "windows") {
+      return "C:\\Users\\test";
+    }
     return "/home/test";
   }
 

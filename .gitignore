@@ -56,3 +56,4 @@ node_modules/
 npm/
 
 test-repo/
+test-windows-env.ts

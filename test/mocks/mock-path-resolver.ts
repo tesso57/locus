@@ -10,7 +10,7 @@ import { join } from "@std/path";
 export class MockPathResolver implements PathResolver {
   constructor(
     private fs: InMemoryFileSystem,
-    private baseDir = "/home/test/locus",
+    private baseDir = join(fs.getHome(), "locus"),
   ) {}
 
   getBaseDir(): Result<string, Error> {
