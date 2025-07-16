@@ -2,6 +2,8 @@
  * Cross-platform utility functions
  */
 
+import { join } from "@std/path";
+
 /**
  * Get the user's home directory in a cross-platform way
  * On Unix systems (Linux, macOS), uses HOME
@@ -36,9 +38,9 @@ export function getDefaultConfigDir(): string {
 
   if (Deno.build.os === "windows") {
     // On Windows, use AppData/Roaming for config
-    return `${home}\\AppData\\Roaming`;
+    return join(home, "AppData", "Roaming");
   }
 
   // On Unix systems, use ~/.config
-  return `${home}/.config`;
+  return join(home, ".config");
 }

@@ -5,7 +5,7 @@ import { join } from "@std/path";
  */
 export function getTestHome(): string {
   if (Deno.build.os === "windows") {
-    return "C:\\Users\\test";
+    return join("C:", "Users", "test");
   }
   return "/home/test";
 }
@@ -15,7 +15,7 @@ export function getTestHome(): string {
  */
 export function getTestUserHome(): string {
   if (Deno.build.os === "windows") {
-    return "C:\\Users\\user";
+    return join("C:", "Users", "user");
   }
   return "/home/user";
 }
