@@ -3,6 +3,7 @@ import { DefaultFormatService } from "../../src/services/default-format-service.
 import { I18nService } from "../../src/services/i18n.ts";
 import { TaskInfo } from "../../src/services/task-service.ts";
 import { FrontMatter } from "../../src/types.ts";
+import { ok, Result } from "../../src/utils/result.ts";
 
 // Create a mock I18nService for testing
 class MockI18nService implements I18nService {
@@ -50,8 +51,13 @@ class MockI18nService implements I18nService {
     return value;
   }
 
-  setLanguage(_lang: string): void {
+  setLanguage(_lang: string): Result<void, Error> {
     // Not implemented for tests
+    return ok(undefined);
+  }
+
+  getSupportedLanguages(): string[] {
+    return ["ja", "en"];
   }
 }
 

@@ -62,14 +62,22 @@ export class InMemoryFileSystem implements FileSystem {
     return ok(undefined);
   }
 
-  exists(path: string): Promise<boolean> {
-    const canonicalPath = this.canonical(path);
-    return Promise.resolve(this.files.has(canonicalPath));
+  async exists(path: string): Promise<Result<boolean, Error>> {
+    try {
+      const canonicalPath = this.canonical(path);
+      return ok(this.files.has(canonicalPath));
+    } catch (error: unknown) {
+      return err(error instanceof Error ? error : new Error(String(error)));
+    }
   }
 
   async mkdir(path: string, recursive = false): Promise<Result<void, Error>> {
     const canonicalPath = this.canonical(path);
-    if (await this.exists(canonicalPath)) {
+    const existsResult = await this.exists(canonicalPath);
+    if (!existsResult.ok) {
+      return err(existsResult.error);
+    }
+    if (existsResult.value) {
       const file = this.files.get(canonicalPath)!;
       if (!file.isDirectory) {
         return err(new Error(`${path} already exists and is not a directory`));
@@ -230,5 +238,48 @@ export class InMemoryFileSystem implements FileSystem {
     const parts = path.split("/").filter(Boolean);
     if (parts.length <= 1) return null;
     return "/" + parts.slice(0, -1).join("/");
+  }
+
+  readFile(path: string): Promise<Result<string, Error>> {
+    return this.readTextFile(path);
+  }
+
+  writeFile(path: string, content: string): Promise<Result<void, Error>> {
+    return this.writeTextFile(path, content);
+  }
+
+  makeDir(path: string, options?: { recursive?: boolean }): Promise<Result<void, Error>> {
+    return this.mkdir(path, options?.recursive);
+  }
+
+  ensureMarkdownExtension(fileName: string): string {
+    return fileName.endsWith(".md") ? fileName : `${fileName}.md`;
+  }
+
+  validateFileName(fileName: string): Result<void, Error> {
+    if (fileName.includes("/") || fileName.includes("\\")) {
+      return err(new Error("ファイル名にパス区切り文字（/や\\）を含めることはできません"));
+    }
+
+    if (fileName.includes("..")) {
+      return err(new Error("ファイル名に相対パス（..）を含めることはできません"));
+    }
+
+    if (fileName.length === 0) {
+      return err(new Error("ファイル名が空です"));
+    }
+
+    if (fileName.length > 255) {
+      return err(new Error("ファイル名が長すぎます（最大255文字）"));
+    }
+
+    // Check for invalid characters
+    // deno-lint-ignore no-control-regex
+    const invalidChars = /[<>:"|?*\x00-\x1f]/;
+    if (invalidChars.test(fileName)) {
+      return err(new Error("ファイル名に無効な文字が含まれています"));
+    }
+
+    return ok(undefined);
   }
 }

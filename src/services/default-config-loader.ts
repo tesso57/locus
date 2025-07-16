@@ -30,20 +30,20 @@ export class DefaultConfigLoader implements ConfigLoader {
       let fileConfig = {};
       const configFileResult = await this.findConfigFile();
       if (!configFileResult.ok) {
-        return err(new ConfigError(configFileResult.error.message));
+        return err(new ConfigValidationError(configFileResult.error.message, []));
       }
 
       if (configFileResult.value) {
         const contentResult = await this.fileSystem.readFile(configFileResult.value);
         if (!contentResult.ok) {
-          return err(new ConfigError(`Failed to read config file: ${contentResult.error.message}`));
+          return err(new ConfigValidationError(`Failed to read config file: ${contentResult.error.message}`, []));
         }
         try {
           const parsed = parse(contentResult.value);
           fileConfig = parsed || {};
         } catch (error: unknown) {
           const message = getErrorMessage(error);
-          return err(new ConfigError(`Failed to parse config file: ${message}`));
+          return err(new ConfigValidationError(`Failed to parse config file: ${message}`, []));
         }
       }
 
@@ -74,7 +74,8 @@ export class DefaultConfigLoader implements ConfigLoader {
     } catch (error) {
       return err(
         new ConfigValidationError(
-          `Failed to load configuration: ${error instanceof Error ? error.message : String(error)}`
+          `Failed to load configuration: ${error instanceof Error ? error.message : String(error)}`,
+          []
         )
       );
     }
