@@ -29,14 +29,15 @@ export class InMemoryFileSystem implements FileSystem {
   }
 
   /**
-   * Normalize path to use forward slashes consistently
-   * This ensures cross-platform compatibility between Windows and Unix
+   * Normalize path for consistent lookup in the in-memory filesystem
+   * Uses the native path separator for the current platform
    */
   private canonical(p: string): string {
-    // Normalize the path and convert all backslashes to forward slashes
-    const normalized = path.normalize(p).replace(/\\/g, "/");
-    // Ensure no trailing slash (except for root)
-    return normalized.endsWith("/") && normalized.length > 1 ? normalized.slice(0, -1) : normalized;
+    // Normalize the path using the platform's native separator
+    const normalized = path.normalize(p);
+    // Ensure no trailing separator (except for root)
+    const sep = path.SEPARATOR;
+    return normalized.endsWith(sep) && normalized.length > 1 ? normalized.slice(0, -1) : normalized;
   }
 
   readTextFile(path: string): Promise<Result<string, Error>> {
