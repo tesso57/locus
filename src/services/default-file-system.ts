@@ -69,15 +69,15 @@ export class DefaultFileSystem implements FileSystem {
     }
   }
 
-  async readFile(path: string): Promise<Result<string, Error>> {
+  readFile(path: string): Promise<Result<string, Error>> {
     return this.readTextFile(path);
   }
 
-  async writeFile(path: string, content: string): Promise<Result<void, Error>> {
+  writeFile(path: string, content: string): Promise<Result<void, Error>> {
     return this.writeTextFile(path, content);
   }
 
-  async makeDir(path: string, options?: { recursive?: boolean }): Promise<Result<void, Error>> {
+  makeDir(path: string, options?: { recursive?: boolean }): Promise<Result<void, Error>> {
     return this.mkdir(path, options?.recursive);
   }
 

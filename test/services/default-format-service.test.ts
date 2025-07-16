@@ -217,4 +217,3 @@ code block
   // Check that blockquotes are formatted
   assertEquals(formatted.includes("│"), true);
 });
-

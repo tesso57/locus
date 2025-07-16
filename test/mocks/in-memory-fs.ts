@@ -62,12 +62,12 @@ export class InMemoryFileSystem implements FileSystem {
     return ok(undefined);
   }
 
-  async exists(path: string): Promise<Result<boolean, Error>> {
+  exists(path: string): Promise<Result<boolean, Error>> {
     try {
       const canonicalPath = this.canonical(path);
-      return ok(this.files.has(canonicalPath));
+      return Promise.resolve(ok(this.files.has(canonicalPath)));
     } catch (error: unknown) {
-      return err(error instanceof Error ? error : new Error(String(error)));
+      return Promise.resolve(err(error instanceof Error ? error : new Error(String(error))));
     }
   }
 
@@ -186,13 +186,6 @@ export class InMemoryFileSystem implements FileSystem {
   }
 
   // Additional helper methods for FileSystem interface
-  readFile(path: string): Promise<Result<string, Error>> {
-    return this.readTextFile(path);
-  }
-
-  writeFile(path: string, content: string): Promise<Result<void, Error>> {
-    return this.writeTextFile(path, content);
-  }
 
   stat(path: string): Promise<Result<Deno.FileInfo, Error>> {
     const canonicalPath = this.canonical(path);

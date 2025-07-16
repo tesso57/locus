@@ -11,7 +11,7 @@ import {
 import { PathResolver } from "./path-resolver.ts";
 import { GitService } from "./git-service.ts";
 import { FileSystem } from "./file-system.ts";
-import { Config, FrontMatter, RepoInfo, ParsedMarkdown } from "../types.ts";
+import { Config, FrontMatter, ParsedMarkdown, RepoInfo } from "../types.ts";
 import { generateFileName } from "../utils/filename.ts";
 import {
   FileAlreadyExistsError,

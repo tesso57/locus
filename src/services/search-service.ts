@@ -62,7 +62,7 @@ export interface SearchService {
   searchMarkdownFiles(
     query: string,
     repoInfo?: RepoInfo | null,
-    options?: SearchOptions
+    options?: SearchOptions,
   ): Promise<Result<string[], Error>>;
 
   /**
@@ -71,7 +71,7 @@ export interface SearchService {
   searchTasks(
     query: string,
     repoInfo?: RepoInfo | null,
-    options?: SearchOptions
+    options?: SearchOptions,
   ): Promise<Result<TaskInfo[], Error>>;
 
   /**

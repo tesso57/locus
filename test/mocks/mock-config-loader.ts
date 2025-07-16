@@ -1,6 +1,6 @@
 import { Config } from "../../src/types.ts";
 import { ConfigLoader } from "../../src/services/config-loader.ts";
-import { Result, ok, err } from "../../src/utils/result.ts";
+import { err, ok, Result } from "../../src/utils/result.ts";
 import { ConfigValidationError } from "../../src/utils/errors.ts";
 
 /**
@@ -37,22 +37,22 @@ export class MockConfigLoader implements ConfigLoader {
     } as Config;
   }
 
-  async loadConfig(_forceReload?: boolean): Promise<Result<Config, ConfigValidationError>> {
+  loadConfig(_forceReload?: boolean): Promise<Result<Config, ConfigValidationError>> {
     if (this.shouldFailLoad) {
-      return err(new ConfigValidationError("Mock load error"));
+      return Promise.resolve(err(new ConfigValidationError("Mock load error", [])));
     }
-    return ok(this.config);
+    return Promise.resolve(ok(this.config));
   }
 
   getConfigDir(): Result<string, Error> {
     return ok(this.configDir);
   }
 
-  async createDefaultConfig(): Promise<Result<void, Error>> {
+  createDefaultConfig(): Promise<Result<void, Error>> {
     if (this.shouldFailCreate) {
-      return err(new Error("Mock create error"));
+      return Promise.resolve(err(new Error("Mock create error")));
     }
-    return ok(undefined);
+    return Promise.resolve(ok(undefined));
   }
 
   overrideConfig(overrides: Partial<Config>): Result<void, Error> {
@@ -64,7 +64,7 @@ export class MockConfigLoader implements ConfigLoader {
     // No-op for mock
   }
 
-  async getConfig(): Promise<Result<Config, ConfigValidationError>> {
+  getConfig(): Promise<Result<Config, ConfigValidationError>> {
     return this.loadConfig();
   }
 

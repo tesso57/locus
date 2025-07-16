@@ -309,4 +309,3 @@ export class DefaultFormatService implements FormatService {
     return String(value);
   }
 }
-

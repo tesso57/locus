@@ -40,7 +40,7 @@ export interface FormatService {
       showMetadata?: boolean;
       useRelativePath?: boolean;
       baseDir?: string;
-    }
+    },
   ): Result<string, Error>;
 
   /**

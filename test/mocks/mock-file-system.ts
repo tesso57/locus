@@ -16,8 +16,8 @@ export class MockFileSystem implements FileSystem {
     return this.inMemoryFs.writeTextFile(path, content);
   }
 
-  async exists(path: string): Promise<Result<boolean, Error>> {
-    return await this.inMemoryFs.exists(path);
+  exists(path: string): Promise<Result<boolean, Error>> {
+    return this.inMemoryFs.exists(path);
   }
 
   async remove(path: string): Promise<Result<void, Error>> {

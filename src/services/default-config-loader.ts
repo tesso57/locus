@@ -3,7 +3,7 @@ import { join } from "@std/path";
 import { z } from "zod";
 import { Config, ConfigSchema } from "../config/schema.ts";
 import { ConfigLoader } from "./config-loader.ts";
-import { Result, ok, err } from "../utils/result.ts";
+import { err, ok, Result } from "../utils/result.ts";
 import { ConfigError, ConfigValidationError, getErrorMessage } from "../utils/errors.ts";
 import { FileSystem } from "./file-system.ts";
 
@@ -36,7 +36,12 @@ export class DefaultConfigLoader implements ConfigLoader {
       if (configFileResult.value) {
         const contentResult = await this.fileSystem.readFile(configFileResult.value);
         if (!contentResult.ok) {
-          return err(new ConfigValidationError(`Failed to read config file: ${contentResult.error.message}`, []));
+          return err(
+            new ConfigValidationError(
+              `Failed to read config file: ${contentResult.error.message}`,
+              [],
+            ),
+          );
         }
         try {
           const parsed = parse(contentResult.value);
@@ -75,8 +80,8 @@ export class DefaultConfigLoader implements ConfigLoader {
       return err(
         new ConfigValidationError(
           `Failed to load configuration: ${error instanceof Error ? error.message : String(error)}`,
-          []
-        )
+          [],
+        ),
       );
     }
   }
@@ -88,7 +93,11 @@ export class DefaultConfigLoader implements ConfigLoader {
       return ok(join(configHome, "locus"));
     } catch (error) {
       return err(
-        new Error(`Failed to get config directory: ${error instanceof Error ? error.message : String(error)}`)
+        new Error(
+          `Failed to get config directory: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        ),
       );
     }
   }
@@ -162,7 +171,9 @@ defaults:
       return ok(undefined);
     } catch (error) {
       return err(
-        new Error(`Failed to override config: ${error instanceof Error ? error.message : String(error)}`)
+        new Error(
+          `Failed to override config: ${error instanceof Error ? error.message : String(error)}`,
+        ),
       );
     }
   }
@@ -171,7 +182,7 @@ defaults:
     this.cachedConfig = null;
   }
 
-  async getConfig(): Promise<Result<Config, ConfigValidationError>> {
+  getConfig(): Promise<Result<Config, ConfigValidationError>> {
     return this.loadConfig();
   }
 
@@ -207,7 +218,9 @@ defaults:
       return ok(null);
     } catch (error) {
       return err(
-        new Error(`Failed to find config file: ${error instanceof Error ? error.message : String(error)}`)
+        new Error(
+          `Failed to find config file: ${error instanceof Error ? error.message : String(error)}`,
+        ),
       );
     }
   }

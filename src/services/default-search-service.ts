@@ -1,6 +1,6 @@
 import { err, ok, Result } from "../utils/result.ts";
 import { SearchOptions, SearchService } from "./search-service.ts";
-import { TaskService, TaskInfo } from "./task-service.ts";
+import { TaskInfo, TaskService } from "./task-service.ts";
 import { PathResolver } from "./path-resolver.ts";
 import { FileSystem } from "./file-system.ts";
 import { RepoInfo } from "../types.ts";
@@ -36,18 +36,18 @@ export class DefaultSearchService implements SearchService {
       const dirResult = repoInfo
         ? await this.pathResolver.getTaskDir(repoInfo)
         : this.pathResolver.getBaseDir();
-      
+
       if (!dirResult.ok) {
         return err(dirResult.error);
       }
 
       const found: string[] = [];
       await this.searchDirectory(dirResult.value, query, searchOpts, found);
-      
+
       return ok(found);
     } catch (error) {
       return err(
-        new FileSystemError(`Failed to search markdown files: ${getErrorMessage(error)}`)
+        new FileSystemError(`Failed to search markdown files: ${getErrorMessage(error)}`),
       );
     }
   }
@@ -81,7 +81,10 @@ export class DefaultSearchService implements SearchService {
 
       // Filter tasks based on search criteria
       const matchedTasks = tasksResult.value.filter((task) => {
-        if (searchOpts.searchFileName && this.isFileNameMatch(task.fileName, query, searchOpts.ignoreCase)) {
+        if (
+          searchOpts.searchFileName &&
+          this.isFileNameMatch(task.fileName, query, searchOpts.ignoreCase)
+        ) {
           return true;
         }
 
@@ -89,7 +92,10 @@ export class DefaultSearchService implements SearchService {
           return true;
         }
 
-        if (searchOpts.searchBody && task.body && this.isBodyMatch(task.body, query, searchOpts.ignoreCase)) {
+        if (
+          searchOpts.searchBody && task.body &&
+          this.isBodyMatch(task.body, query, searchOpts.ignoreCase)
+        ) {
           return true;
         }
 
@@ -103,7 +109,7 @@ export class DefaultSearchService implements SearchService {
       return ok(matchedTasks);
     } catch (error) {
       return err(
-        new FileSystemError(`Failed to search tasks: ${getErrorMessage(error)}`)
+        new FileSystemError(`Failed to search tasks: ${getErrorMessage(error)}`),
       );
     }
   }
@@ -111,31 +117,31 @@ export class DefaultSearchService implements SearchService {
   isFileNameMatch(fileName: string, query: string, ignoreCase?: boolean): boolean {
     const searchTerm = ignoreCase ? query.toLowerCase() : query;
     const targetName = ignoreCase ? fileName.toLowerCase() : fileName;
-    
+
     // Remove .md extension for comparison
     const nameWithoutExt = targetName.endsWith(".md") ? targetName.slice(0, -3) : targetName;
     const queryWithoutExt = searchTerm.endsWith(".md") ? searchTerm.slice(0, -3) : searchTerm;
-    
+
     return nameWithoutExt.includes(queryWithoutExt);
   }
 
   isTitleMatch(title: string, query: string, ignoreCase?: boolean): boolean {
     const searchTerm = ignoreCase ? query.toLowerCase() : query;
     const targetTitle = ignoreCase ? title.toLowerCase() : title;
-    
+
     return targetTitle.includes(searchTerm);
   }
 
   isBodyMatch(body: string, query: string, ignoreCase?: boolean): boolean {
     const searchTerm = ignoreCase ? query.toLowerCase() : query;
     const targetBody = ignoreCase ? body.toLowerCase() : body;
-    
+
     return targetBody.includes(searchTerm);
   }
 
   isTagsMatch(tags: string[], query: string, ignoreCase?: boolean): boolean {
     const searchTerm = ignoreCase ? query.toLowerCase() : query;
-    
+
     return tags.some((tag) => {
       const targetTag = ignoreCase ? tag.toLowerCase() : tag;
       return targetTag.includes(searchTerm);
