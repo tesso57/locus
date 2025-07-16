@@ -4,6 +4,7 @@ import { MockGitService } from "../mocks/mock-git-service.ts";
 import { MockPathResolver } from "../mocks/mock-path-resolver.ts";
 import { Config } from "../../src/config/schema.ts";
 import { parseMarkdown } from "../../src/utils/markdown.ts";
+import { testPath } from "../utils/test-paths.ts";
 
 // Mock dependencies
 const mockConfig: Config = {
@@ -101,7 +102,7 @@ Deno.test("add command - creates task file with default values", async () => {
 
   const { path, content } = await createTask("Test Task", {}, fs, git, pathResolver);
 
-  assertEquals(path, "/home/test/locus/2025-07-04-test-task-12345678.md");
+  assertEquals(path, testPath("locus", "2025-07-04-test-task-12345678.md"));
   assertExists(fs.exists(path));
 
   const fileResult = await fs.readTextFile(path);
@@ -128,7 +129,7 @@ Deno.test("add command - creates task in git repository directory", async () => 
 
   const { path } = await createTask("Git Task", {}, fs, git, pathResolver);
 
-  assertEquals(path, "/home/test/locus/testuser/testrepo/2025-07-04-git-task-12345678.md");
+  assertEquals(path, testPath("locus", "testuser", "testrepo", "2025-07-04-git-task-12345678.md"));
   assertExists(fs.exists(path));
 });
 
@@ -172,6 +173,6 @@ Deno.test("add command - handles special characters in title", async () => {
 
   const { path } = await createTask("Test & Task / Special", {}, fs, git, pathResolver);
 
-  assertEquals(path, "/home/test/locus/2025-07-04-test-task-special-12345678.md");
+  assertEquals(path, testPath("locus", "2025-07-04-test-task-special-12345678.md"));
   assertExists(fs.exists(path));
 });

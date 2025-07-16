@@ -5,11 +5,15 @@ import { PathResolver } from "./path-resolver.ts";
 import { TaskService } from "./task-service.ts";
 import { FileSystem } from "./file-system.ts";
 import { TagsService } from "./tags-service.ts";
+import { SearchService } from "./search-service.ts";
+import { FormatService } from "./format-service.ts";
 import { DefaultGitService } from "./git-service.ts";
 import { DefaultPathResolver } from "./path-resolver.ts";
 import { DefaultTaskService } from "./default-task-service.ts";
 import { DefaultFileSystem } from "./default-file-system.ts";
 import { DefaultTagsService } from "./default-tags-service.ts";
+import { DefaultSearchService } from "./default-search-service.ts";
+import { DefaultFormatService } from "./default-format-service.ts";
 import { I18nService } from "./i18n.ts";
 
 /**
@@ -24,7 +28,9 @@ export class ServiceContainer {
   private taskService: TaskService | null = null;
   private fileSystem: FileSystem | null = null;
   private tagsService: TagsService | null = null;
+  private searchService: SearchService | null = null;
   private i18nService: I18nService | null = null;
+  private formatService: FormatService | null = null;
 
   private constructor() {}
 
@@ -125,10 +131,34 @@ export class ServiceContainer {
   }
 
   /**
+   * Get SearchService instance
+   */
+  async getSearchService(): Promise<SearchService> {
+    if (!this.searchService) {
+      const taskService = await this.getTaskService();
+      const pathResolver = await this.getPathResolver();
+      const fileSystem = this.getFileSystem();
+      this.searchService = new DefaultSearchService(taskService, pathResolver, fileSystem);
+    }
+    return this.searchService;
+  }
+
+  /**
    * Set I18nService instance
    */
   setI18nService(i18nService: I18nService): void {
     this.i18nService = i18nService;
+  }
+
+  /**
+   * Get FormatService instance
+   */
+  getFormatService(): FormatService {
+    if (!this.formatService) {
+      const i18nService = this.getI18nService();
+      this.formatService = new DefaultFormatService(i18nService);
+    }
+    return this.formatService;
   }
 
   /**
@@ -141,7 +171,9 @@ export class ServiceContainer {
     taskService?: TaskService;
     fileSystem?: FileSystem;
     tagsService?: TagsService;
+    searchService?: SearchService;
     i18nService?: I18nService;
+    formatService?: FormatService;
   }): void {
     if (services.config) this.config = services.config;
     if (services.gitService) this.gitService = services.gitService;
@@ -149,7 +181,9 @@ export class ServiceContainer {
     if (services.taskService) this.taskService = services.taskService;
     if (services.fileSystem) this.fileSystem = services.fileSystem;
     if (services.tagsService) this.tagsService = services.tagsService;
+    if (services.searchService) this.searchService = services.searchService;
     if (services.i18nService) this.i18nService = services.i18nService;
+    if (services.formatService) this.formatService = services.formatService;
   }
 
   /**
@@ -162,7 +196,9 @@ export class ServiceContainer {
     this.taskService = null;
     this.fileSystem = null;
     this.tagsService = null;
+    this.searchService = null;
     this.i18nService = null;
+    this.formatService = null;
   }
 
   /**

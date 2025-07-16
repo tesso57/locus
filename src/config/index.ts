@@ -5,6 +5,7 @@ import { join } from "@std/path";
 import { Config } from "../types.ts";
 import { DEFAULT_CONFIG } from "./defaults.ts";
 import { getErrorMessage } from "../utils/errors.ts";
+import { getDefaultConfigDir } from "../utils/platform.ts";
 
 let cachedConfig: Config | null = null;
 
@@ -12,8 +13,7 @@ let cachedConfig: Config | null = null;
  * Find configuration file following XDG Base Directory specification
  */
 export async function findConfigFile(): Promise<string | null> {
-  const home = Deno.env.get("XDG_CONFIG_HOME") ??
-    join(Deno.env.get("HOME") || "", ".config");
+  const home = getDefaultConfigDir();
 
   const candidates = [
     join(home, "locus", "settings.yml"),
@@ -143,8 +143,7 @@ export async function loadConfig(forceReload = false): Promise<Config> {
  * Get configuration directory path
  */
 export function getConfigDir(): string {
-  const configHome = Deno.env.get("XDG_CONFIG_HOME") ??
-    join(Deno.env.get("HOME") || "", ".config");
+  const configHome = getDefaultConfigDir();
   return join(configHome, "locus");
 }
 

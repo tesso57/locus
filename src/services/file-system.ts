@@ -17,7 +17,7 @@ export interface FileSystem {
   /**
    * Check if a file or directory exists
    */
-  exists(path: string): Promise<boolean>;
+  exists(path: string): Promise<Result<boolean, Error>>;
 
   /**
    * Remove a file or directory
@@ -38,4 +38,29 @@ export interface FileSystem {
    * Get file information
    */
   stat(path: string): Promise<Result<Deno.FileInfo, Error>>;
+
+  /**
+   * Read a file and return its content
+   */
+  readFile(path: string): Promise<Result<string, Error>>;
+
+  /**
+   * Write content to a file
+   */
+  writeFile(path: string, content: string): Promise<Result<void, Error>>;
+
+  /**
+   * Create a directory with specified options
+   */
+  makeDir(path: string, options?: { recursive?: boolean }): Promise<Result<void, Error>>;
+
+  /**
+   * Ensure filename has .md extension
+   */
+  ensureMarkdownExtension(fileName: string): string;
+
+  /**
+   * Validate filename for security
+   */
+  validateFileName(fileName: string): Result<void, Error>;
 }

@@ -21,40 +21,48 @@ export class InMemoryFileSystem implements FileSystem {
   }
 
   getHome(): string {
+    // Use platform-appropriate home directory for tests
+    if (Deno.build.os === "windows") {
+      return path.join("C:", "Users", "test");
+    }
     return "/home/test";
   }
 
   /**
-   * Normalize path to use forward slashes consistently
-   * This ensures cross-platform compatibility between Windows and Unix
+   * Normalize path for consistent lookup in the in-memory filesystem
+   * Uses the native path separator for the current platform
    */
   private canonical(p: string): string {
-    // Normalize the path and convert all backslashes to forward slashes
-    const normalized = path.normalize(p).replace(/\\/g, "/");
-    // Ensure no trailing slash (except for root)
-    return normalized.endsWith("/") && normalized.length > 1 ? normalized.slice(0, -1) : normalized;
+    // Normalize the path using the platform's native separator
+    const normalized = path.normalize(p);
+    // Ensure no trailing separator (except for root)
+    const sep = path.SEPARATOR;
+    return normalized.endsWith(sep) && normalized.length > 1 ? normalized.slice(0, -1) : normalized;
   }
 
-  readTextFile(path: string): Promise<Result<string, Error>> {
-    const canonicalPath = this.canonical(path);
+  readTextFile(filePath: string): Promise<Result<string, Error>> {
+    const canonicalPath = this.canonical(filePath);
     const file = this.files.get(canonicalPath);
     if (!file) {
-      return Promise.resolve(err(new FileNotFoundError(path)));
+      return Promise.resolve(err(new FileNotFoundError(filePath)));
     }
     if (file.isDirectory) {
-      return Promise.resolve(err(new Error(`${path} is a directory`)));
+      return Promise.resolve(err(new Error(`${filePath} is a directory`)));
     }
     return Promise.resolve(ok(file.content));
   }
 
-  async writeTextFile(path: string, content: string): Promise<Result<void, Error>> {
-    const canonicalPath = this.canonical(path);
+  async writeTextFile(filePath: string, content: string): Promise<Result<void, Error>> {
+    const canonicalPath = this.canonical(filePath);
     // Ensure parent directory exists
     const parentPath = this.getParentPath(canonicalPath);
-    if (parentPath && !(await this.exists(parentPath))) {
-      const mkdirResult = await this.mkdir(parentPath, true);
-      if (!mkdirResult.ok) {
-        return mkdirResult;
+    if (parentPath) {
+      const parentExistsResult = await this.exists(parentPath);
+      if (!parentExistsResult.ok || !parentExistsResult.value) {
+        const mkdirResult = await this.mkdir(parentPath, true);
+        if (!mkdirResult.ok) {
+          return mkdirResult;
+        }
       }
     }
 
@@ -62,35 +70,56 @@ export class InMemoryFileSystem implements FileSystem {
     return ok(undefined);
   }
 
-  exists(path: string): Promise<boolean> {
-    const canonicalPath = this.canonical(path);
-    return Promise.resolve(this.files.has(canonicalPath));
+  exists(filePath: string): Promise<Result<boolean, Error>> {
+    try {
+      const canonicalPath = this.canonical(filePath);
+      return Promise.resolve(ok(this.files.has(canonicalPath)));
+    } catch (error: unknown) {
+      return Promise.resolve(err(error instanceof Error ? error : new Error(String(error))));
+    }
   }
 
-  async mkdir(path: string, recursive = false): Promise<Result<void, Error>> {
-    const canonicalPath = this.canonical(path);
-    if (await this.exists(canonicalPath)) {
+  async mkdir(dirPath: string, recursive = false): Promise<Result<void, Error>> {
+    const canonicalPath = this.canonical(dirPath);
+    const existsResult = await this.exists(canonicalPath);
+    if (!existsResult.ok) {
+      return err(existsResult.error);
+    }
+    if (existsResult.value) {
       const file = this.files.get(canonicalPath)!;
       if (!file.isDirectory) {
-        return err(new Error(`${path} already exists and is not a directory`));
+        return err(new Error(`${dirPath} already exists and is not a directory`));
       }
       return ok(undefined);
     }
 
     if (recursive) {
-      const parts = canonicalPath.split("/").filter(Boolean);
-      let currentPath = "";
-      for (const part of parts) {
-        currentPath += "/" + part;
+      // Use path.dirname and path.basename to correctly handle platform paths
+      const segments: string[] = [];
+      let current = canonicalPath;
+      while (current && current !== path.dirname(current)) {
+        segments.unshift(path.basename(current));
+        current = path.dirname(current);
+      }
+
+      // Build path incrementally
+      let currentPath = current ||
+        (Deno.build.os === "windows" ? canonicalPath.substring(0, 3) : "/");
+      for (const segment of segments) {
+        currentPath = path.join(currentPath, segment);
         const currentCanonical = this.canonical(currentPath);
-        if (!(await this.exists(currentCanonical))) {
+        const existsResult = await this.exists(currentCanonical);
+        if (!existsResult.ok || !existsResult.value) {
           this.files.set(currentCanonical, { content: "", isDirectory: true });
         }
       }
     } else {
       const parentPath = this.getParentPath(canonicalPath);
-      if (parentPath && !(await this.exists(parentPath))) {
-        return err(new Error(`Parent directory does not exist: ${parentPath}`));
+      if (parentPath) {
+        const parentExistsResult = await this.exists(parentPath);
+        if (!parentExistsResult.ok || !parentExistsResult.value) {
+          return err(new Error(`Parent directory does not exist: ${parentPath}`));
+        }
       }
       this.files.set(canonicalPath, { content: "", isDirectory: true });
     }
@@ -98,25 +127,26 @@ export class InMemoryFileSystem implements FileSystem {
     return ok(undefined);
   }
 
-  async *readDirAsyncIterable(path: string): AsyncIterable<Deno.DirEntry> {
-    const canonicalPath = this.canonical(path);
+  async *readDirAsyncIterable(p: string): AsyncIterable<Deno.DirEntry> {
+    const canonicalPath = this.canonical(p);
     const dir = this.files.get(canonicalPath);
     if (!dir || !dir.isDirectory) {
       return;
     }
 
-    const pathWithSlash = canonicalPath.endsWith("/") ? canonicalPath : canonicalPath + "/";
+    const sep = path.SEPARATOR;
+    const pathWithSep = canonicalPath.endsWith(sep) ? canonicalPath : canonicalPath + sep;
     const entries = new Set<string>();
 
     for (const [filePath] of this.files) {
-      if (filePath.startsWith(pathWithSlash) && filePath !== canonicalPath) {
-        const relativePath = filePath.slice(pathWithSlash.length);
-        const firstSlash = relativePath.indexOf("/");
-        const entry = firstSlash === -1 ? relativePath : relativePath.slice(0, firstSlash);
+      if (filePath.startsWith(pathWithSep) && filePath !== canonicalPath) {
+        const relativePath = filePath.slice(pathWithSep.length);
+        const firstSep = relativePath.indexOf(sep);
+        const entry = firstSep === -1 ? relativePath : relativePath.slice(0, firstSep);
         if (!entries.has(entry)) {
           entries.add(entry);
-          const fullPath = this.canonical(pathWithSlash + entry);
-          const fileEntry = this.files.get(fullPath);
+          const fullPath = path.join(canonicalPath, entry);
+          const fileEntry = this.files.get(this.canonical(fullPath));
           yield {
             name: entry,
             isFile: fileEntry ? !fileEntry.isDirectory : false,
@@ -128,37 +158,38 @@ export class InMemoryFileSystem implements FileSystem {
     }
   }
 
-  readDir(path: string): Promise<Result<AsyncIterable<Deno.DirEntry>, Error>> {
-    const canonicalPath = this.canonical(path);
+  readDir(dirPath: string): Promise<Result<AsyncIterable<Deno.DirEntry>, Error>> {
+    const canonicalPath = this.canonical(dirPath);
     const dir = this.files.get(canonicalPath);
     if (!dir) {
-      return Promise.resolve(err(new FileNotFoundError(path)));
+      return Promise.resolve(err(new FileNotFoundError(dirPath)));
     }
     if (!dir.isDirectory) {
-      return Promise.resolve(err(new Error(`${path} is not a directory`)));
+      return Promise.resolve(err(new Error(`${dirPath} is not a directory`)));
     }
-    return Promise.resolve(ok(this.readDirAsyncIterable(path)));
+    return Promise.resolve(ok(this.readDirAsyncIterable(dirPath)));
   }
 
   // Old readDir method for backwards compatibility
-  readDirAsList(path: string): Promise<Result<string[], Error>> {
-    const canonicalPath = this.canonical(path);
+  readDirAsList(dirPath: string): Promise<Result<string[], Error>> {
+    const canonicalPath = this.canonical(dirPath);
     const dir = this.files.get(canonicalPath);
     if (!dir) {
-      return Promise.resolve(err(new FileNotFoundError(path)));
+      return Promise.resolve(err(new FileNotFoundError(dirPath)));
     }
     if (!dir.isDirectory) {
-      return Promise.resolve(err(new Error(`${path} is not a directory`)));
+      return Promise.resolve(err(new Error(`${dirPath} is not a directory`)));
     }
 
     const entries: string[] = [];
-    const pathWithSlash = canonicalPath.endsWith("/") ? canonicalPath : canonicalPath + "/";
+    const sep = path.SEPARATOR;
+    const pathWithSep = canonicalPath.endsWith(sep) ? canonicalPath : canonicalPath + sep;
 
     for (const [filePath] of this.files) {
-      if (filePath.startsWith(pathWithSlash) && filePath !== canonicalPath) {
-        const relativePath = filePath.slice(pathWithSlash.length);
-        const firstSlash = relativePath.indexOf("/");
-        const entry = firstSlash === -1 ? relativePath : relativePath.slice(0, firstSlash);
+      if (filePath.startsWith(pathWithSep) && filePath !== canonicalPath) {
+        const relativePath = filePath.slice(pathWithSep.length);
+        const firstSep = relativePath.indexOf(sep);
+        const entry = firstSep === -1 ? relativePath : relativePath.slice(0, firstSep);
         if (!entries.includes(entry)) {
           entries.push(entry);
         }
@@ -168,29 +199,23 @@ export class InMemoryFileSystem implements FileSystem {
     return Promise.resolve(ok(entries));
   }
 
-  async remove(path: string): Promise<Result<void, Error>> {
-    const canonicalPath = this.canonical(path);
-    if (!(await this.exists(canonicalPath))) {
-      return err(new FileNotFoundError(path));
+  async remove(filePath: string): Promise<Result<void, Error>> {
+    const canonicalPath = this.canonical(filePath);
+    const existsResult = await this.exists(canonicalPath);
+    if (!existsResult.ok || !existsResult.value) {
+      return err(new FileNotFoundError(filePath));
     }
     this.files.delete(canonicalPath);
     return ok(undefined);
   }
 
   // Additional helper methods for FileSystem interface
-  readFile(path: string): Promise<Result<string, Error>> {
-    return this.readTextFile(path);
-  }
 
-  writeFile(path: string, content: string): Promise<Result<void, Error>> {
-    return this.writeTextFile(path, content);
-  }
-
-  stat(path: string): Promise<Result<Deno.FileInfo, Error>> {
-    const canonicalPath = this.canonical(path);
+  stat(filePath: string): Promise<Result<Deno.FileInfo, Error>> {
+    const canonicalPath = this.canonical(filePath);
     const file = this.files.get(canonicalPath);
     if (!file) {
-      return Promise.resolve(err(new FileNotFoundError(path)));
+      return Promise.resolve(err(new FileNotFoundError(filePath)));
     }
 
     const fileInfo: Deno.FileInfo = {
@@ -226,9 +251,53 @@ export class InMemoryFileSystem implements FileSystem {
     this.files.set(this.canonical(home), { content: "", isDirectory: true });
   }
 
-  private getParentPath(path: string): string | null {
-    const parts = path.split("/").filter(Boolean);
-    if (parts.length <= 1) return null;
-    return "/" + parts.slice(0, -1).join("/");
+  private getParentPath(p: string): string | null {
+    const parent = path.dirname(p);
+    // Check if we're at the root
+    if (parent === p) return null;
+    return parent;
+  }
+
+  readFile(filePath: string): Promise<Result<string, Error>> {
+    return this.readTextFile(filePath);
+  }
+
+  writeFile(filePath: string, content: string): Promise<Result<void, Error>> {
+    return this.writeTextFile(filePath, content);
+  }
+
+  makeDir(dirPath: string, options?: { recursive?: boolean }): Promise<Result<void, Error>> {
+    return this.mkdir(dirPath, options?.recursive);
+  }
+
+  ensureMarkdownExtension(fileName: string): string {
+    return fileName.endsWith(".md") ? fileName : `${fileName}.md`;
+  }
+
+  validateFileName(fileName: string): Result<void, Error> {
+    if (fileName.includes("/") || fileName.includes("\\")) {
+      return err(new Error("ファイル名にパス区切り文字（/や\\）を含めることはできません"));
+    }
+
+    if (fileName.includes("..")) {
+      return err(new Error("ファイル名に相対パス（..）を含めることはできません"));
+    }
+
+    if (fileName.length === 0) {
+      return err(new Error("ファイル名が空です"));
+    }
+
+    if (fileName.length > 255) {
+      return err(new Error("ファイル名が長すぎます（最大255文字）"));
+    }
+
+    // Check for invalid characters
+    // deno-lint-ignore no-control-regex
+    const invalidChars = /[<>:"|?*\x00-\x1f]/;
+    if (invalidChars.test(fileName)) {
+      return err(new Error("ファイル名に無効な文字が含まれています"));
+    }
+
+    return ok(undefined);
   }
 }
