@@ -101,9 +101,10 @@ export class InMemoryFileSystem implements FileSystem {
         segments.unshift(path.basename(current));
         current = path.dirname(current);
       }
-      
+
       // Build path incrementally
-      let currentPath = current || (Deno.build.os === "windows" ? canonicalPath.substring(0, 3) : "/");
+      let currentPath = current ||
+        (Deno.build.os === "windows" ? canonicalPath.substring(0, 3) : "/");
       for (const segment of segments) {
         currentPath = path.join(currentPath, segment);
         const currentCanonical = this.canonical(currentPath);
