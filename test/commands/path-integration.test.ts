@@ -93,7 +93,7 @@ describe("path command integration tests", () => {
   it("should handle non-existent files", async () => {
     // Use a platform-agnostic non-existent path
     const nonExistentPath = join(Deno.cwd(), "non-existent-test-file-" + Date.now() + ".md");
-    
+
     // Run command with non-existent file
     const cmd = new Deno.Command(Deno.execPath(), {
       args: [
