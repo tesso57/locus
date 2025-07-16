@@ -8,7 +8,7 @@ const version = denoConfig.version || "0.1.0";
 await emptyDir("./npm");
 
 await build({
-  entryPoints: ["./src/cli.ts"],
+  entryPoints: ["./src/cli-npm.ts"],
   outDir: "./npm",
   shims: {
     deno: true,
@@ -69,7 +69,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Import the CLI module
-import("../esm/cli.js").then(async (module) => {
+import("../esm/cli-npm.js").then(async (module) => {
   await module.main();
 }).catch(err => {
   console.error("Failed to run locus:", err);
