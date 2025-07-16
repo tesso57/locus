@@ -3,6 +3,7 @@ import { ensureDir } from "@std/fs";
 import { Config, RepoInfo } from "../types.ts";
 import { err, ok, Result } from "../utils/result.ts";
 import { FileSystemError, getErrorMessage } from "../utils/errors.ts";
+import { getDefaultConfigDir, getHomeDir } from "../utils/platform.ts";
 
 /**
  * Interface for path resolution
@@ -113,8 +114,7 @@ export class DefaultPathResolver implements PathResolver {
 
   getConfigDir(): Result<string, Error> {
     try {
-      const configHome = Deno.env.get("XDG_CONFIG_HOME") ??
-        join(Deno.env.get("HOME") || "", ".config");
+      const configHome = getDefaultConfigDir();
       return ok(join(configHome, "locus"));
     } catch (error: unknown) {
       const message = getErrorMessage(error);
@@ -164,9 +164,13 @@ export class DefaultPathResolver implements PathResolver {
 
   private expandTilde(path: string): string {
     if (path.startsWith("~/") || path === "~") {
-      const home = Deno.env.get("HOME");
+      const home = getHomeDir();
       if (!home) {
-        throw new Error("HOME environment variable is not set");
+        throw new Error(
+          Deno.build.os === "windows"
+            ? "USERPROFILE environment variable is not set"
+            : "HOME environment variable is not set",
+        );
       }
       return path.replace(/^~/, home);
     }

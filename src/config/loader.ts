@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Config, ConfigSchema } from "./schema.ts";
 import { err, ok, Result } from "../utils/result.ts";
 import { ConfigError, ConfigValidationError, getErrorMessage } from "../utils/errors.ts";
+import { getDefaultConfigDir } from "../utils/platform.ts";
 
 let cachedConfig: Config | null = null;
 
@@ -13,8 +14,7 @@ let cachedConfig: Config | null = null;
  */
 export async function findConfigFile(): Promise<Result<string | null, Error>> {
   try {
-    const home = Deno.env.get("XDG_CONFIG_HOME") ??
-      join(Deno.env.get("HOME") || "", ".config");
+    const home = getDefaultConfigDir();
 
     const candidates = [
       join(home, "locus", "settings.yml"),
@@ -196,8 +196,7 @@ export async function loadConfig(forceReload = false): Promise<Result<Config, Er
  */
 export function getConfigDir(): Result<string, Error> {
   try {
-    const configHome = Deno.env.get("XDG_CONFIG_HOME") ??
-      join(Deno.env.get("HOME") || "", ".config");
+    const configHome = getDefaultConfigDir();
     return ok(join(configHome, "locus"));
   } catch (error: unknown) {
     const message = getErrorMessage(error);

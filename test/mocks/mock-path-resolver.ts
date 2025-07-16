@@ -2,6 +2,7 @@ import { PathResolver } from "../../src/services/path-resolver.ts";
 import { ok, Result } from "../../src/utils/result.ts";
 import { RepoInfo } from "../../src/types.ts";
 import { InMemoryFileSystem } from "./in-memory-fs.ts";
+import { join } from "@std/path";
 
 /**
  * Mock PathResolver for testing
@@ -30,7 +31,7 @@ export class MockPathResolver implements PathResolver {
       return ok(baseDir);
     }
 
-    const taskDir = `${baseDir}/${repoInfo.owner}/${repoInfo.repo}`;
+    const taskDir = join(baseDir, repoInfo.owner, repoInfo.repo);
     await this.fs.mkdir(taskDir, true);
     return ok(taskDir);
   }
@@ -44,15 +45,15 @@ export class MockPathResolver implements PathResolver {
       return taskDirResult;
     }
 
-    return ok(`${taskDirResult.value}/${fileName}`);
+    return ok(join(taskDirResult.value, fileName));
   }
 
   getConfigFilePath(): Result<string, Error> {
-    return ok(`${this.fs.getHome()}/.config/locus/settings.yml`);
+    return ok(join(this.fs.getHome(), ".config", "locus", "settings.yml"));
   }
 
   getConfigDir(): Result<string, Error> {
-    return ok(`${this.fs.getHome()}/.config/locus`);
+    return ok(join(this.fs.getHome(), ".config", "locus"));
   }
 
   async resolveTaskFile(
@@ -74,16 +75,16 @@ export class MockPathResolver implements PathResolver {
 
         const fileName = entry.name.toLowerCase();
         if (fileName === normalizedName || fileName === `${normalizedName}.md`) {
-          return ok(`${taskDir}/${entry.name}`);
+          return ok(join(taskDir, entry.name));
         }
         if (fileName.includes(normalizedName)) {
-          return ok(`${taskDir}/${entry.name}`);
+          return ok(join(taskDir, entry.name));
         }
       }
     }
 
     // Default to adding .md extension
     const fileName = partialName.endsWith(".md") ? partialName : `${partialName}.md`;
-    return ok(`${taskDir}/${fileName}`);
+    return ok(join(taskDir, fileName));
   }
 }
