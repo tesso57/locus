@@ -1,16 +1,19 @@
 import { Config } from "../types.ts";
-import { loadConfig } from "../config/index.ts";
 import { GitService } from "./git-service.ts";
 import { PathResolver } from "./path-resolver.ts";
 import { TaskService } from "./task-service.ts";
 import { FileSystem } from "./file-system.ts";
 import { TagsService } from "./tags-service.ts";
+import { ConfigLoader } from "./config-loader.ts";
 import { DefaultGitService } from "./git-service.ts";
 import { DefaultPathResolver } from "./path-resolver.ts";
 import { DefaultTaskService } from "./default-task-service.ts";
 import { DefaultFileSystem } from "./default-file-system.ts";
 import { DefaultTagsService } from "./default-tags-service.ts";
+import { DefaultConfigLoader } from "./default-config-loader.ts";
 import { I18nService } from "./i18n.ts";
+import { FormatService } from "./format-service.ts";
+import { DefaultFormatService } from "./default-format-service.ts";
 
 /**
  * Service container for dependency injection
@@ -19,12 +22,14 @@ export class ServiceContainer {
   private static instance: ServiceContainer | null = null;
 
   private config: Config | null = null;
+  private configLoader: ConfigLoader | null = null;
   private gitService: GitService | null = null;
   private pathResolver: PathResolver | null = null;
   private taskService: TaskService | null = null;
   private fileSystem: FileSystem | null = null;
   private tagsService: TagsService | null = null;
   private i18nService: I18nService | null = null;
+  private formatService: FormatService | null = null;
 
   private constructor() {}
 
@@ -43,7 +48,12 @@ export class ServiceContainer {
    */
   async initialize(): Promise<void> {
     if (!this.config) {
-      this.config = await loadConfig();
+      const configLoader = this.getConfigLoader();
+      const result = await configLoader.loadConfig();
+      if (!result.ok) {
+        throw result.error;
+      }
+      this.config = result.value;
     }
   }
 
@@ -55,6 +65,17 @@ export class ServiceContainer {
       await this.initialize();
     }
     return this.config!;
+  }
+
+  /**
+   * Get ConfigLoader instance
+   */
+  getConfigLoader(): ConfigLoader {
+    if (!this.configLoader) {
+      const fileSystem = this.getFileSystem();
+      this.configLoader = new DefaultConfigLoader(fileSystem);
+    }
+    return this.configLoader;
   }
 
   /**
@@ -132,24 +153,39 @@ export class ServiceContainer {
   }
 
   /**
+   * Get FormatService instance
+   */
+  getFormatService(): FormatService {
+    if (!this.formatService) {
+      const i18nService = this.getI18nService();
+      this.formatService = new DefaultFormatService(i18nService);
+    }
+    return this.formatService;
+  }
+
+  /**
    * Set custom services for testing
    */
   setServices(services: {
     config?: Config;
+    configLoader?: ConfigLoader;
     gitService?: GitService;
     pathResolver?: PathResolver;
     taskService?: TaskService;
     fileSystem?: FileSystem;
     tagsService?: TagsService;
     i18nService?: I18nService;
+    formatService?: FormatService;
   }): void {
     if (services.config) this.config = services.config;
+    if (services.configLoader) this.configLoader = services.configLoader;
     if (services.gitService) this.gitService = services.gitService;
     if (services.pathResolver) this.pathResolver = services.pathResolver;
     if (services.taskService) this.taskService = services.taskService;
     if (services.fileSystem) this.fileSystem = services.fileSystem;
     if (services.tagsService) this.tagsService = services.tagsService;
     if (services.i18nService) this.i18nService = services.i18nService;
+    if (services.formatService) this.formatService = services.formatService;
   }
 
   /**
@@ -157,12 +193,14 @@ export class ServiceContainer {
    */
   reset(): void {
     this.config = null;
+    this.configLoader = null;
     this.gitService = null;
     this.pathResolver = null;
     this.taskService = null;
     this.fileSystem = null;
     this.tagsService = null;
     this.i18nService = null;
+    this.formatService = null;
   }
 
   /**
