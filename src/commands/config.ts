@@ -10,6 +10,17 @@ import { I18nService } from "../services/i18n.ts";
 import { Config } from "../types.ts";
 import { DEFAULT_CONFIG } from "../config/defaults.ts";
 
+/**
+ * Creates the "config" CLI command with subcommands for displaying, initializing, locating, and interactively setting up the configuration file.
+ *
+ * The returned command includes the following subcommands:
+ * - `show`: Displays the current configuration in YAML or JSON format.
+ * - `path`: Prints the path to the configuration file or the default location.
+ * - `init`: Creates a default configuration file, with an option to overwrite existing files.
+ * - `setup`: Launches an interactive setup wizard to configure settings.
+ *
+ * @returns A configured CLI command for managing application configuration.
+ */
 export function createConfigCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()
     .name("config")
@@ -93,6 +104,13 @@ async function showConfigPath(): Promise<void> {
   }
 }
 
+/**
+ * Initializes a default configuration file, optionally overwriting an existing file.
+ *
+ * If a configuration file already exists and `force` is not set, the operation is aborted with an error message. On success, prints the path to the created configuration file and instructions for editing it.
+ *
+ * @param force - Whether to overwrite an existing configuration file
+ */
 async function initConfig(force: boolean = false, i18n: I18nService): Promise<void> {
   const configDir = getConfigDir();
   const configPath = join(configDir, "settings.yml");
@@ -115,6 +133,11 @@ async function initConfig(force: boolean = false, i18n: I18nService): Promise<vo
   }
 }
 
+/**
+ * Launches an interactive CLI wizard to create or update the configuration file.
+ *
+ * Prompts the user for configuration options such as task directory, language, git settings, file naming pattern, date format, hash length, default status, priority, and tags. Displays a YAML preview of the new configuration and, upon confirmation, saves it to the configuration file. If the user cancels or an error occurs, the process is aborted with an appropriate message.
+ */
 async function setupConfig(i18n: I18nService): Promise<void> {
   try {
     console.log(i18n.t("config.setup.messages.welcome"));

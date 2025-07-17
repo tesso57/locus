@@ -148,7 +148,9 @@ export function getConfigDir(): string {
 }
 
 /**
- * Create default configuration file
+ * Creates a default Locus configuration file in the standard configuration directory if it does not already exist.
+ *
+ * The generated file includes default settings for task storage, Git integration, file naming, and task defaults.
  */
 export async function createDefaultConfig(): Promise<void> {
   const configDir = getConfigDir();

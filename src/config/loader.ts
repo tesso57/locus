@@ -280,7 +280,11 @@ export function getConfigDir(): Result<string, Error> {
 }
 
 /**
- * Create default configuration file
+ * Creates the default configuration file `settings.yml` in the user's configuration directory if it does not already exist.
+ *
+ * Generates a YAML template with default settings for task management, git integration, file naming, and task defaults. Creates the configuration directory if necessary.
+ *
+ * @returns A `Result` indicating success or containing an error if the file could not be created.
  */
 export async function createDefaultConfig(): Promise<Result<void, Error>> {
   const configDirResult = getConfigDir();

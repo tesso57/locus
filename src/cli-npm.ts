@@ -16,6 +16,11 @@ import { loadConfig } from "./config/loader.ts";
 import { VERSION } from "./version.ts";
 import { getErrorMessage } from "./utils/errors.ts";
 
+/**
+ * Initializes and runs the CLI application, handling configuration, localization, and command registration.
+ *
+ * Loads user configuration to determine language preference, sets up internationalization, registers all CLI subcommands, and parses command-line arguments. Exits the process with code 1 if initialization or command execution fails.
+ */
 export async function main() {
   // Initialize i18n
   let i18n: I18nService;
