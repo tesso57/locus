@@ -107,9 +107,10 @@ function extractFromEnv(): Partial<Config> {
 
   if (env.LOCUS_LANGUAGE_DEFAULT) {
     if (!config.language) {
-      config.language = { default: "" };
+      config.language = { default: env.LOCUS_LANGUAGE_DEFAULT as "ja" | "en" };
+    } else {
+      config.language.default = env.LOCUS_LANGUAGE_DEFAULT as "ja" | "en";
     }
-    config.language.default = env.LOCUS_LANGUAGE_DEFAULT;
   }
 
   return config;
