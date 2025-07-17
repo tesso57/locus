@@ -251,11 +251,11 @@ export class DefaultTaskService implements TaskService {
     }
 
     const queryLower = query.toLowerCase();
-    const matchedTasks = allTasksResult.value.filter((task) => {
+    const matchedTasks = allTasksResult.value.filter((task: TaskInfo) => {
       return (
         task.title.toLowerCase().includes(queryLower) ||
         task.body.toLowerCase().includes(queryLower) ||
-        task.tags.some((tag) => tag.toLowerCase().includes(queryLower))
+        task.tags.some((tag: string) => tag.toLowerCase().includes(queryLower))
       );
     });
 
@@ -358,7 +358,7 @@ export class DefaultTaskService implements TaskService {
       }
 
       if (options.tags && options.tags.length > 0) {
-        const hasTag = options.tags.some((tag) => task.tags.includes(tag));
+        const hasTag = options.tags.some((tag: string) => task.tags.includes(tag));
         if (!hasTag) {
           return false;
         }

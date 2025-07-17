@@ -80,7 +80,7 @@ export class DefaultSearchService implements SearchService {
       }
 
       // Filter tasks based on search criteria
-      const matchedTasks = tasksResult.value.filter((task) => {
+      const matchedTasks = tasksResult.value.filter((task: TaskInfo) => {
         if (
           searchOpts.searchFileName &&
           this.isFileNameMatch(task.fileName, query, searchOpts.ignoreCase)
@@ -181,7 +181,7 @@ export class DefaultSearchService implements SearchService {
           if (contentResult.ok) {
             // Simple title extraction (looking for # Title)
             const lines = contentResult.value.split("\n");
-            const titleLine = lines.find((line) => line.trim().startsWith("# "));
+            const titleLine = lines.find((line: string) => line.trim().startsWith("# "));
             if (titleLine) {
               const title = titleLine.trim().substring(2).trim();
               matched = this.isTitleMatch(title, query, options.ignoreCase);

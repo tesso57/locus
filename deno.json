@@ -26,8 +26,9 @@
     "test": "deno test --allow-read --allow-write --allow-env --allow-run --coverage",
     "lint": "deno lint",
     "fmt": "deno fmt",
-    "check": "deno fmt --check && deno lint && deno test --allow-read --allow-write --allow-env --allow-run",
-    "compile": "deno compile --no-check --allow-read --allow-write --allow-env --allow-run -o locus src/cli.ts",
+    "typecheck": "deno check src/**/*.ts test/**/*.ts",
+    "check": "deno fmt --check && deno lint && deno check src/**/*.ts test/**/*.ts && deno test --allow-read --allow-write --allow-env --allow-run",
+    "compile": "deno compile --allow-read --allow-write --allow-env --allow-run -o locus src/cli.ts",
     "install-local": "deno install --allow-read --allow-write --allow-env --allow-run -n locus -f src/cli.ts",
     "npm": "deno run -A scripts/build_npm.ts"
   },

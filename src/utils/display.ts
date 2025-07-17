@@ -51,7 +51,7 @@ export function displayTask(
   if (task.tags && task.tags.length > 0) {
     output.push(
       noColor
-        ? `  ${i18n.t("display.tags", { tags: task.tags.map((t) => `#${t}`).join(", ") })}`
+        ? `  ${i18n.t("display.tags", { tags: task.tags.map((t: string) => `#${t}`).join(", ") })}`
         : `  ${colors.gray(i18n.t("display.tags", { tags: "" }).replace(": ", ":"))} ${
           formatTags(task.tags)
         }`,

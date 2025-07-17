@@ -34,12 +34,14 @@ await build({
       locus: "./bin/locus"
     }
   },
-  typeCheck: false, // Disable type checking for now due to Cliffy issues
+  typeCheck: false, // Disable type checking for npm build
   test: false, // Disable test for now
   declaration: "separate", // Generate separate .d.ts files
   compilerOptions: {
     target: "ES2022",
     lib: ["ES2022", "DOM"],
+    skipLibCheck: true,
+    allowJs: true,
   },
   scriptModule: false, // Only generate ESM
   
