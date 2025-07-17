@@ -9,32 +9,99 @@ import {
 import { GitInfo, RepoInfo } from "../types.ts";
 
 /**
- * Git service interface
+ * Service interface for Git operations.
+ * 
+ * Provides methods for interacting with Git repositories, checking repository status,
+ * and extracting repository information. All methods return Result types for explicit
+ * error handling.
+ * 
+ * @since 0.1.0
  */
 export interface GitService {
   /**
-   * Check if git command is available
+   * Checks if the git command is available on the system.
+   * 
+   * @returns Promise resolving to Result with boolean indicating git availability
+   * 
+   * @example
+   * ```typescript
+   * const result = await gitService.hasGit();
+   * if (result.ok && result.value) {
+   *   console.log("Git is available");
+   * }
+   * ```
    */
   hasGit(): Promise<Result<boolean, Error>>;
 
   /**
-   * Check if current directory is inside a git repository
+   * Checks if the specified directory is inside a Git repository.
+   * 
+   * @param cwd - Optional directory path to check. Defaults to current working directory.
+   * @returns Promise resolving to Result with boolean indicating if directory is in a git repo
+   * 
+   * @example
+   * ```typescript
+   * const result = await gitService.isGitRepo("/path/to/project");
+   * if (result.ok && result.value) {
+   *   console.log("Directory is in a Git repository");
+   * }
+   * ```
    */
   isGitRepo(cwd?: string): Promise<Result<boolean, Error>>;
 
   /**
-   * Get git repository information
+   * Retrieves detailed Git repository information.
+   * 
+   * @param cwd - Optional directory path. Defaults to current working directory.
+   * @returns Promise resolving to Result with GitInfo containing repository details
+   * 
+   * @example
+   * ```typescript
+   * const result = await gitService.getGitInfo();
+   * if (result.ok) {
+   *   const { isRepo, root, remoteUrl } = result.value;
+   *   if (isRepo) {
+   *     console.log(`Repo root: ${root}`);
+   *     console.log(`Remote URL: ${remoteUrl}`);
+   *   }
+   * }
+   * ```
    */
   getGitInfo(cwd?: string): Promise<Result<GitInfo, Error>>;
 
   /**
-   * Get repository information (owner and repo name)
+   * Extracts repository owner and name from the Git remote URL.
+   * 
+   * @param cwd - Optional directory path. Defaults to current working directory.
+   * @returns Promise resolving to Result with RepoInfo (owner/name) or null if not available
+   * 
+   * @example
+   * ```typescript
+   * const result = await gitService.getRepoInfo();
+   * if (result.ok && result.value) {
+   *   const { owner, name } = result.value;
+   *   console.log(`Repository: ${owner}/${name}`);
+   * }
+   * ```
    */
   getRepoInfo(cwd?: string): Promise<Result<RepoInfo | null, Error>>;
 }
 
 /**
- * Default Git service implementation
+ * Default implementation of the GitService interface.
+ * 
+ * This implementation uses the system's git command-line tool to perform operations.
+ * It handles various error cases gracefully and provides detailed error information
+ * when Git operations fail.
+ * 
+ * @example
+ * ```typescript
+ * const gitService = new DefaultGitService();
+ * const repoInfo = await gitService.getRepoInfo();
+ * if (repoInfo.ok && repoInfo.value) {
+ *   console.log(`Working in: ${repoInfo.value.owner}/${repoInfo.value.name}`);
+ * }
+ * ```
  */
 export class DefaultGitService implements GitService {
   async hasGit(): Promise<Result<boolean, Error>> {

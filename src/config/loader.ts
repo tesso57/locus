@@ -1,3 +1,16 @@
+/**
+ * @module config/loader
+ * 
+ * Configuration loading and management for Locus.
+ * 
+ * This module handles loading configuration from multiple sources with the following precedence:
+ * 1. Environment variables (highest priority)
+ * 2. Configuration files (YAML format)
+ * 3. Default values from schema (lowest priority)
+ * 
+ * Configuration files are searched following the XDG Base Directory specification.
+ */
+
 import { parse } from "@std/yaml";
 import { exists } from "@std/fs";
 import { join } from "@std/path";
@@ -10,7 +23,26 @@ import { getDefaultConfigDir } from "../utils/platform.ts";
 let cachedConfig: Config | null = null;
 
 /**
- * Find configuration file following XDG Base Directory specification
+ * Finds the configuration file following XDG Base Directory specification.
+ * 
+ * Searches for configuration files in the following order:
+ * 1. `$XDG_CONFIG_HOME/locus/settings.yml` (or `~/.config/locus/settings.yml`)
+ * 2. `$XDG_CONFIG_HOME/locus/settings.yaml`
+ * 3. Each directory in `$XDG_CONFIG_DIRS` (or `/etc/xdg`)
+ * 
+ * @returns Promise resolving to Result with the path to the first found config file, or null if none found
+ * 
+ * @example
+ * ```typescript
+ * const result = await findConfigFile();
+ * if (result.ok && result.value) {
+ *   console.log(`Config file found at: ${result.value}`);
+ * } else if (result.ok) {
+ *   console.log("No config file found, using defaults");
+ * }
+ * ```
+ * 
+ * @since 0.1.0
  */
 export async function findConfigFile(): Promise<Result<string | null, Error>> {
   try {
@@ -41,7 +73,23 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
 }
 
 /**
- * Extract configuration from environment variables
+ * Extracts configuration values from environment variables.
+ * 
+ * Environment variables take precedence over file configuration.
+ * Supported environment variables:
+ * - `LOCUS_TASK_DIRECTORY`: Override task directory
+ * - `LOCUS_GIT_EXTRACT_USERNAME`: Enable/disable username extraction (true/false)
+ * - `LOCUS_GIT_USERNAME_FROM_REMOTE`: Enable/disable username from remote (true/false)
+ * - `LOCUS_FILE_NAMING_PATTERN`: File naming pattern
+ * - `LOCUS_FILE_NAMING_DATE_FORMAT`: Date format for filenames
+ * - `LOCUS_FILE_NAMING_HASH_LENGTH`: Hash length for unique identifiers
+ * - `LOCUS_DEFAULTS_STATUS`: Default task status
+ * - `LOCUS_DEFAULTS_PRIORITY`: Default task priority
+ * - `LOCUS_LANGUAGE_DEFAULT`: Default language (ja/en)
+ * 
+ * @returns Partial configuration object with values from environment
+ * 
+ * @since 0.1.0
  */
 function extractFromEnv(): Partial<Config> {
   const env = Deno.env.toObject();
@@ -132,7 +180,34 @@ function deepMerge<T extends Record<string, unknown>>(
 }
 
 /**
- * Load and validate configuration
+ * Loads configuration from all sources with proper precedence and caching.
+ * 
+ * Configuration is loaded from three sources in order of precedence:
+ * 1. Environment variables (highest priority)
+ * 2. Configuration file (YAML format)
+ * 3. Default values from schema (lowest priority)
+ * 
+ * The configuration is cached after first load for performance.
+ * Use `forceReload` to bypass the cache.
+ * 
+ * @param forceReload - If true, bypasses the cache and reloads configuration
+ * @returns Promise resolving to Result with the complete validated configuration
+ * 
+ * @example
+ * ```typescript
+ * // Load configuration (cached after first call)
+ * const configResult = await loadConfig();
+ * if (configResult.ok) {
+ *   const config = configResult.value;
+ *   console.log(`Task directory: ${config.task_directory}`);
+ *   console.log(`Default status: ${config.defaults.status}`);
+ * }
+ * 
+ * // Force reload to pick up changes
+ * const freshConfig = await loadConfig(true);
+ * ```
+ * 
+ * @since 0.1.0
  */
 export async function loadConfig(forceReload = false): Promise<Result<Config, Error>> {
   if (!forceReload && cachedConfig) {

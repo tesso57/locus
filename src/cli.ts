@@ -13,6 +13,26 @@ import { loadConfig } from "./config/loader.ts";
 import { VERSION } from "./version.ts";
 import { getErrorMessage } from "./utils/errors.ts";
 
+/**
+ * Main entry point for the Locus CLI application.
+ * 
+ * Initializes internationalization (i18n) support and sets up all available commands.
+ * The function handles:
+ * - Loading configuration to determine the default language
+ * - Checking for language overrides from environment variables
+ * - Setting up the command-line interface with all subcommands
+ * - Error handling and graceful exit on failures
+ * 
+ * @returns {Promise<void>} Resolves when the CLI execution is complete
+ * 
+ * @example
+ * ```typescript
+ * // Run the CLI with arguments
+ * await main();
+ * ```
+ * 
+ * @since 0.1.0
+ */
 export async function main() {
   // Initialize i18n
   let i18n: I18nService;

@@ -1,3 +1,28 @@
+/**
+ * @module locus
+ * 
+ * Locus - A Git-aware task management CLI tool built with Deno.
+ * 
+ * This module provides the public API for programmatic usage of Locus functionality.
+ * It exports types, configuration utilities, markdown processing functions, and
+ * command creation functions that can be used to build custom task management tools
+ * or integrate Locus functionality into other applications.
+ * 
+ * @example
+ * ```typescript
+ * import { loadConfig, parseMarkdown, createAddCommand } from "@tesso/locus";
+ * 
+ * // Load configuration
+ * const configResult = await loadConfig();
+ * if (configResult.ok) {
+ *   console.log("Config loaded:", configResult.value);
+ * }
+ * 
+ * // Parse a markdown task file
+ * const { frontmatter, body } = parseMarkdown(markdownContent);
+ * ```
+ */
+
 // Library exports for programmatic usage
 
 // Type exports

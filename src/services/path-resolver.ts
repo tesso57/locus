@@ -6,36 +6,120 @@ import { FileSystemError, getErrorMessage } from "../utils/errors.ts";
 import { getDefaultConfigDir, getHomeDir } from "../utils/platform.ts";
 
 /**
- * Interface for path resolution
+ * Service interface for resolving file system paths.
+ * 
+ * Handles path resolution for task files, configuration files, and directories.
+ * Supports Git-aware directory structures where tasks are organized by repository.
+ * All methods return Result types for explicit error handling.
+ * 
+ * @since 0.1.0
  */
 export interface PathResolver {
   /**
-   * Get the base locus directory
+   * Gets the base directory where all tasks are stored.
+   * 
+   * @returns Result containing the expanded base directory path or an error
+   * 
+   * @example
+   * ```typescript
+   * const result = pathResolver.getBaseDir();
+   * if (result.ok) {
+   *   console.log(`Tasks stored in: ${result.value}`);
+   *   // e.g., "/home/user/locus"
+   * }
+   * ```
    */
   getBaseDir(): Result<string, Error>;
 
   /**
-   * Get the task directory for a repository
+   * Gets the task directory for a specific repository.
+   * 
+   * Creates the directory if it doesn't exist. If repoInfo is provided and Git
+   * username extraction is enabled, returns a repository-specific directory.
+   * Otherwise, returns the base directory.
+   * 
+   * @param repoInfo - Repository information (owner and name) or null
+   * @returns Promise resolving to Result with the task directory path
+   * 
+   * @example
+   * ```typescript
+   * // With repository info
+   * const result = await pathResolver.getTaskDir({ owner: "alice", repo: "project" });
+   * // Returns: "/home/user/locus/alice/project"
+   * 
+   * // Without repository info
+   * const result = await pathResolver.getTaskDir(null);
+   * // Returns: "/home/user/locus"
+   * ```
    */
   getTaskDir(repoInfo: RepoInfo | null): Promise<Result<string, Error>>;
 
   /**
-   * Get the path for a specific task file
+   * Gets the full path for a specific task file.
+   * 
+   * @param fileName - The task file name (e.g., "2024-01-15-task.md")
+   * @param repoInfo - Repository information or null
+   * @returns Promise resolving to Result with the full file path
+   * 
+   * @example
+   * ```typescript
+   * const result = await pathResolver.getTaskFilePath(
+   *   "2024-01-15-meeting-notes.md",
+   *   { owner: "alice", repo: "project" }
+   * );
+   * // Returns: "/home/user/locus/alice/project/2024-01-15-meeting-notes.md"
+   * ```
    */
   getTaskFilePath(fileName: string, repoInfo: RepoInfo | null): Promise<Result<string, Error>>;
 
   /**
-   * Get the configuration file path
+   * Gets the path to the configuration file.
+   * 
+   * @returns Result containing the config file path (typically "~/.config/locus/settings.yml")
+   * 
+   * @example
+   * ```typescript
+   * const result = pathResolver.getConfigFilePath();
+   * if (result.ok) {
+   *   console.log(`Config file: ${result.value}`);
+   * }
+   * ```
    */
   getConfigFilePath(): Result<string, Error>;
 
   /**
-   * Get the configuration directory
+   * Gets the configuration directory path.
+   * 
+   * @returns Result containing the config directory path (typically "~/.config/locus")
+   * 
+   * @example
+   * ```typescript
+   * const result = pathResolver.getConfigDir();
+   * if (result.ok) {
+   *   console.log(`Config directory: ${result.value}`);
+   * }
+   * ```
    */
   getConfigDir(): Result<string, Error>;
 
   /**
-   * Resolve a task file from partial name
+   * Resolves a task file from a partial name.
+   * 
+   * Searches for task files matching the partial name using various strategies:
+   * - Exact match (with or without .md extension)
+   * - Partial match at the beginning of the filename
+   * - Match after date prefix (e.g., "task" matches "2024-01-15-task-abc123.md")
+   * 
+   * @param partialName - Partial file name to search for
+   * @param repoInfo - Repository information or null
+   * @returns Promise resolving to Result with the full path of the matching file
+   * 
+   * @example
+   * ```typescript
+   * // Find task by partial name
+   * const result = await pathResolver.resolveTaskFile("meeting", repoInfo);
+   * // Might return: "/home/user/locus/alice/project/2024-01-15-meeting-notes-abc123.md"
+   * ```
    */
   resolveTaskFile(
     partialName: string,
@@ -44,7 +128,20 @@ export interface PathResolver {
 }
 
 /**
- * Default PathResolver implementation
+ * Default implementation of the PathResolver interface.
+ * 
+ * This implementation:
+ * - Expands tilde (~) in paths to the user's home directory
+ * - Creates directories as needed when resolving paths
+ * - Supports Git-aware directory structures based on configuration
+ * - Provides fuzzy matching for task file resolution
+ * 
+ * @example
+ * ```typescript
+ * const config = await loadConfig();
+ * const pathResolver = new DefaultPathResolver(config.value);
+ * const taskDir = await pathResolver.getTaskDir(repoInfo);
+ * ```
  */
 export class DefaultPathResolver implements PathResolver {
   constructor(private config: Config) {}
