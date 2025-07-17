@@ -41,7 +41,6 @@ await build({
     target: "ES2022",
     lib: ["ES2022", "DOM"],
     skipLibCheck: true,
-    allowJs: true,
   },
   scriptModule: false, // Only generate ESM
   

@@ -29,7 +29,7 @@
     "typecheck": "deno check src/**/*.ts test/**/*.ts",
     "check": "deno fmt --check && deno lint && deno check src/**/*.ts test/**/*.ts && deno test --allow-read --allow-write --allow-env --allow-run",
     "compile": "deno compile --allow-read --allow-write --allow-env --allow-run -o locus src/cli.ts",
-    "install-local": "deno install --allow-read --allow-write --allow-env --allow-run -n locus -f src/cli.ts",
+    "install-local": "deno install --allow-read --allow-write --allow-env --allow-run -n locus -f --config deno.json src/cli.ts",
     "npm": "deno run -A scripts/build_npm.ts"
   },
   "compilerOptions": {
