@@ -106,28 +106,31 @@ jobs:
     permissions:
       contents: read
       id-token: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: "2.x"
-          cache: true
+      - name: Read package version
+        id: pkg
+        run: |
+          VERSION=$(jq -r '.version' npm/package.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Build npm package
-        run: deno task npm
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
+      - name: Check if version already exists on npm
+        id: exist
+        run: |
+          if npm view @tesso/locus@${{ steps.pkg.outputs.version }} > /dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️ @tesso/locus@${{ steps.pkg.outputs.version }} already exists on npm – skipping publish"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Publish package to npm
+        if: steps.exist.outputs.publish == 'true'
         run: |
           cd npm
           npm publish --access public
