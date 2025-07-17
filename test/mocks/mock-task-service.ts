@@ -8,11 +8,19 @@ import {
 } from "../../src/services/task-service.ts";
 import { RepoInfo } from "../../src/types.ts";
 import { TaskNotFoundError } from "../../src/utils/errors.ts";
+import { FileSystem } from "../../src/services/file-system.ts";
+import { join } from "@std/path";
+import { getTestHome } from "../utils/test-paths.ts";
 
 export class MockTaskService implements TaskService {
   private tasks: Map<string, TaskInfo> = new Map();
   private errors: Map<string, Error> = new Map();
   private listResult: TaskInfo[] = [];
+  private fileSystem: FileSystem | null = null;
+
+  setFileSystem(fs: FileSystem): void {
+    this.fileSystem = fs;
+  }
 
   setTask(fileName: string, task: TaskInfo): void {
     this.tasks.set(fileName, task);
@@ -38,7 +46,15 @@ export class MockTaskService implements TaskService {
       return Promise.resolve(err(error));
     }
 
-    const task = this.tasks.get(fileName);
+    // Try with and without .md extension
+    let task = this.tasks.get(fileName);
+    if (!task && !fileName.endsWith(".md")) {
+      task = this.tasks.get(fileName + ".md");
+    }
+    if (!task && fileName.endsWith(".md")) {
+      task = this.tasks.get(fileName.replace(".md", ""));
+    }
+
     if (!task) {
       return Promise.resolve(err(new TaskNotFoundError(fileName)));
     }
@@ -46,8 +62,18 @@ export class MockTaskService implements TaskService {
     return Promise.resolve(ok(task));
   }
 
-  createTask(options: CreateTaskOptions): Promise<Result<string, Error>> {
-    const fileName = `${options.title.toLowerCase().replace(/\s+/g, "-")}.md`;
+  async createTask(options: CreateTaskOptions): Promise<Result<string, Error>> {
+    // Generate filename with date and hash pattern
+    const slug = options.title.toLowerCase()
+      .replace(/[^\p{L}\p{N}\s-]/gu, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+    const date = new Date().toISOString().split("T")[0];
+    const hash = Math.random().toString(36).substring(2, 10);
+    const fileName = `${date}-${slug}-${hash}.md`;
+
     const task: TaskInfo = {
       fileName,
       title: options.title,
@@ -57,19 +83,56 @@ export class MockTaskService implements TaskService {
       created: new Date().toISOString(),
       path: fileName,
       frontmatter: {
+        date,
+        created: new Date().toISOString(),
         status: options.status || "todo",
         priority: options.priority || "normal",
         tags: options.tags || [],
       },
-      body: options.body || "",
+      body: options.body || `# ${options.title}`,
     };
 
     this.tasks.set(fileName, task);
+
+    // If fileSystem is set, write the actual file
+    if (this.fileSystem && options.repoInfo) {
+      const taskPath = join(
+        getTestHome(),
+        "locus",
+        options.repoInfo.owner,
+        options.repoInfo.repo,
+        fileName,
+      );
+
+      // Generate markdown content
+      const frontmatterContent = Object.entries(task.frontmatter)
+        .map(([key, value]) => {
+          if (Array.isArray(value)) {
+            return `${key}:\n${value.map((v) => `  - ${v}`).join("\n")}`;
+          }
+          return `${key}: ${typeof value === "string" ? `'${value}'` : value}`;
+        })
+        .join("\n");
+
+      const content = `---\n${frontmatterContent}\n---\n${task.body}`;
+
+      await this.fileSystem.writeTextFile(taskPath, content);
+      task.path = taskPath;
+    }
+
     return Promise.resolve(ok(fileName));
   }
 
-  updateTask(options: UpdateTaskOptions): Promise<Result<void, Error>> {
-    const task = this.tasks.get(options.fileName);
+  async updateTask(options: UpdateTaskOptions): Promise<Result<void, Error>> {
+    // Try with and without .md extension
+    let task = this.tasks.get(options.fileName);
+    if (!task && !options.fileName.endsWith(".md")) {
+      task = this.tasks.get(options.fileName + ".md");
+    }
+    if (!task && options.fileName.endsWith(".md")) {
+      task = this.tasks.get(options.fileName.replace(".md", ""));
+    }
+
     if (!task) {
       return Promise.resolve(err(new TaskNotFoundError(options.fileName)));
     }
@@ -78,6 +141,24 @@ export class MockTaskService implements TaskService {
     if (options.body !== undefined) task.body = options.body;
     if (options.frontmatter) {
       task.frontmatter = { ...task.frontmatter, ...options.frontmatter };
+    }
+
+    // If fileSystem is set, update the actual file
+    const testBasePath = join(getTestHome(), "locus");
+    if (this.fileSystem && task.path && task.path.startsWith(testBasePath)) {
+      // Generate markdown content
+      const frontmatterContent = Object.entries(task.frontmatter)
+        .map(([key, value]) => {
+          if (Array.isArray(value)) {
+            return `${key}:\n${value.map((v) => `  - ${v}`).join("\n")}`;
+          }
+          return `${key}: ${typeof value === "string" ? `'${value}'` : value}`;
+        })
+        .join("\n");
+
+      const content = `---\n${frontmatterContent}\n---\n${task.body}`;
+
+      await this.fileSystem.writeTextFile(task.path, content);
     }
 
     return Promise.resolve(ok(undefined));

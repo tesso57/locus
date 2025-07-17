@@ -7,6 +7,7 @@ import { createConfigCommand } from "./commands/config.ts";
 import { createListCommand } from "./commands/list.ts";
 import { createReadCommand } from "./commands/read.ts";
 import { createPathCommand } from "./commands/path.ts";
+import { createEditCommand } from "./commands/edit.ts";
 import { logError } from "./utils/errors-i18n.ts";
 import { createI18n, I18nService } from "./services/i18n.ts";
 import { loadConfig } from "./config/loader.ts";
@@ -71,6 +72,7 @@ export async function main() {
       .command("config", createConfigCommand(i18n))
       .command("read", createReadCommand(i18n))
       .command("path", createPathCommand(i18n))
+      .command("edit", createEditCommand(i18n))
       .parse(Deno.args);
   } catch (error) {
     logError(getErrorMessage(error), i18n);

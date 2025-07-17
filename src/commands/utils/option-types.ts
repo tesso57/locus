@@ -61,6 +61,15 @@ export interface ConfigOptions extends BaseCommandOptions {
 }
 
 /**
+ * Options for the edit command
+ */
+export interface EditOptions extends BaseCommandOptions {
+  body?: string;
+  overwrite?: boolean;
+  noGit?: boolean;
+}
+
+/**
  * Options for the update command
  */
 export interface UpdateOptions extends BaseCommandOptions {
