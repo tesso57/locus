@@ -11,6 +11,7 @@ import { parseMarkdown } from "../../src/utils/markdown.ts";
 import { createEditCommand } from "../../src/commands/edit.ts";
 import { createI18n } from "../../src/services/i18n.ts";
 import { ok } from "../../src/utils/result.ts";
+import { testPath } from "../utils/test-paths.ts";
 
 // Mock configuration
 const mockConfig: Config = {
@@ -52,7 +53,7 @@ Deno.test("edit command - creates new task when file doesn't exist", async () =>
   git.setRepoInfo({ owner: "test-user", repo: "test-repo", host: "github.com" });
 
   // Create task directory
-  const taskDir = "/home/user/locus/test-user/test-repo";
+  const taskDir = testPath("locus", "test-user", "test-repo");
   await fs.ensureDir(taskDir);
 
   // Set up service container with mocks
@@ -80,7 +81,7 @@ Deno.test("edit command - creates new task when file doesn't exist", async () =>
     await command.parse(["new-task", "-b", "# New Task\n\nThis is a new task"]);
 
     // Check that file was created (check for any file with the pattern)
-    const taskDir = "/home/user/locus/test-user/test-repo";
+    const taskDir = testPath("locus", "test-user", "test-repo");
     const filesResult = await fs.readDir(taskDir);
     if (!filesResult.ok) throw filesResult.error;
 
@@ -132,8 +133,8 @@ priority: 'normal'
 
 This is the original content.`;
 
-  const existingPath = "/home/user/locus/test-user/test-repo/existing-task.md";
-  const taskDir = "/home/user/locus/test-user/test-repo";
+  const existingPath = testPath("locus", "test-user", "test-repo", "existing-task.md");
+  const taskDir = testPath("locus", "test-user", "test-repo");
   const ensureDirResult = await fs.ensureDir(taskDir);
   if (!ensureDirResult.ok) throw ensureDirResult.error;
   await fs.writeTextFile(existingPath, existingContent);
@@ -226,8 +227,8 @@ priority: 'normal'
 
 This is the original content.`;
 
-  const existingPath = "/home/user/locus/test-user/test-repo/existing-task.md";
-  const taskDir = "/home/user/locus/test-user/test-repo";
+  const existingPath = testPath("locus", "test-user", "test-repo", "existing-task.md");
+  const taskDir = testPath("locus", "test-user", "test-repo");
   const ensureDirResult = await fs.ensureDir(taskDir);
   if (!ensureDirResult.ok) throw ensureDirResult.error;
   await fs.writeTextFile(existingPath, existingContent);
@@ -314,7 +315,7 @@ Deno.test("edit command - handles stdin input with '-'", async () => {
   git.setRepoInfo({ owner: "test-user", repo: "test-repo", host: "github.com" });
 
   // Create task directory
-  const taskDir = "/home/user/locus/test-user/test-repo";
+  const taskDir = testPath("locus", "test-user", "test-repo");
   await fs.ensureDir(taskDir);
 
   // Set up service container with mocks
@@ -361,7 +362,7 @@ Deno.test("edit command - handles stdin input with '-'", async () => {
     await command.parse(["-"]);
 
     // Check that file was created with stdin prefix
-    const filesResult = await fs.readDir("/home/user/locus/test-user/test-repo");
+    const filesResult = await fs.readDir(testPath("locus", "test-user", "test-repo"));
     if (!filesResult.ok) throw filesResult.error;
 
     const files: Deno.DirEntry[] = [];
@@ -373,7 +374,7 @@ Deno.test("edit command - handles stdin input with '-'", async () => {
 
     // Check file content
     const contentResult = await fs.readTextFile(
-      `/home/user/locus/test-user/test-repo/${stdinFile.name}`,
+      testPath("locus", "test-user", "test-repo", stdinFile.name),
     );
     if (!contentResult.ok) throw contentResult.error;
     const content = contentResult.value;
@@ -411,7 +412,7 @@ Deno.test("edit command - fails when no body provided for new task", async () =>
   git.setRepoInfo({ owner: "test-user", repo: "test-repo", host: "github.com" });
 
   // Create task directory
-  const taskDir = "/home/user/locus/test-user/test-repo";
+  const taskDir = testPath("locus", "test-user", "test-repo");
   await fs.ensureDir(taskDir);
 
   // Set up service container with mocks
@@ -476,7 +477,7 @@ Deno.test("edit command - outputs JSON format for new task", async () => {
   git.setRepoInfo({ owner: "test-user", repo: "test-repo", host: "github.com" });
 
   // Create task directory
-  const taskDir = "/home/user/locus/test-user/test-repo";
+  const taskDir = testPath("locus", "test-user", "test-repo");
   await fs.ensureDir(taskDir);
 
   // Set up service container with mocks
@@ -544,8 +545,8 @@ priority: 'normal'
 
 This is the original content.`;
 
-  const existingPath = "/home/user/locus/test-user/test-repo/existing-task.md";
-  const taskDir = "/home/user/locus/test-user/test-repo";
+  const existingPath = testPath("locus", "test-user", "test-repo", "existing-task.md");
+  const taskDir = testPath("locus", "test-user", "test-repo");
   const ensureDirResult = await fs.ensureDir(taskDir);
   if (!ensureDirResult.ok) throw ensureDirResult.error;
   await fs.writeTextFile(existingPath, existingContent);
@@ -637,8 +638,8 @@ priority: 'normal'
 
 This is the original content.`;
 
-  const existingPath = "/home/user/locus/test-user/test-repo/existing-task.md";
-  const taskDir = "/home/user/locus/test-user/test-repo";
+  const existingPath = testPath("locus", "test-user", "test-repo", "existing-task.md");
+  const taskDir = testPath("locus", "test-user", "test-repo");
   const ensureDirResult = await fs.ensureDir(taskDir);
   if (!ensureDirResult.ok) throw ensureDirResult.error;
   await fs.writeTextFile(existingPath, existingContent);

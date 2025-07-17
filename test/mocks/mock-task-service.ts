@@ -95,7 +95,7 @@ export class MockTaskService implements TaskService {
     // If fileSystem is set, write the actual file
     if (this.fileSystem && options.repoInfo) {
       const taskPath =
-        `/home/user/locus/${options.repoInfo.owner}/${options.repoInfo.repo}/${fileName}`;
+        `/home/test/locus/${options.repoInfo.owner}/${options.repoInfo.repo}/${fileName}`;
 
       // Generate markdown content
       const frontmatterContent = Object.entries(task.frontmatter)
@@ -137,7 +137,7 @@ export class MockTaskService implements TaskService {
     }
 
     // If fileSystem is set, update the actual file
-    if (this.fileSystem && task.path && task.path.startsWith("/home/user/locus/")) {
+    if (this.fileSystem && task.path && task.path.startsWith("/home/test/locus/")) {
       // Generate markdown content
       const frontmatterContent = Object.entries(task.frontmatter)
         .map(([key, value]) => {
