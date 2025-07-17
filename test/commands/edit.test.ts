@@ -100,6 +100,11 @@ Deno.test("edit command - creates new task when file doesn't exist", async () =>
     console.error("Console outputs:", outputs);
     assertEquals(outputs.length, 1);
     assertEquals(outputs[0].includes("タスクを作成しました"), true);
+    // Check that the path in the output contains the expected directory structure
+    const expectedPathPart = Deno.build.os === "windows"
+      ? "locus\\test-user\\test-repo"
+      : "locus/test-user/test-repo";
+    assertEquals(outputs[0].includes(expectedPathPart), true);
   } finally {
     console.log = originalLog;
   }
@@ -194,6 +199,11 @@ This is the original content.`;
     // Check output
     assertEquals(outputs.length, 1);
     assertEquals(outputs[0].includes("タスクに追記しました"), true);
+    // Check path in output
+    const expectedPathPart = Deno.build.os === "windows"
+      ? "locus\\test-user\\test-repo"
+      : "locus/test-user/test-repo";
+    assertEquals(outputs[0].includes(expectedPathPart), true);
   } finally {
     console.log = originalLog;
   }
@@ -292,6 +302,11 @@ This is the original content.`;
     // Check output
     assertEquals(outputs.length, 1);
     assertEquals(outputs[0].includes("タスクを上書きしました"), true);
+    // Check path in output
+    const expectedPathPart = Deno.build.os === "windows"
+      ? "locus\\test-user\\test-repo"
+      : "locus/test-user/test-repo";
+    assertEquals(outputs[0].includes(expectedPathPart), true);
   } finally {
     console.log = originalLog;
   }
@@ -385,6 +400,11 @@ Deno.test("edit command - handles stdin input with '-'", async () => {
     // Check output
     assertEquals(outputs.length, 1);
     assertEquals(outputs[0].includes("タスクを作成しました"), true);
+    // Check path in output for stdin
+    const expectedPathPart = Deno.build.os === "windows"
+      ? "locus\\test-user\\test-repo"
+      : "locus/test-user/test-repo";
+    assertEquals(outputs[0].includes(expectedPathPart), true);
   } finally {
     console.log = originalLog;
     Object.defineProperty(Deno, "stdin", {

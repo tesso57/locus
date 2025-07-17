@@ -9,6 +9,8 @@ import {
 import { RepoInfo } from "../../src/types.ts";
 import { TaskNotFoundError } from "../../src/utils/errors.ts";
 import { FileSystem } from "../../src/services/file-system.ts";
+import { join } from "@std/path";
+import { getTestHome } from "../utils/test-paths.ts";
 
 export class MockTaskService implements TaskService {
   private tasks: Map<string, TaskInfo> = new Map();
@@ -94,8 +96,13 @@ export class MockTaskService implements TaskService {
 
     // If fileSystem is set, write the actual file
     if (this.fileSystem && options.repoInfo) {
-      const taskPath =
-        `/home/test/locus/${options.repoInfo.owner}/${options.repoInfo.repo}/${fileName}`;
+      const taskPath = join(
+        getTestHome(),
+        "locus",
+        options.repoInfo.owner,
+        options.repoInfo.repo,
+        fileName,
+      );
 
       // Generate markdown content
       const frontmatterContent = Object.entries(task.frontmatter)
@@ -137,7 +144,8 @@ export class MockTaskService implements TaskService {
     }
 
     // If fileSystem is set, update the actual file
-    if (this.fileSystem && task.path && task.path.startsWith("/home/test/locus/")) {
+    const testBasePath = join(getTestHome(), "locus");
+    if (this.fileSystem && task.path && task.path.startsWith(testBasePath)) {
       // Generate markdown content
       const frontmatterContent = Object.entries(task.frontmatter)
         .map(([key, value]) => {
