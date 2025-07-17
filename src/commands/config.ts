@@ -27,7 +27,7 @@ export function createConfigCommand(i18n: I18nService): Command<any, any, any> {
     // path subcommand
     .command("path", i18n.t("config.path.description"))
     .action(async () => {
-      await showConfigPath();
+      await showConfigPath(i18n);
     })
     // init subcommand
     .command("init", i18n.t("config.init.description"))
@@ -48,7 +48,7 @@ async function showConfig(asJson: boolean = false, i18n: I18nService): Promise<v
     const configFile = await findConfigFile();
 
     output(config, { json: asJson }, (data) => {
-      let result = "🔧 現在の設定:\n\n";
+      let result = `${i18n.t("config.messages.currentSettings")}\n\n`;
       result += stringify(data, {
         lineWidth: -1,
         useAnchors: false,
@@ -56,15 +56,15 @@ async function showConfig(asJson: boolean = false, i18n: I18nService): Promise<v
 
       // Show source of configuration
       if (configFile) {
-        result += `\n📁 設定ファイル: ${configFile}`;
+        result += `\n${i18n.t("config.messages.configFile", { path: configFile })}`;
       } else {
-        result += `\n📁 設定ファイル: なし（デフォルト設定を使用）`;
+        result += `\n${i18n.t("config.messages.configFileNone")}`;
       }
 
       // Check for environment variables
       const envVars = Object.keys(Deno.env.toObject()).filter((key) => key.startsWith("LOCUS_"));
       if (envVars.length > 0) {
-        result += `\n\n🌍 環境変数による上書き:`;
+        result += `\n\n${i18n.t("config.messages.envOverrides")}`;
         for (const key of envVars) {
           result += `\n  ${key}=${Deno.env.get(key)}`;
         }
@@ -79,7 +79,7 @@ async function showConfig(asJson: boolean = false, i18n: I18nService): Promise<v
   }
 }
 
-async function showConfigPath(): Promise<void> {
+async function showConfigPath(i18n: I18nService): Promise<void> {
   const configFile = await findConfigFile();
 
   if (configFile) {
@@ -87,9 +87,9 @@ async function showConfigPath(): Promise<void> {
   } else {
     const configDir = getConfigDir();
     const defaultPath = join(configDir, "settings.yml");
-    console.log(`設定ファイルが見つかりません。`);
-    console.log(`デフォルトの場所: ${defaultPath}`);
-    console.log(`\n'locus config init' を実行して設定ファイルを作成できます。`);
+    console.log(i18n.t("common.info.configNotFound"));
+    console.log(i18n.t("common.info.defaultLocation", { path: defaultPath }));
+    console.log(`\n${i18n.t("common.info.runToCreate")}`);
   }
 }
 
@@ -195,7 +195,7 @@ async function setupConfig(i18n: I18nService): Promise<void> {
 
     if (pattern === "custom") {
       pattern = await Input.prompt({
-        message: "Enter custom pattern:",
+        message: i18n.t("config.setup.messages.enterCustomPattern"),
         default: config.file_naming.pattern,
       });
     }

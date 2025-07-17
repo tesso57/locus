@@ -115,6 +115,7 @@ export const messages = {
           confirmSave: "この設定を保存しますか？",
           saved: "✅ 設定が保存されました: {{path}}",
           cancelled: "❌ セットアップがキャンセルされました",
+          enterCustomPattern: "カスタムパターンを入力してください:",
           patternCustom: "カスタム（手動入力）",
           patternExplain: {
             dateSlugHash: "{date}-{slug}-{hash}.md（例: 2024-01-15-my-task-a1b2c3d4.md）",
@@ -436,6 +437,7 @@ export const messages = {
           confirmSave: "Save this configuration?",
           saved: "✅ Configuration saved: {{path}}",
           cancelled: "❌ Setup cancelled",
+          enterCustomPattern: "Enter custom pattern:",
           patternCustom: "Custom (manual input)",
           patternExplain: {
             dateSlugHash: "{date}-{slug}-{hash}.md (e.g., 2024-01-15-my-task-a1b2c3d4.md)",
