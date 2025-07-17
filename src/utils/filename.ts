@@ -3,14 +3,14 @@ import { FileNameComponents } from "../types.ts";
 
 /**
  * Generates a URL-safe slug from a title.
- * 
+ *
  * Converts the title to lowercase, removes special characters (keeping Unicode letters,
  * numbers, spaces, and hyphens), replaces spaces with hyphens, and ensures no
  * leading/trailing hyphens.
- * 
+ *
  * @param title - The title to convert to a slug
  * @returns A URL-safe slug string
- * 
+ *
  * @example
  * ```typescript
  * generateSlug("Hello World!");        // "hello-world"
@@ -18,7 +18,7 @@ import { FileNameComponents } from "../types.ts";
  * generateSlug("Test   123");          // "test-123"
  * generateSlug("--Test--");            // "test"
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export function generateSlug(title: string): string {
@@ -33,20 +33,20 @@ export function generateSlug(title: string): string {
 
 /**
  * Generates a random hash string for unique identification.
- * 
+ *
  * Uses crypto.randomUUID() to generate a cryptographically secure random
  * identifier and truncates it to the specified length.
- * 
+ *
  * @param length - The desired length of the hash (default: 8)
  * @returns A random alphanumeric hash string
- * 
+ *
  * @example
  * ```typescript
  * generateHash();     // e.g., "a1b2c3d4"
  * generateHash(6);    // e.g., "f5e4d3"
  * generateHash(12);   // e.g., "a1b2c3d4e5f6"
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export function generateHash(length: number = 8): string {
@@ -56,16 +56,16 @@ export function generateHash(length: number = 8): string {
 
 /**
  * Formats a date according to the specified pattern.
- * 
+ *
  * Supports the following tokens:
  * - YYYY: 4-digit year
  * - MM: 2-digit month (01-12)
  * - DD: 2-digit day (01-31)
- * 
+ *
  * @param date - The date to format
  * @param pattern - The format pattern (e.g., "YYYY-MM-DD")
  * @returns The formatted date string
- * 
+ *
  * @example
  * ```typescript
  * const date = new Date(2024, 0, 15); // January 15, 2024
@@ -73,7 +73,7 @@ export function generateHash(length: number = 8): string {
  * formatDate(date, "DD/MM/YYYY");     // "15/01/2024"
  * formatDate(date, "YYYY年MM月DD日");  // "2024年01月15日"
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export function formatDate(date: Date, pattern: string): string {
@@ -89,13 +89,13 @@ export function formatDate(date: Date, pattern: string): string {
 
 /**
  * Generates all components needed for creating a task filename.
- * 
+ *
  * Uses configuration settings to determine date format and hash length.
  * Components include formatted date, slug from title, and random hash.
- * 
+ *
  * @param title - The task title to generate components from
  * @returns Promise resolving to FileNameComponents object
- * 
+ *
  * @example
  * ```typescript
  * const components = await generateFileNameComponents("Project Meeting");
@@ -106,7 +106,7 @@ export function formatDate(date: Date, pattern: string): string {
  * //   hash: "a1b2c3d4"
  * // }
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export async function generateFileNameComponents(title: string): Promise<FileNameComponents> {
@@ -122,28 +122,28 @@ export async function generateFileNameComponents(title: string): Promise<FileNam
 
 /**
  * Generates a complete task filename based on the configured pattern.
- * 
+ *
  * Uses the file naming pattern from configuration and replaces tokens:
  * - {date}: Current date in configured format
  * - {slug}: URL-safe version of the title
  * - {hash}: Random identifier for uniqueness
- * 
+ *
  * Automatically appends .md extension if not present.
- * 
+ *
  * @param title - The task title
  * @returns Promise resolving to the generated filename
- * 
+ *
  * @example
  * ```typescript
  * // With default pattern "{date}-{slug}-{hash}"
  * const filename = await generateFileName("Weekly Review");
  * // Returns: "2024-01-15-weekly-review-a1b2c3d4.md"
- * 
+ *
  * // With pattern "{slug}-{date}"
  * const filename = await generateFileName("Task");
  * // Returns: "task-2024-01-15.md"
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export async function generateFileName(title: string): Promise<string> {
@@ -166,13 +166,13 @@ export async function generateFileName(title: string): Promise<string> {
 
 /**
  * Parses a filename to extract its components.
- * 
+ *
  * Attempts to identify date, slug, and hash components from the filename.
  * Returns partial components as not all filenames may contain all parts.
- * 
+ *
  * @param fileName - The filename to parse (with or without .md extension)
  * @returns Partial FileNameComponents that could be extracted
- * 
+ *
  * @example
  * ```typescript
  * parseFileName("2024-01-15-meeting-notes-a1b2c3d4.md");
@@ -181,13 +181,13 @@ export async function generateFileName(title: string): Promise<string> {
  * //   slug: "meeting-notes",
  * //   hash: "a1b2c3d4"
  * // }
- * 
+ *
  * parseFileName("simple-task.md");
  * // Returns: {
  * //   slug: "simple-task"
  * // }
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export function parseFileName(fileName: string): Partial<FileNameComponents> {

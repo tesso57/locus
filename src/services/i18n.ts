@@ -3,52 +3,52 @@ import { messages as embeddedMessages } from "../i18n/messages.ts";
 
 /**
  * Service interface for internationalization (i18n) functionality.
- * 
+ *
  * Provides methods for translating text, managing languages, and retrieving
  * language information. Implementations should support multiple languages
  * and provide fallback mechanisms for missing translations.
- * 
+ *
  * @since 0.1.0
  */
 export interface I18nService {
   /**
    * Translates a message key to the current language.
-   * 
+   *
    * @param key - The translation key in dot notation (e.g., "commands.add.success")
    * @param params - Optional parameters for interpolation in the translated string
    * @param defaultValue - Optional default value if translation is not found
    * @returns The translated string with parameters interpolated
-   * 
+   *
    * @example
    * ```typescript
    * // Simple translation
    * const message = i18n.t("commands.add.success");
-   * 
+   *
    * // Translation with parameters
    * const greeting = i18n.t("common.greeting", { name: "Alice" });
    * // Returns: "Hello, Alice!" (if translation is "Hello, {{name}}!")
    * ```
    */
   t(key: string, params?: Record<string, unknown>, defaultValue?: string): string;
-  
+
   /**
    * Changes the current language.
-   * 
+   *
    * @param lang - The language code to switch to (e.g., "en", "ja")
    * @returns Result indicating success or failure with error details
    */
   setLanguage(lang: string): Result<void, Error>;
-  
+
   /**
    * Gets the currently active language code.
-   * 
+   *
    * @returns The current language code (e.g., "en", "ja")
    */
   getCurrentLanguage(): string;
-  
+
   /**
    * Gets the list of supported language codes.
-   * 
+   *
    * @returns Array of supported language codes
    */
   getSupportedLanguages(): string[];
@@ -64,13 +64,13 @@ interface Messages {
 
 /**
  * Default implementation of the I18nService interface.
- * 
+ *
  * This implementation:
  * - Loads translations from embedded message files
  * - Supports Japanese (ja) and English (en) languages
  * - Falls back to Japanese if language detection fails
  * - Provides simple template interpolation with {{parameter}} syntax
- * 
+ *
  * @example
  * ```typescript
  * const i18n = new I18n("en");
@@ -88,7 +88,7 @@ export class I18n implements I18nService {
 
   /**
    * Creates a new I18n instance.
-   * 
+   *
    * @param initialLang - Optional initial language code. If not provided, language is auto-detected.
    */
   constructor(initialLang?: string) {
@@ -98,7 +98,7 @@ export class I18n implements I18nService {
   /**
    * Initializes the I18n service by loading message files.
    * Must be called before using translation functions.
-   * 
+   *
    * @returns Result indicating success or failure with error details
    */
   initialize(): Result<void, Error> {
@@ -208,11 +208,11 @@ export class I18n implements I18nService {
 // Factory function for creating and initializing i18n service
 /**
  * Factory function to create and initialize an I18nService instance.
- * 
+ *
  * @param lang - Optional language code to use. If not provided, language is auto-detected
  *               from environment variables or system settings.
  * @returns Result containing the initialized I18nService or an error
- * 
+ *
  * @example
  * ```typescript
  * // Create with auto-detected language
@@ -220,7 +220,7 @@ export class I18n implements I18nService {
  * if (i18nResult.ok) {
  *   const message = i18nResult.value.t("welcome");
  * }
- * 
+ *
  * // Create with specific language
  * const i18nResult = createI18n("en");
  * if (i18nResult.ok) {

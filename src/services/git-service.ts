@@ -10,19 +10,19 @@ import { GitInfo, RepoInfo } from "../types.ts";
 
 /**
  * Service interface for Git operations.
- * 
+ *
  * Provides methods for interacting with Git repositories, checking repository status,
  * and extracting repository information. All methods return Result types for explicit
  * error handling.
- * 
+ *
  * @since 0.1.0
  */
 export interface GitService {
   /**
    * Checks if the git command is available on the system.
-   * 
+   *
    * @returns Promise resolving to Result with boolean indicating git availability
-   * 
+   *
    * @example
    * ```typescript
    * const result = await gitService.hasGit();
@@ -35,10 +35,10 @@ export interface GitService {
 
   /**
    * Checks if the specified directory is inside a Git repository.
-   * 
+   *
    * @param cwd - Optional directory path to check. Defaults to current working directory.
    * @returns Promise resolving to Result with boolean indicating if directory is in a git repo
-   * 
+   *
    * @example
    * ```typescript
    * const result = await gitService.isGitRepo("/path/to/project");
@@ -51,10 +51,10 @@ export interface GitService {
 
   /**
    * Retrieves detailed Git repository information.
-   * 
+   *
    * @param cwd - Optional directory path. Defaults to current working directory.
    * @returns Promise resolving to Result with GitInfo containing repository details
-   * 
+   *
    * @example
    * ```typescript
    * const result = await gitService.getGitInfo();
@@ -71,10 +71,10 @@ export interface GitService {
 
   /**
    * Extracts repository owner and name from the Git remote URL.
-   * 
+   *
    * @param cwd - Optional directory path. Defaults to current working directory.
    * @returns Promise resolving to Result with RepoInfo (owner/name) or null if not available
-   * 
+   *
    * @example
    * ```typescript
    * const result = await gitService.getRepoInfo();
@@ -89,11 +89,11 @@ export interface GitService {
 
 /**
  * Default implementation of the GitService interface.
- * 
+ *
  * This implementation uses the system's git command-line tool to perform operations.
  * It handles various error cases gracefully and provides detailed error information
  * when Git operations fail.
- * 
+ *
  * @example
  * ```typescript
  * const gitService = new DefaultGitService();

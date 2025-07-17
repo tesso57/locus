@@ -3,14 +3,14 @@ import { FrontMatter, ParsedMarkdown } from "../types.ts";
 
 /**
  * Parses markdown content that may contain YAML frontmatter.
- * 
+ *
  * Frontmatter must be delimited by --- at the beginning and end.
  * If parsing fails or no frontmatter is found, returns the entire
  * content as the body with null frontmatter.
- * 
+ *
  * @param content - The markdown content to parse
  * @returns ParsedMarkdown object with separated frontmatter and body
- * 
+ *
  * @example
  * ```typescript
  * const content = `---
@@ -18,14 +18,14 @@ import { FrontMatter, ParsedMarkdown } from "../types.ts";
  * status: todo
  * ---
  * # Task Content
- * 
+ *
  * Description here...`;
- * 
+ *
  * const { frontmatter, body } = parseMarkdown(content);
  * console.log(frontmatter?.title); // "My Task"
  * console.log(body); // "# Task Content\n\nDescription here..."
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export function parseMarkdown(content: string): ParsedMarkdown {
@@ -60,15 +60,15 @@ export function parseMarkdown(content: string): ParsedMarkdown {
 
 /**
  * Generates markdown content with YAML frontmatter.
- * 
+ *
  * If frontmatter is null or empty, returns only the body.
  * Otherwise, creates properly formatted markdown with YAML
  * frontmatter delimited by ---.
- * 
+ *
  * @param frontmatter - The frontmatter object to serialize, or null
  * @param body - The markdown body content
  * @returns Complete markdown string with frontmatter (if provided)
- * 
+ *
  * @example
  * ```typescript
  * const frontmatter = {
@@ -76,7 +76,7 @@ export function parseMarkdown(content: string): ParsedMarkdown {
  *   status: "todo",
  *   tags: ["important", "feature"]
  * };
- * 
+ *
  * const markdown = generateMarkdown(frontmatter, "# Task Content\n\nDetails...");
  * // Returns:
  * // ---
@@ -87,10 +87,10 @@ export function parseMarkdown(content: string): ParsedMarkdown {
  * //   - feature
  * // ---
  * // # Task Content
- * // 
+ * //
  * // Details...
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export function generateMarkdown(
@@ -111,20 +111,20 @@ export function generateMarkdown(
 
 /**
  * Ensures a filename has the .md extension.
- * 
+ *
  * If the filename already ends with .md, returns it unchanged.
  * Otherwise, appends .md to the filename.
- * 
+ *
  * @param fileName - The filename to check
  * @returns The filename with .md extension
- * 
+ *
  * @example
  * ```typescript
  * ensureMarkdownExtension("task");       // "task.md"
  * ensureMarkdownExtension("task.md");    // "task.md"
  * ensureMarkdownExtension("task.txt");   // "task.txt.md"
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export function ensureMarkdownExtension(fileName: string): string {
@@ -133,17 +133,17 @@ export function ensureMarkdownExtension(fileName: string): string {
 
 /**
  * Validates a filename for security and filesystem compatibility.
- * 
+ *
  * Checks for:
  * - Path separators (/ or \)
  * - Relative path components (..)
  * - Empty filenames
  * - Excessive length (>255 characters)
  * - Invalid characters for common filesystems
- * 
+ *
  * @param fileName - The filename to validate
  * @throws {Error} If the filename contains invalid characters or patterns
- * 
+ *
  * @example
  * ```typescript
  * validateFileName("task.md");           // OK
@@ -152,7 +152,7 @@ export function ensureMarkdownExtension(fileName: string): string {
  * validateFileName("path/to/file.md");   // Throws Error
  * validateFileName("file:name.md");      // Throws Error
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export function validateFileName(fileName: string): void {
@@ -182,15 +182,15 @@ export function validateFileName(fileName: string): void {
 
 /**
  * Merges frontmatter objects with special handling for arrays.
- * 
+ *
  * - For array fields (like tags), replaces the entire array
  * - For other fields, performs shallow merge
  * - Null/undefined values in updates remove the field
- * 
+ *
  * @param existing - The existing frontmatter object or null
  * @param updates - Partial updates to apply
  * @returns New frontmatter object with updates applied
- * 
+ *
  * @example
  * ```typescript
  * const existing = {
@@ -198,16 +198,16 @@ export function validateFileName(fileName: string): void {
  *   tags: ["feature"],
  *   priority: "high"
  * };
- * 
+ *
  * const updated = mergeFrontmatter(existing, {
  *   status: "done",
  *   tags: ["feature", "completed"],
  *   priority: null  // This will remove the priority field
  * });
- * 
+ *
  * // Result: { status: "done", tags: ["feature", "completed"] }
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export function mergeFrontmatter(

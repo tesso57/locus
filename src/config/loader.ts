@@ -1,13 +1,13 @@
 /**
  * @module config/loader
- * 
+ *
  * Configuration loading and management for Locus.
- * 
+ *
  * This module handles loading configuration from multiple sources with the following precedence:
  * 1. Environment variables (highest priority)
  * 2. Configuration files (YAML format)
  * 3. Default values from schema (lowest priority)
- * 
+ *
  * Configuration files are searched following the XDG Base Directory specification.
  */
 
@@ -24,14 +24,14 @@ let cachedConfig: Config | null = null;
 
 /**
  * Finds the configuration file following XDG Base Directory specification.
- * 
+ *
  * Searches for configuration files in the following order:
  * 1. `$XDG_CONFIG_HOME/locus/settings.yml` (or `~/.config/locus/settings.yml`)
  * 2. `$XDG_CONFIG_HOME/locus/settings.yaml`
  * 3. Each directory in `$XDG_CONFIG_DIRS` (or `/etc/xdg`)
- * 
+ *
  * @returns Promise resolving to Result with the path to the first found config file, or null if none found
- * 
+ *
  * @example
  * ```typescript
  * const result = await findConfigFile();
@@ -41,7 +41,7 @@ let cachedConfig: Config | null = null;
  *   console.log("No config file found, using defaults");
  * }
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export async function findConfigFile(): Promise<Result<string | null, Error>> {
@@ -74,7 +74,7 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
 
 /**
  * Extracts configuration values from environment variables.
- * 
+ *
  * Environment variables take precedence over file configuration.
  * Supported environment variables:
  * - `LOCUS_TASK_DIRECTORY`: Override task directory
@@ -86,9 +86,9 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
  * - `LOCUS_DEFAULTS_STATUS`: Default task status
  * - `LOCUS_DEFAULTS_PRIORITY`: Default task priority
  * - `LOCUS_LANGUAGE_DEFAULT`: Default language (ja/en)
- * 
+ *
  * @returns Partial configuration object with values from environment
- * 
+ *
  * @since 0.1.0
  */
 function extractFromEnv(): Partial<Config> {
@@ -181,18 +181,18 @@ function deepMerge<T extends Record<string, unknown>>(
 
 /**
  * Loads configuration from all sources with proper precedence and caching.
- * 
+ *
  * Configuration is loaded from three sources in order of precedence:
  * 1. Environment variables (highest priority)
  * 2. Configuration file (YAML format)
  * 3. Default values from schema (lowest priority)
- * 
+ *
  * The configuration is cached after first load for performance.
  * Use `forceReload` to bypass the cache.
- * 
+ *
  * @param forceReload - If true, bypasses the cache and reloads configuration
  * @returns Promise resolving to Result with the complete validated configuration
- * 
+ *
  * @example
  * ```typescript
  * // Load configuration (cached after first call)
@@ -202,11 +202,11 @@ function deepMerge<T extends Record<string, unknown>>(
  *   console.log(`Task directory: ${config.task_directory}`);
  *   console.log(`Default status: ${config.defaults.status}`);
  * }
- * 
+ *
  * // Force reload to pick up changes
  * const freshConfig = await loadConfig(true);
  * ```
- * 
+ *
  * @since 0.1.0
  */
 export async function loadConfig(forceReload = false): Promise<Result<Config, Error>> {
