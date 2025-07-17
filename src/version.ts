@@ -4,4 +4,4 @@
 
 // Export a hardcoded version for npm build compatibility
 // The actual version will be set during the build process
-export const VERSION = "0.1.3";
+export const VERSION = "0.1.5";
