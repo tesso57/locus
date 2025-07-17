@@ -9,7 +9,9 @@
 
 _Locus_ is a Git-aware, local-first task management CLI, designed to streamline your development workflow, especially when working with **AI coding assistants**.
 
-Think of it as a **simple, local version of GitHub Issues**. It helps you break down complex work into small, manageable Markdown files, which you can then feed to an AI agent one by one. This allows the agent to work more autonomously and produce higher-quality results for tasks like large-scale refactoring or test generation.
+Born from extensive collaboration with AI coding assistants, Locus solves a fundamental problem: to get high-quality work from an agent, you need well-structured Markdown briefs for every task. And when running multiple agents in parallel, you need a fast, local way to manage those files. While GitHub Issues is conceptually close, it lives in the cloud and is awkward to drive from a CLI that an agent can call.
+
+Locus is the solution: a Git-native, local-first CLI task manager where each task lives in its own Markdown file that an AI assistant can read and write. Think of it as a **simple, local version of GitHub Issues** that helps you break down complex work into small, manageable pieces, enabling agents to work more autonomously and produce higher-quality results for tasks like large-scale refactoring or test generation.
 
 Of course, it's also a great tool for managing your own daily tasks without cluttering up your official project boards.
 
