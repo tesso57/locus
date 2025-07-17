@@ -139,6 +139,7 @@ jobs:
           fi
 
       - name: Setup Node
+        if: steps.exist.outputs.publish == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "22"
