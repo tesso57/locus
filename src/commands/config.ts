@@ -121,8 +121,7 @@ async function setupConfig(i18n: I18nService): Promise<void> {
     console.log();
 
     // Load current config as defaults
-    const currentConfigResult = await loadConfig();
-    const currentConfig = currentConfigResult.ok ? currentConfigResult.value : DEFAULT_CONFIG;
+    const currentConfig = await loadConfig();
 
     // Create new config object
     const config: Config = {
