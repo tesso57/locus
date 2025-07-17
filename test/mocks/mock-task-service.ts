@@ -8,14 +8,15 @@ import {
 } from "../../src/services/task-service.ts";
 import { RepoInfo } from "../../src/types.ts";
 import { TaskNotFoundError } from "../../src/utils/errors.ts";
+import { FileSystem } from "../../src/services/file-system.ts";
 
 export class MockTaskService implements TaskService {
   private tasks: Map<string, TaskInfo> = new Map();
   private errors: Map<string, Error> = new Map();
   private listResult: TaskInfo[] = [];
-  private fileSystem: any = null;
+  private fileSystem: FileSystem | null = null;
 
-  setFileSystem(fs: any): void {
+  setFileSystem(fs: FileSystem): void {
     this.fileSystem = fs;
   }
 

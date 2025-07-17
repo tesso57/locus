@@ -12,7 +12,7 @@ import { EditOptions } from "./utils/option-types.ts";
 import { ok } from "../utils/result.ts";
 import { I18nService } from "../services/i18n.ts";
 import { PathResolver } from "../services/path-resolver.ts";
-import { TaskService } from "../services/task-service.ts";
+import { TaskInfo, TaskService } from "../services/task-service.ts";
 import { RepoInfo } from "../types.ts";
 
 /**
@@ -94,7 +94,7 @@ async function handleNewTask(
  * Handle updating an existing task
  */
 async function handleExistingTask(
-  existingTask: any,
+  existingTask: TaskInfo,
   bodyContent: string | undefined,
   taskService: TaskService,
   pathResolver: PathResolver,
