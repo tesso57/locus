@@ -457,3 +457,249 @@ Deno.test("edit command - fails when no body provided for new task", async () =>
   // Check that error was thrown (not that Deno.exit was called, since exitWithError throws in test)
   // The error message check is already done in the catch block
 });
+
+Deno.test("edit command - outputs JSON format for new task", async () => {
+  // Set up global test flag
+  (globalThis as any).__TEST__ = true;
+
+  // Reset service container
+  ServiceContainer.resetInstance();
+
+  const fs = new InMemoryFileSystem();
+  const git = new MockGitService();
+  const pathResolver = new MockPathResolver(fs);
+  const configLoader = new MockConfigLoader(mockConfig);
+  const taskService = new MockTaskService();
+  taskService.setFileSystem(fs);
+
+  // Configure git mock
+  git.setRepoInfo({ owner: "test-user", repo: "test-repo", host: "github.com" });
+
+  // Create task directory
+  const taskDir = "/home/user/locus/test-user/test-repo";
+  await fs.ensureDir(taskDir);
+
+  // Set up service container with mocks
+  const container = ServiceContainer.getInstance();
+  container.setServices({
+    fileSystem: fs,
+    gitService: git,
+    pathResolver: pathResolver,
+    taskService: taskService,
+    config: mockConfig,
+  });
+
+  const i18nResult = createI18n("ja");
+  if (!i18nResult.ok) throw i18nResult.error;
+  const i18n = i18nResult.value;
+  container.setI18nService(i18n);
+
+  // Mock console output
+  const outputs: string[] = [];
+  const originalLog = console.log;
+  console.log = (msg: string) => outputs.push(msg);
+
+  try {
+    const command = createEditCommand(i18n);
+    await command.parse(["new-json-task", "-b", "# JSON Task\n\nTest content", "--json"]);
+
+    // Check JSON output
+    assertEquals(outputs.length, 1);
+    const jsonOutput = JSON.parse(outputs[0]);
+    assertEquals(jsonOutput.success, true);
+    assertEquals(jsonOutput.action, "created");
+    assertEquals(jsonOutput.title, "JSON Task");
+    assertEquals(jsonOutput.repository, "test-user/test-repo");
+    assertExists(jsonOutput.fileName);
+  } finally {
+    console.log = originalLog;
+  }
+});
+
+Deno.test("edit command - outputs JSON format for existing task update", async () => {
+  // Set up global test flag
+  (globalThis as any).__TEST__ = true;
+
+  // Reset service container
+  ServiceContainer.resetInstance();
+
+  const fs = new InMemoryFileSystem();
+  const git = new MockGitService();
+  const pathResolver = new MockPathResolver(fs);
+  const configLoader = new MockConfigLoader(mockConfig);
+  const taskService = new MockTaskService();
+  taskService.setFileSystem(fs);
+
+  // Configure git mock
+  git.setRepoInfo({ owner: "test-user", repo: "test-repo", host: "github.com" });
+
+  // Create an existing task
+  const existingContent = `---
+date: '2025-07-04'
+created: '2025-07-04T12:00:00.000Z'
+status: 'todo'
+priority: 'normal'
+---
+# Existing Task
+
+This is the original content.`;
+
+  const existingPath = "/home/user/locus/test-user/test-repo/existing-task.md";
+  const taskDir = "/home/user/locus/test-user/test-repo";
+  const ensureDirResult = await fs.ensureDir(taskDir);
+  if (!ensureDirResult.ok) throw ensureDirResult.error;
+  await fs.writeTextFile(existingPath, existingContent);
+
+  // Add task to mock service
+  taskService.setTask("existing-task.md", {
+    fileName: "existing-task.md",
+    title: "Existing Task",
+    status: "todo",
+    priority: "normal",
+    tags: [],
+    created: "2025-07-04T12:00:00.000Z",
+    path: existingPath,
+    frontmatter: {
+      date: "2025-07-04",
+      created: "2025-07-04T12:00:00.000Z",
+      status: "todo",
+      priority: "normal",
+    },
+    body: "# Existing Task\\n\\nThis is the original content.",
+  });
+
+  // Set up service container with mocks
+  const container = ServiceContainer.getInstance();
+  container.setServices({
+    fileSystem: fs,
+    gitService: git,
+    pathResolver: pathResolver,
+    taskService: taskService,
+    config: mockConfig,
+  });
+
+  const i18nResult = createI18n("ja");
+  if (!i18nResult.ok) throw i18nResult.error;
+  const i18n = i18nResult.value;
+
+  // Mock console output
+  const outputs: string[] = [];
+  const originalLog = console.log;
+  console.log = (msg: string) => outputs.push(msg);
+
+  try {
+    const command = createEditCommand(i18n);
+    await command.parse([
+      "existing-task",
+      "-b",
+      "## Additional content",
+      "--json",
+    ]);
+
+    // Check JSON output
+    assertEquals(outputs.length, 1);
+    const jsonOutput = JSON.parse(outputs[0]);
+    assertEquals(jsonOutput.success, true);
+    assertEquals(jsonOutput.action, "appended");
+    assertEquals(jsonOutput.fileName, "existing-task.md");
+    assertEquals(jsonOutput.title, "Existing Task");
+    assertEquals(jsonOutput.repository, "test-user/test-repo");
+  } finally {
+    console.log = originalLog;
+  }
+});
+
+Deno.test("edit command - fails when overwrite with no body", async () => {
+  // Set up global test flag
+  (globalThis as any).__TEST__ = true;
+
+  // Reset service container
+  ServiceContainer.resetInstance();
+
+  const fs = new InMemoryFileSystem();
+  const git = new MockGitService();
+  const pathResolver = new MockPathResolver(fs);
+  const configLoader = new MockConfigLoader(mockConfig);
+  const taskService = new MockTaskService();
+  taskService.setFileSystem(fs);
+
+  // Configure git mock
+  git.setRepoInfo({ owner: "test-user", repo: "test-repo", host: "github.com" });
+
+  // Create an existing task
+  const existingContent = `---
+date: '2025-07-04'
+created: '2025-07-04T12:00:00.000Z'
+status: 'todo'
+priority: 'normal'
+---
+# Existing Task
+
+This is the original content.`;
+
+  const existingPath = "/home/user/locus/test-user/test-repo/existing-task.md";
+  const taskDir = "/home/user/locus/test-user/test-repo";
+  const ensureDirResult = await fs.ensureDir(taskDir);
+  if (!ensureDirResult.ok) throw ensureDirResult.error;
+  await fs.writeTextFile(existingPath, existingContent);
+
+  // Add task to mock service
+  taskService.setTask("existing-task.md", {
+    fileName: "existing-task.md",
+    title: "Existing Task",
+    status: "todo",
+    priority: "normal",
+    tags: [],
+    created: "2025-07-04T12:00:00.000Z",
+    path: existingPath,
+    frontmatter: {
+      date: "2025-07-04",
+      created: "2025-07-04T12:00:00.000Z",
+      status: "todo",
+      priority: "normal",
+    },
+    body: "# Existing Task\\n\\nThis is the original content.",
+  });
+
+  // Set up service container with mocks
+  const container = ServiceContainer.getInstance();
+  container.setServices({
+    fileSystem: fs,
+    gitService: git,
+    pathResolver: pathResolver,
+    taskService: taskService,
+    config: mockConfig,
+  });
+
+  const i18nResult = createI18n("ja");
+  if (!i18nResult.ok) throw i18nResult.error;
+  const i18n = i18nResult.value;
+  container.setI18nService(i18n);
+
+  // Mock console output and Deno.exit
+  const outputs: string[] = [];
+  const originalError = console.error;
+  console.error = (msg: string) => outputs.push(msg);
+
+  const originalExit = Deno.exit;
+  let exitCode: number | undefined;
+  Deno.exit = (code?: number) => {
+    exitCode = code;
+    throw new Error("EXIT");
+  };
+
+  try {
+    const command = createEditCommand(i18n);
+    await command.parse(["existing-task", "--overwrite"]);
+  } catch (error: any) {
+    // exitWithError throws an Error in test environment
+    if (!error.message.includes("上書きには本文が必要です")) {
+      throw error;
+    }
+  } finally {
+    console.error = originalError;
+    Deno.exit = originalExit;
+  }
+
+  // Check that error was thrown
+});

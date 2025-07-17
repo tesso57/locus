@@ -19,6 +19,7 @@ export const messages = {
         multipleFilesFound: "複数のファイルが見つかりました:",
         homeNotSet: "HOME environment variable is not set",
         invalidRepoUrl: "Invalid repository URL: missing owner or repo name",
+        fileOutsideTaskDirectory: "ファイルはタスクディレクトリの外にあります: {{path}}",
       },
       success: {
         taskCreated: "✨ タスクを作成しました: {{path}}",
@@ -307,6 +308,7 @@ export const messages = {
         multipleFilesFound: "Multiple files found:",
         homeNotSet: "HOME environment variable is not set",
         invalidRepoUrl: "Invalid repository URL: missing owner or repo name",
+        fileOutsideTaskDirectory: "File is outside task directory: {{path}}",
       },
       success: {
         taskCreated: "✨ Task created: {{path}}",
