@@ -109,16 +109,27 @@ defaults:
 |--------|------|-----|
 | `LOCUS_LANG` | 言語設定を上書き | `LOCUS_LANG=ja locus list` |
 | `LOCUS_TASK_DIRECTORY` | タスクディレクトリを上書き | `LOCUS_TASK_DIRECTORY=/tmp/tasks locus add "テスト"` |
-| `LOCUS_CONFIG_DIR` | 設定ディレクトリを上書き | `LOCUS_CONFIG_DIR=/custom/config locus config show` |
+| `LOCUS_GIT_EXTRACT_USERNAME` | ユーザー名抽出の有効/無効 | `LOCUS_GIT_EXTRACT_USERNAME=false locus add "タスク"` |
+| `LOCUS_GIT_USERNAME_FROM_REMOTE` | リモートからのユーザー名使用の有効/無効 | `LOCUS_GIT_USERNAME_FROM_REMOTE=false locus add "タスク"` |
+| `LOCUS_FILE_NAMING_PATTERN` | ファイル名パターン | `LOCUS_FILE_NAMING_PATTERN="{date}-{slug}.md" locus add "タスク"` |
+| `LOCUS_FILE_NAMING_DATE_FORMAT` | ファイル名の日付形式 | `LOCUS_FILE_NAMING_DATE_FORMAT="YYYYMMDD" locus add "タスク"` |
+| `LOCUS_FILE_NAMING_HASH_LENGTH` | 一意識別子のハッシュ長 | `LOCUS_FILE_NAMING_HASH_LENGTH=12 locus add "タスク"` |
 | `LOCUS_DEFAULTS_STATUS` | デフォルトステータスを上書き | `LOCUS_DEFAULTS_STATUS=in-progress locus add "タスク"` |
 | `LOCUS_DEFAULTS_PRIORITY` | デフォルト優先度を上書き | `LOCUS_DEFAULTS_PRIORITY=high locus add "緊急"` |
-| `LOCUS_GIT_EXTRACT_USERNAME` | ユーザー名抽出の有効/無効 | `LOCUS_GIT_EXTRACT_USERNAME=false locus add "タスク"` |
+| `LOCUS_DEFAULTS_TAGS` | デフォルトタグ（カンマ区切り） | `LOCUS_DEFAULTS_TAGS="仕事,緊急" locus add "タスク"` |
+| `LOCUS_LANGUAGE_DEFAULT` | デフォルト言語（en/ja） | `LOCUS_LANGUAGE_DEFAULT=en locus config show` |
 
 ### 環境変数の形式
 
 ブール値は以下のように指定できます：
 - 真: `true`、`1`、`yes`、`on`
 - 偽: `false`、`0`、`no`、`off`
+
+### 設定ディレクトリ
+
+設定ディレクトリの場所は、標準的なXDG環境変数を使用して上書きできます：
+- `XDG_CONFIG_HOME`: ベース設定ディレクトリを上書き（デフォルト: `~/.config`）
+- `XDG_CONFIG_DIRS`: 検索する追加の設定ディレクトリ（デフォルト: `/etc/xdg`）
 
 ## 対話型セットアップ
 

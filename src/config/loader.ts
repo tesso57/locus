@@ -85,6 +85,7 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
  * - `LOCUS_FILE_NAMING_HASH_LENGTH`: Hash length for unique identifiers
  * - `LOCUS_DEFAULTS_STATUS`: Default task status
  * - `LOCUS_DEFAULTS_PRIORITY`: Default task priority
+ * - `LOCUS_DEFAULTS_TAGS`: Default tags (comma-separated)
  * - `LOCUS_LANGUAGE_DEFAULT`: Default language (ja/en)
  *
  * @returns Partial configuration object with values from environment
@@ -131,17 +132,26 @@ function extractFromEnv(): Partial<Config> {
 
   // Defaults config
   const defaults: Record<string, unknown> = {};
-  if (env.LOCUS_DEFAULT_STATUS) {
-    defaults.status = env.LOCUS_DEFAULT_STATUS;
+  if (env.LOCUS_DEFAULTS_STATUS) {
+    defaults.status = env.LOCUS_DEFAULTS_STATUS;
   }
-  if (env.LOCUS_DEFAULT_PRIORITY) {
-    defaults.priority = env.LOCUS_DEFAULT_PRIORITY;
+  if (env.LOCUS_DEFAULTS_PRIORITY) {
+    defaults.priority = env.LOCUS_DEFAULTS_PRIORITY;
   }
-  if (env.LOCUS_DEFAULT_TAGS) {
-    defaults.tags = env.LOCUS_DEFAULT_TAGS.split(",").map((t) => t.trim());
+  if (env.LOCUS_DEFAULTS_TAGS) {
+    defaults.tags = env.LOCUS_DEFAULTS_TAGS.split(",").map((t) => t.trim());
   }
   if (Object.keys(defaults).length > 0) {
     config.defaults = defaults;
+  }
+
+  // Language config
+  const language: Record<string, unknown> = {};
+  if (env.LOCUS_LANGUAGE_DEFAULT) {
+    language.default = env.LOCUS_LANGUAGE_DEFAULT;
+  }
+  if (Object.keys(language).length > 0) {
+    config.language = language;
   }
 
   return config;

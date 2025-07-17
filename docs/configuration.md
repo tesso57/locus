@@ -109,16 +109,27 @@ Environment variables override configuration file settings. They are useful for:
 |----------|-------------|---------|
 | `LOCUS_LANG` | Override language setting | `LOCUS_LANG=en locus list` |
 | `LOCUS_TASK_DIRECTORY` | Override task directory | `LOCUS_TASK_DIRECTORY=/tmp/tasks locus add "Test"` |
-| `LOCUS_CONFIG_DIR` | Override config directory | `LOCUS_CONFIG_DIR=/custom/config locus config show` |
+| `LOCUS_GIT_EXTRACT_USERNAME` | Enable/disable username extraction | `LOCUS_GIT_EXTRACT_USERNAME=false locus add "Task"` |
+| `LOCUS_GIT_USERNAME_FROM_REMOTE` | Enable/disable username from remote | `LOCUS_GIT_USERNAME_FROM_REMOTE=false locus add "Task"` |
+| `LOCUS_FILE_NAMING_PATTERN` | File naming pattern | `LOCUS_FILE_NAMING_PATTERN="{date}-{slug}.md" locus add "Task"` |
+| `LOCUS_FILE_NAMING_DATE_FORMAT` | Date format for filenames | `LOCUS_FILE_NAMING_DATE_FORMAT="YYYYMMDD" locus add "Task"` |
+| `LOCUS_FILE_NAMING_HASH_LENGTH` | Hash length for unique identifiers | `LOCUS_FILE_NAMING_HASH_LENGTH=12 locus add "Task"` |
 | `LOCUS_DEFAULTS_STATUS` | Override default status | `LOCUS_DEFAULTS_STATUS=in-progress locus add "Task"` |
 | `LOCUS_DEFAULTS_PRIORITY` | Override default priority | `LOCUS_DEFAULTS_PRIORITY=high locus add "Urgent"` |
-| `LOCUS_GIT_EXTRACT_USERNAME` | Enable/disable username extraction | `LOCUS_GIT_EXTRACT_USERNAME=false locus add "Task"` |
+| `LOCUS_DEFAULTS_TAGS` | Default tags (comma-separated) | `LOCUS_DEFAULTS_TAGS="work,urgent" locus add "Task"` |
+| `LOCUS_LANGUAGE_DEFAULT` | Default language (en/ja) | `LOCUS_LANGUAGE_DEFAULT=ja locus config show` |
 
 ### Environment Variable Format
 
 Boolean values can be specified as:
 - `true`, `1`, `yes`, `on` for true
 - `false`, `0`, `no`, `off` for false
+
+### Configuration Directory
+
+The configuration directory location can be overridden using standard XDG environment variables:
+- `XDG_CONFIG_HOME`: Override the base config directory (default: `~/.config`)
+- `XDG_CONFIG_DIRS`: Additional config directories to search (default: `/etc/xdg`)
 
 ## Interactive Setup
 
