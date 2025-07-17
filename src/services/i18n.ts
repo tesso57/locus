@@ -84,7 +84,7 @@ export class I18n implements I18nService {
   private messages: Messages = {};
   private currentLang: string;
   private readonly supportedLangs = ["ja", "en"];
-  private readonly fallbackLang = "ja";
+  private readonly fallbackLang = "en";
 
   /**
    * Creates a new I18n instance.

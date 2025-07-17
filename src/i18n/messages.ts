@@ -3,6 +3,11 @@
 
 export const messages = {
   ja: {
+    commands: {
+      main: {
+        description: "Git対応タスク管理CLIツール",
+      },
+    },
     cli: {
       description: "Git対応タスク管理CLIツール",
       help: {
@@ -70,7 +75,7 @@ export const messages = {
       description: "設定の管理",
       messages: {
         specifySubcommand: "サブコマンドを指定してください。",
-        availableSubcommands: "使用可能なサブコマンド: show, path, init",
+        availableSubcommands: "使用可能なサブコマンド: show, path, init, setup",
         currentSettings: "🔧 現在の設定:",
         configFile: "📁 設定ファイル: {{path}}",
         configFileNone: "📁 設定ファイル: なし（デフォルト設定を使用）",
@@ -89,6 +94,33 @@ export const messages = {
         options: {
           force: {
             description: "既存のファイルを上書き",
+          },
+        },
+      },
+      setup: {
+        description: "対話形式で設定を構成",
+        messages: {
+          welcome: "🚀 Locus セットアップウィザードへようこそ！",
+          taskDir: "タスクを保存するディレクトリはどこにしますか？",
+          language: "どの言語を使用しますか？",
+          gitExtract: "GitのユーザーIDを自動抽出しますか？",
+          gitRemote: "リモートURLからユーザー名を使用しますか？",
+          filePattern: "ファイル名のパターンを選択してください",
+          dateFormat: "日付フォーマットを選択してください",
+          hashLength: "ハッシュの長さは？（4-32）",
+          defaultStatus: "デフォルトのステータスは？",
+          defaultPriority: "デフォルトの優先度は？",
+          defaultTags: "デフォルトのタグ（カンマ区切り、空欄可）",
+          preview: "📋 設定のプレビュー:",
+          confirmSave: "この設定を保存しますか？",
+          saved: "✅ 設定が保存されました: {{path}}",
+          cancelled: "❌ セットアップがキャンセルされました",
+          patternCustom: "カスタム（手動入力）",
+          patternExplain: {
+            dateSlugHash: "{date}-{slug}-{hash}.md（例: 2024-01-15-my-task-a1b2c3d4.md）",
+            slugDateHash: "{slug}-{date}-{hash}.md（例: my-task-2024-01-15-a1b2c3d4.md）",
+            dateSlug: "{date}-{slug}.md（例: 2024-01-15-my-task.md）",
+            slugOnly: "{slug}.md（例: my-task.md）",
           },
         },
       },
@@ -292,6 +324,11 @@ export const messages = {
     },
   },
   en: {
+    commands: {
+      main: {
+        description: "Git-aware task management CLI tool",
+      },
+    },
     cli: {
       description: "Git-aware task management CLI tool",
       help: {
@@ -359,7 +396,7 @@ export const messages = {
       description: "Manage configuration",
       messages: {
         specifySubcommand: "Please specify a subcommand.",
-        availableSubcommands: "Available subcommands: show, path, init",
+        availableSubcommands: "Available subcommands: show, path, init, setup",
         currentSettings: "🔧 Current settings:",
         configFile: "📁 Config file: {{path}}",
         configFileNone: "📁 Config file: none (using defaults)",
@@ -378,6 +415,33 @@ export const messages = {
         options: {
           force: {
             description: "Overwrite existing file",
+          },
+        },
+      },
+      setup: {
+        description: "Configure settings interactively",
+        messages: {
+          welcome: "🚀 Welcome to the Locus Setup Wizard!",
+          taskDir: "Where would you like to store your tasks?",
+          language: "Which language would you like to use?",
+          gitExtract: "Extract Git user ID automatically?",
+          gitRemote: "Use username from remote URL?",
+          filePattern: "Select file naming pattern",
+          dateFormat: "Select date format",
+          hashLength: "Hash length? (4-32)",
+          defaultStatus: "Default status?",
+          defaultPriority: "Default priority?",
+          defaultTags: "Default tags (comma-separated, optional)",
+          preview: "📋 Configuration preview:",
+          confirmSave: "Save this configuration?",
+          saved: "✅ Configuration saved: {{path}}",
+          cancelled: "❌ Setup cancelled",
+          patternCustom: "Custom (manual input)",
+          patternExplain: {
+            dateSlugHash: "{date}-{slug}-{hash}.md (e.g., 2024-01-15-my-task-a1b2c3d4.md)",
+            slugDateHash: "{slug}-{date}-{hash}.md (e.g., my-task-2024-01-15-a1b2c3d4.md)",
+            dateSlug: "{date}-{slug}.md (e.g., 2024-01-15-my-task.md)",
+            slugOnly: "{slug}.md (e.g., my-task.md)",
           },
         },
       },

@@ -315,7 +315,7 @@ git:
 file_naming:
   # Pattern for task file names
   # Available tokens: {date}, {slug}, {hash}
-  pattern: "{date}-{slug}-{hash}.md"
+  pattern: "{slug}.md"
   # Date format (using standard date format tokens)
   date_format: "YYYY-MM-DD"
   # Length of the random hash

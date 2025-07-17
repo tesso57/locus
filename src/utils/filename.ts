@@ -135,9 +135,9 @@ export async function generateFileNameComponents(title: string): Promise<FileNam
  *
  * @example
  * ```typescript
- * // With default pattern "{date}-{slug}-{hash}"
+ * // With default pattern "{slug}"
  * const filename = await generateFileName("Weekly Review");
- * // Returns: "2024-01-15-weekly-review-a1b2c3d4.md"
+ * // Returns: "weekly-review.md"
  *
  * // With pattern "{slug}-{date}"
  * const filename = await generateFileName("Task");

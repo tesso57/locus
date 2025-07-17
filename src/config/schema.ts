@@ -19,7 +19,7 @@ export const FileNamingConfigSchema: z.ZodObject<{
   date_format: z.ZodDefault<z.ZodString>;
   hash_length: z.ZodDefault<z.ZodNumber>;
 }> = z.object({
-  pattern: z.string().regex(/\{date\}|\{slug\}|\{hash\}/).default("{date}-{slug}-{hash}.md"),
+  pattern: z.string().regex(/\{date\}|\{slug\}|\{hash\}/).default("{slug}.md"),
   date_format: z.string().default("YYYY-MM-DD"),
   hash_length: z.number().int().min(4).max(32).default(8),
 });
@@ -43,7 +43,7 @@ export const DefaultsConfigSchema: z.ZodObject<{
 export const LanguageConfigSchema: z.ZodObject<{
   default: z.ZodDefault<z.ZodEnum<["ja", "en"]>>;
 }> = z.object({
-  default: z.enum(["ja", "en"]).default("ja"),
+  default: z.enum(["ja", "en"]).default("en"),
 });
 
 /**
