@@ -181,6 +181,32 @@ export const messages = {
         },
       },
     },
+    edit: {
+      description: "タスクの本文を編集",
+      options: {
+        body: {
+          description: "タスクの本文",
+        },
+        overwrite: {
+          description: "既存ファイルを上書き（デフォルトは追記）",
+        },
+        noGit: {
+          description: "Git情報を使用しない",
+        },
+        json: {
+          description: "JSON形式で出力",
+        },
+      },
+      messages: {
+        taskAppended: "✏️ タスクに追記しました: {{path}}",
+        taskOverwritten: "📝 タスクを上書きしました: {{path}}",
+      },
+      error: {
+        noBodyForNewTask: "新規タスク作成には本文が必要です",
+        noBodyForAppend: "追記には本文が必要です",
+        noBodyForOverwrite: "上書きには本文が必要です",
+      },
+    },
     tags: {
       description: "タスクファイルのプロパティ管理",
       messages: {
@@ -441,6 +467,32 @@ export const messages = {
         pager: {
           description: "Specify pager (less, more, cat, never)",
         },
+      },
+    },
+    edit: {
+      description: "Edit task body",
+      options: {
+        body: {
+          description: "Task body",
+        },
+        overwrite: {
+          description: "Overwrite existing file (default is append)",
+        },
+        noGit: {
+          description: "Don't use Git information",
+        },
+        json: {
+          description: "Output in JSON format",
+        },
+      },
+      messages: {
+        taskAppended: "✏️ Appended to task: {{path}}",
+        taskOverwritten: "📝 Overwritten task: {{path}}",
+      },
+      error: {
+        noBodyForNewTask: "Body is required to create a new task",
+        noBodyForAppend: "Body is required to append",
+        noBodyForOverwrite: "Body is required to overwrite",
       },
     },
     tags: {

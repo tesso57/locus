@@ -270,6 +270,10 @@ export class InMemoryFileSystem implements FileSystem {
     return this.mkdir(dirPath, options?.recursive);
   }
 
+  ensureDir(dirPath: string): Promise<Result<void, Error>> {
+    return this.mkdir(dirPath, true);
+  }
+
   ensureMarkdownExtension(fileName: string): string {
     return fileName.endsWith(".md") ? fileName : `${fileName}.md`;
   }

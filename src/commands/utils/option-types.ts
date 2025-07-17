@@ -72,3 +72,12 @@ export interface UpdateOptions extends BaseCommandOptions {
   append?: boolean;
   noGit?: boolean;
 }
+
+/**
+ * Options for the edit command
+ */
+export interface EditOptions extends BaseCommandOptions {
+  body?: string;
+  overwrite?: boolean;
+  noGit?: boolean;
+}
