@@ -40,7 +40,7 @@ export async function main() {
   try {
     // Load config to get language preference
     const configResult = await loadConfig();
-    const lang = configResult.ok ? configResult.value.language.default : "ja";
+    const lang = configResult.ok ? configResult.value.language.default : "en";
 
     // Check for language override from environment or CLI args
     const envLang = Deno.env.get("LOCUS_LANG") ||

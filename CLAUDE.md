@@ -19,6 +19,7 @@ deno task check        # Run format check, lint, and tests
 # Build & Install
 deno task compile      # Compile to binary for all platforms
 deno task install-local # Install locally as 'locus' command
+deno task npm          # Build npm package
 
 # Running specific tests
 deno test test/commands/add.test.ts  # Run single test file
@@ -42,7 +43,7 @@ Language priority order:
 1. `LOCUS_LANG` environment variable
 2. Configuration file `language.default` setting
 3. System `LANG` environment variable
-4. Default to Japanese ("ja")
+4. Default to English ("en")
 
 ## Architecture
 
@@ -66,6 +67,10 @@ The project is transitioning from a utility-based approach to a service-oriented
    - `ConfigLoader`: Manages configuration with Zod validation
    - `FileSystem`: Abstracts file system operations
    - `TaskService`: Manages task creation and updates
+   - `I18nService`: Handles internationalization
+   - `FormatService`: Formats output for display
+   - `SearchService`: Searches for tasks across repositories
+   - `TagsService`: Manages task properties
 
 3. **Dependency Injection**: Services are injected into commands (in progress)
    - Mock implementations for testing
@@ -75,10 +80,11 @@ The project is transitioning from a utility-based approach to a service-oriented
 ### Directory Structure
 
 - **`src/cli.ts`**: Main CLI entry point using Cliffy command framework
-- **`src/commands/`**: Command implementations (add, tags, config, list, update)
+- **`src/commands/`**: Command implementations (add, tags, config, list, update, read, path, edit, setup)
 - **`src/services/`**: Service interfaces and implementations
 - **`src/utils/`**: Utilities including Result type, errors, and legacy functions
 - **`src/config/`**: Configuration schemas and loader
+- **`src/i18n/`**: Internationalization messages
 - **`test/mocks/`**: Mock implementations for testing
 
 ## Key Implementation Details
@@ -100,10 +106,10 @@ Task description and details...
 ```
 
 ### File Naming Pattern
-Tasks use a configurable naming pattern (default: `{date}-{slug}-{hash}.md`):
-- `{date}`: Current date in YYYY-MM-DD format
+Tasks use a configurable naming pattern (default: `{slug}.md`):
 - `{slug}`: Sanitized title (lowercase, hyphens, alphanumeric)
-- `{hash}`: Random 8-character hash for uniqueness
+- `{date}`: Current date in YYYY-MM-DD format (optional, not in default pattern)
+- `{hash}`: Random 8-character hash for uniqueness (optional, not in default pattern)
 
 ### Configuration System
 
@@ -206,6 +212,7 @@ When implementing new features or fixing bugs in commands:
 3. Use dependency injection for services
 4. Add the command to `src/cli.ts`
 5. Create tests in `test/commands/`
+6. Update i18n messages in `src/i18n/messages.ts` for both languages
 
 ### Updating Task Schema
 
@@ -244,6 +251,7 @@ deno test --watch
 - `LOCUS_DEFAULTS_STATUS`: Override default task status
 - `LOCUS_DEFAULTS_PRIORITY`: Override default task priority
 - `LOCUS_GIT_EXTRACT_USERNAME`: Enable/disable username extraction (true/false)
+- `LOCUS_LANG`: Override language setting (en/ja)
 
 ## Debugging Tips
 
@@ -251,3 +259,13 @@ deno test --watch
 - Result types include error stack traces in development
 - Mock services can be configured with specific behaviors for testing edge cases
 - The `--debug` flag (when implemented) should increase verbosity
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration:
+
+- **Matrix testing**: Tests on Ubuntu, macOS, and Windows with Deno 2.x and canary
+- **Code quality**: Format check, lint, and tests run on every push/PR
+- **Coverage**: Generated and uploaded to Codecov on Ubuntu/Deno 2.x
+- **Compilation test**: Verifies binary compilation on all platforms
+- **Publishing**: Automatic publishing to JSR and npm on main branch pushes

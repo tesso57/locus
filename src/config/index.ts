@@ -78,28 +78,39 @@ function extractFromEnv(): Partial<Config> {
     if (!config.file_naming) {
       config.file_naming = { pattern: "", date_format: "", hash_length: 0 };
     }
-    config.file_naming.hash_length = parseInt(env.LOCUS_FILE_NAMING_HASH_LENGTH, 10);
+    const length = parseInt(env.LOCUS_FILE_NAMING_HASH_LENGTH, 10);
+    if (!isNaN(length)) {
+      config.file_naming.hash_length = length;
+    }
   }
 
-  if (env.LOCUS_DEFAULT_STATUS) {
+  if (env.LOCUS_DEFAULTS_STATUS) {
     if (!config.defaults) {
       config.defaults = { status: "", priority: "", tags: [] };
     }
-    config.defaults.status = env.LOCUS_DEFAULT_STATUS;
+    config.defaults.status = env.LOCUS_DEFAULTS_STATUS;
   }
 
-  if (env.LOCUS_DEFAULT_PRIORITY) {
+  if (env.LOCUS_DEFAULTS_PRIORITY) {
     if (!config.defaults) {
       config.defaults = { status: "", priority: "", tags: [] };
     }
-    config.defaults.priority = env.LOCUS_DEFAULT_PRIORITY;
+    config.defaults.priority = env.LOCUS_DEFAULTS_PRIORITY;
   }
 
-  if (env.LOCUS_DEFAULT_TAGS) {
+  if (env.LOCUS_DEFAULTS_TAGS) {
     if (!config.defaults) {
       config.defaults = { status: "", priority: "", tags: [] };
     }
-    config.defaults.tags = env.LOCUS_DEFAULT_TAGS.split(",").map((t) => t.trim());
+    config.defaults.tags = env.LOCUS_DEFAULTS_TAGS.split(",").map((t) => t.trim());
+  }
+
+  if (env.LOCUS_LANGUAGE_DEFAULT) {
+    if (!config.language) {
+      config.language = { default: env.LOCUS_LANGUAGE_DEFAULT as "ja" | "en" };
+    } else {
+      config.language.default = env.LOCUS_LANGUAGE_DEFAULT as "ja" | "en";
+    }
   }
 
   return config;
@@ -177,7 +188,7 @@ git:
 file_naming:
   # Pattern for task file names
   # Available tokens: {date}, {slug}, {hash}
-  pattern: "{date}-{slug}-{hash}.md"
+  pattern: "{slug}.md"
   # Date format (using standard date format tokens)
   date_format: "YYYY-MM-DD"
   # Length of the random hash

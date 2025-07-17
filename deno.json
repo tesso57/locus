@@ -1,6 +1,6 @@
 {
   "name": "@tesso/locus",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Git-aware task management CLI tool built with Deno",
   "exports": {
     ".": "./src/cli.ts"
@@ -19,6 +19,7 @@
     "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.7",
     "@cliffy/table": "jsr:@cliffy/table@^1.0.0-rc.7",
     "@cliffy/ansi/colors": "jsr:@cliffy/ansi@^1.0.0-rc.7/colors",
+    "@cliffy/prompt": "jsr:@cliffy/prompt@^1.0.0-rc.7",
     "zod": "npm:zod@^3.24.1"
   },
   "tasks": {

@@ -1,6 +1,6 @@
 # Locus
 
-[![Version](https://img.shields.io/badge/version-0.1.5-blue.svg)](https://github.com/tesso57/locus)
+[![Version](https://img.shields.io/badge/version-0.1.6-blue.svg)](https://github.com/tesso57/locus)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/tesso57/locus/actions/workflows/ci.yml/badge.svg)](https://github.com/tesso57/locus/actions/workflows/ci.yml)
 [![Deno](https://img.shields.io/badge/Deno-2.x-000000?logo=deno)](https://deno.com)
@@ -267,7 +267,6 @@ Locus supports both English and Japanese interfaces. The language can be configu
 
 ```bash
 # Set language via environment variable (highest priority)
-export LOCUS_LANG=en  # or "ja" for Japanese
 locus add "New task"
 
 # Set language in configuration file
@@ -278,7 +277,7 @@ locus config init
 # 1. LOCUS_LANG environment variable
 # 2. Configuration file setting
 # 3. System LANG environment variable
-# 4. Default to Japanese ("ja")
+# 4. Default to English ("en")
 ```
 
 ### Output Formats
@@ -295,9 +294,16 @@ locus config show --json
 
 </details>
 
-## Configuration File
+## Configuration
 
-Configuration is stored in `~/.config/locus/settings.yml` (follows XDG Base Directory specification):
+Configuration is stored in `~/.config/locus/settings.yml` (follows XDG Base Directory specification).
+
+For detailed configuration documentation, see:
+
+- **[Configuration Guide](docs/configuration.md)** - Complete configuration reference
+- **[設定ガイド](docs/configuration_ja.md)** - 日本語版設定ガイド
+
+### Configuration Example
 
 ```yaml
 # Task storage directory
@@ -305,7 +311,7 @@ task_directory: "~/locus"
 
 # Language settings
 language:
-  default: "ja" # Available: "ja" (Japanese) or "en" (English)
+  default: "en" # Available: "en" (English) or "ja" (Japanese)
 
 # Git integration settings
 git:
@@ -314,7 +320,7 @@ git:
 
 # File naming configuration
 file_naming:
-  pattern: "{date}-{slug}-{hash}.md"
+  pattern: "{slug}.md"
   date_format: "YYYY-MM-DD"
   hash_length: 8
 
@@ -401,6 +407,12 @@ deno run jsr:@tesso/locus
 # Run with npx from JSR
 npx @tesso/locus
 ```
+
+## Documentation
+
+- **[Configuration Guide](docs/configuration.md)** - Comprehensive guide to configuring Locus
+- **[日本語版 README](docs/README_ja.md)** - Japanese version of this README
+- **[設定ガイド](docs/configuration_ja.md)** - Configuration guide in Japanese
 
 ## License
 

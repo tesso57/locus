@@ -1,6 +1,6 @@
 # Locus
 
-[![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://github.com/tesso57/locus)
+[![Version](https://img.shields.io/badge/version-0.1.6-blue.svg)](https://github.com/tesso57/locus)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/tesso57/locus/actions/workflows/ci.yml/badge.svg)](https://github.com/tesso57/locus/actions/workflows/ci.yml)
 [![Deno](https://img.shields.io/badge/Deno-2.x-000000?logo=deno)](https://deno.com)
@@ -296,9 +296,15 @@ locus config show --json
 
 </details>
 
-## 設定ファイル
+## 設定
 
-設定は `~/.config/locus/settings.yml` に保存されます（XDG Base Directory仕様に準拠）：
+設定は `~/.config/locus/settings.yml` に保存されます（XDG Base Directory仕様に準拠）。
+
+詳細な設定ドキュメントについては、以下を参照してください：
+- **[設定ガイド](configuration_ja.md)** - 完全な設定リファレンス
+- **[Configuration Guide](configuration.md)** - 英語版設定ガイド
+
+### 設定例
 
 ```yaml
 # タスク保存ディレクトリ
@@ -315,7 +321,7 @@ git:
 
 # ファイル命名設定
 file_naming:
-  pattern: "{date}-{slug}-{hash}.md"
+  pattern: "{slug}.md"
   date_format: "YYYY-MM-DD"
   hash_length: 8
 
@@ -402,6 +408,12 @@ deno run jsr:@tesso/locus
 # JSRからnpxで実行
 npx @tesso/locus
 ```
+
+## ドキュメント
+
+- **[設定ガイド](configuration_ja.md)** - Locusの設定に関する包括的なガイド
+- **[Configuration Guide](configuration.md)** - Configuration guide in English
+- **[English README](../README.md)** - English version of this README
 
 ## ライセンス
 
