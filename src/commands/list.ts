@@ -30,6 +30,7 @@ interface ListOptions extends BaseCommandOptions {
   detail?: boolean;
   all?: boolean;
   groupByRepo?: boolean;
+  table?: boolean;
 }
 
 export function createListCommand(i18n: I18nService): Command<any, any, any> {
@@ -44,6 +45,7 @@ export function createListCommand(i18n: I18nService): Command<any, any, any> {
     .option("-a, --all", i18n.t("list.options.all.description"))
     .option("-g, --group-by-repo", i18n.t("list.options.group.description"))
     .option("--json", i18n.t("list.options.json.description"))
+    .option("--table", i18n.t("list.options.table.description"))
     .action(createAction<ListOptions>(async (options) => {
       await executeCommand(async ({ container }) => {
         // Set the i18n service on the container
@@ -216,43 +218,20 @@ async function listTasks(
       return;
     }
 
-    // Display header
-    if (repoInfo) {
-      console.log(
-        i18n.t("list.messages.repository", {
-          repo: colors.cyan(repoInfo.owner + "/" + repoInfo.repo),
-        }),
-      );
-    } else {
-      console.log(i18n.t("list.messages.allTasks"));
-    }
-    console.log(i18n.t("list.messages.taskCount", { count: tasks.length }) + "\n");
-
-    if (options.detail) {
-      // Detailed view
-      for (const task of tasks) {
-        const fullPath = baseDir ? join(baseDir, task.path) : task.path;
-        console.log(colors.bold(task.title));
-        console.log(`  ${i18n.t("list.messages.file", { filename: colors.gray(task.fileName) })}`);
-        console.log(`  ${i18n.t("list.messages.fullPath", { path: colors.gray(fullPath) })}`);
+    // Table view with header if requested
+    if (options.table) {
+      // Display header
+      if (repoInfo) {
         console.log(
-          `  ${i18n.t("list.messages.status", { status: formatStatus(task.status, i18n) })}`,
+          i18n.t("list.messages.repository", {
+            repo: colors.cyan(repoInfo.owner + "/" + repoInfo.repo),
+          }),
         );
-        console.log(
-          `  ${
-            i18n.t("list.messages.priority", { priority: formatPriority(task.priority, i18n) })
-          }`,
-        );
-        if (task.tags.length > 0) {
-          console.log(`  ${i18n.t("list.messages.tags", { tags: formatTags(task.tags) })}`);
-        }
-        console.log(
-          `  ${i18n.t("list.messages.created", { date: formatDate(task.created, i18n) })}`,
-        );
-        console.log();
+      } else {
+        console.log(i18n.t("list.messages.allTasks"));
       }
-    } else {
-      // Table view
+      console.log(i18n.t("list.messages.taskCount", { count: tasks.length }) + "\n");
+
       const table = new Table()
         .header([
           i18n.t("list.table.headers.title"),
@@ -275,6 +254,55 @@ async function listTasks(
         .indent(2);
 
       table.render();
+    } else if (options.detail) {
+      // Detailed view with header
+      if (repoInfo) {
+        console.log(
+          i18n.t("list.messages.repository", {
+            repo: colors.cyan(repoInfo.owner + "/" + repoInfo.repo),
+          }),
+        );
+      } else {
+        console.log(i18n.t("list.messages.allTasks"));
+      }
+      console.log(i18n.t("list.messages.taskCount", { count: tasks.length }) + "\n");
+
+      for (const task of tasks) {
+        const fullPath = baseDir ? join(baseDir, task.path) : task.path;
+        console.log(colors.bold(task.title));
+        console.log(`  ${i18n.t("list.messages.file", { filename: colors.gray(task.fileName) })}`);
+        console.log(`  ${i18n.t("list.messages.fullPath", { path: colors.gray(fullPath) })}`);
+        console.log(
+          `  ${i18n.t("list.messages.status", { status: formatStatus(task.status, i18n) })}`,
+        );
+        console.log(
+          `  ${
+            i18n.t("list.messages.priority", { priority: formatPriority(task.priority, i18n) })
+          }`,
+        );
+        if (task.tags.length > 0) {
+          console.log(`  ${i18n.t("list.messages.tags", { tags: formatTags(task.tags) })}`);
+        }
+        console.log(
+          `  ${i18n.t("list.messages.created", { date: formatDate(task.created, i18n) })}`,
+        );
+        console.log();
+      }
+    } else {
+      // Default: Oneline format for fzf integration
+      for (const task of tasks) {
+        // Format: [repository] [status] [priority] [title] [tags] [created] [path]
+        const repo = task.repository || "default";
+        const status = task.status;
+        const priority = task.priority;
+        const title = task.title;
+        const tags = task.tags.length > 0 ? task.tags.join(",") : "-";
+        const created = task.created.split("T")[0]; // Date only
+        const fullPath = baseDir ? join(baseDir, task.path) : task.path;
+
+        // Tab-separated format for easy parsing
+        console.log(`${repo}\t${status}\t${priority}\t${title}\t${tags}\t${created}\t${fullPath}`);
+      }
     }
   } catch (error: unknown) {
     const message = getErrorMessage(error);
