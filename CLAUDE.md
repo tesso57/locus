@@ -40,6 +40,7 @@ The project supports multiple languages (Japanese and English) through a custom 
 - **Consistent formatting**: Formatters support i18n for dates, status, and priorities
 
 Language priority order:
+
 1. `LOCUS_LANG` environment variable
 2. Configuration file `language.default` setting
 3. System `LANG` environment variable
@@ -90,7 +91,9 @@ The project is transitioning from a utility-based approach to a service-oriented
 ## Key Implementation Details
 
 ### Task File Structure
+
 Tasks are stored as Markdown files with YAML frontmatter:
+
 ```markdown
 ---
 date: 2024-01-15
@@ -106,7 +109,9 @@ Task description and details...
 ```
 
 ### File Naming Pattern
+
 Tasks use a configurable naming pattern (default: `{slug}.md`):
+
 - `{slug}`: Sanitized title (lowercase, hyphens, alphanumeric)
 - `{date}`: Current date in YYYY-MM-DD format (optional, not in default pattern)
 - `{hash}`: Random 8-character hash for uniqueness (optional, not in default pattern)
@@ -114,6 +119,7 @@ Tasks use a configurable naming pattern (default: `{slug}.md`):
 ### Configuration System
 
 Configuration follows a three-level hierarchy:
+
 1. **Default values** from Zod schema
 2. **File configuration** from `~/.config/locus/settings.yml`
 3. **Environment variables** (highest priority, e.g., `LOCUS_TASK_DIRECTORY`)
@@ -127,6 +133,7 @@ const config = await loadConfig();
 ### Error Handling Strategy
 
 The codebase uses custom error classes for different scenarios:
+
 - `GitNotRepoError`: Not in a Git repository
 - `GitNoRemoteError`: No remote configured
 - `ConfigValidationError`: Invalid configuration format
@@ -167,11 +174,11 @@ When making commits to this repository, follow these rules:
 3. **Commit message format**:
    ```
    <gitemoji> <type>: <subject>
-   
+
    <body>
-   
+
    🤖 Generated with [Claude Code](https://claude.ai/code)
-   
+
    Co-Authored-By: Claude <noreply@anthropic.com>
    ```
 
@@ -183,7 +190,7 @@ When implementing new features or fixing bugs in commands:
    ```typescript
    // Good: Use injected services
    const repoResult = await gitService.getRepoInfo();
-   
+
    // Bad: Direct utility function call
    const repoInfo = await getGitRepoInfo();
    ```
