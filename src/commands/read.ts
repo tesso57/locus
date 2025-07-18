@@ -3,7 +3,6 @@ import { colors } from "@cliffy/ansi/colors";
 import { TaskService } from "../services/task-service.ts";
 import { FileSystem } from "../services/file-system.ts";
 import { displayTask } from "../utils/display.ts";
-import { parseMarkdown, validateFileName } from "../utils/markdown.ts";
 import { isAbsolute } from "@std/path";
 import {
   createAction,
@@ -16,6 +15,7 @@ import { ReadOptions } from "./utils/option-types.ts";
 import { getFileName, readTextFile, validateFileExists } from "./utils/file-helpers.ts";
 import { ok } from "../utils/result.ts";
 import { I18nService } from "../services/i18n.ts";
+import { MarkdownService } from "../services/markdown-service.ts";
 
 export function createReadCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()
@@ -35,16 +35,20 @@ export function createReadCommand(i18n: I18nService): Command<any, any, any> {
         const taskService = await container.getTaskService();
         const gitService = container.getGitService();
         const fileSystem = container.getFileSystem();
+        const markdownService = container.getMarkdownService();
 
         // Check if the provided path is absolute
         if (isAbsolute(fileName)) {
           // Handle absolute path directly
-          await readAbsolutePath(fileName, options, fileSystem, i18n);
+          await readAbsolutePath(fileName, options, fileSystem, markdownService, i18n);
           return ok(undefined);
         }
 
         // Validate filename for security (only for relative paths)
-        validateFileName(fileName);
+        const validateResult = markdownService.validateFileName(fileName);
+        if (!validateResult.ok) {
+          return validateResult;
+        }
 
         // Get repository information
         const repoInfo = await getRepoInfoOptional(gitService, options.noGit);
@@ -100,6 +104,7 @@ async function readAbsolutePath(
   filePath: string,
   options: ReadOptions,
   fileSystem: FileSystem,
+  markdownService: MarkdownService,
   i18n: I18nService,
 ): Promise<void> {
   // Check if file exists
@@ -117,7 +122,11 @@ async function readAbsolutePath(
   const content = contentResult.value;
 
   // Parse markdown
-  const { frontmatter, body } = parseMarkdown(content);
+  const parseResult = markdownService.parseMarkdown(content);
+  if (!parseResult.ok) {
+    exitWithError(parseResult.error.message);
+  }
+  const { frontmatter, body } = parseResult.value;
 
   // Extract title from body if exists
   const titleMatch = body.match(/^#\s+(.+)$/m);

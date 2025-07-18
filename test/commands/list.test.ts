@@ -6,9 +6,10 @@ import { MockPathResolver } from "../mocks/mock-path-resolver.ts";
 import { MockFileSystem } from "../mocks/mock-file-system.ts";
 import { Config } from "../../src/config/schema.ts";
 import { FrontMatter } from "../../src/types.ts";
-import { generateMarkdown } from "../../src/utils/markdown.ts";
 import { DefaultTaskService } from "../../src/services/default-task-service.ts";
 import { TaskService } from "../../src/services/task-service.ts";
+import { MockFileNameService } from "../mocks/mock-filename-service.ts";
+import { MockMarkdownService } from "../mocks/mock-markdown-service.ts";
 import { testPath } from "../utils/test-paths.ts";
 
 // Mock dependencies
@@ -41,11 +42,15 @@ async function createTestTask(
   frontmatter: FrontMatter,
   body?: string,
 ): Promise<void> {
-  const content = generateMarkdown(
+  const markdownService = new MockMarkdownService();
+  const result = markdownService.generateMarkdown(
     frontmatter,
     body || `# ${title}\n\nTask content here.`,
   );
-  await fs.writeTextFile(path, content);
+  if (!result.ok) {
+    throw result.error;
+  }
+  await fs.writeTextFile(path, result.value);
 }
 
 Deno.test("list command - shows tasks in default directory", async () => {
@@ -53,7 +58,16 @@ Deno.test("list command - shows tasks in default directory", async () => {
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs);
   const mockFileSystem = new MockFileSystem(fs);
-  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+  const fileNameService = new MockFileNameService();
+  const markdownService = new MockMarkdownService();
+  const taskService = new DefaultTaskService(
+    pathResolver,
+    git,
+    mockConfig,
+    mockFileSystem,
+    fileNameService,
+    markdownService,
+  );
 
   git.setNotInRepo();
 
@@ -100,7 +114,16 @@ Deno.test("list command - shows tasks in git repository directory", async () => 
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs);
   const mockFileSystem = new MockFileSystem(fs);
-  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+  const fileNameService = new MockFileNameService();
+  const markdownService = new MockMarkdownService();
+  const taskService = new DefaultTaskService(
+    pathResolver,
+    git,
+    mockConfig,
+    mockFileSystem,
+    fileNameService,
+    markdownService,
+  );
 
   const repoInfo = {
     host: "github.com",
@@ -139,7 +162,16 @@ Deno.test("list command - filters by status", async () => {
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs);
   const mockFileSystem = new MockFileSystem(fs);
-  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+  const fileNameService = new MockFileNameService();
+  const markdownService = new MockMarkdownService();
+  const taskService = new DefaultTaskService(
+    pathResolver,
+    git,
+    mockConfig,
+    mockFileSystem,
+    fileNameService,
+    markdownService,
+  );
 
   git.setNotInRepo();
 
@@ -207,7 +239,16 @@ Deno.test("list command - filters by priority", async () => {
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs);
   const mockFileSystem = new MockFileSystem(fs);
-  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+  const fileNameService = new MockFileNameService();
+  const markdownService = new MockMarkdownService();
+  const taskService = new DefaultTaskService(
+    pathResolver,
+    git,
+    mockConfig,
+    mockFileSystem,
+    fileNameService,
+    markdownService,
+  );
 
   git.setNotInRepo();
 
@@ -254,7 +295,16 @@ Deno.test("list command - filters by tags", async () => {
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs);
   const mockFileSystem = new MockFileSystem(fs);
-  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+  const fileNameService = new MockFileNameService();
+  const markdownService = new MockMarkdownService();
+  const taskService = new DefaultTaskService(
+    pathResolver,
+    git,
+    mockConfig,
+    mockFileSystem,
+    fileNameService,
+    markdownService,
+  );
 
   git.setNotInRepo();
 
@@ -325,7 +375,16 @@ Deno.test("list command - handles empty directory", async () => {
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs);
   const mockFileSystem = new MockFileSystem(fs);
-  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+  const fileNameService = new MockFileNameService();
+  const markdownService = new MockMarkdownService();
+  const taskService = new DefaultTaskService(
+    pathResolver,
+    git,
+    mockConfig,
+    mockFileSystem,
+    fileNameService,
+    markdownService,
+  );
 
   git.setNotInRepo();
 
@@ -345,7 +404,16 @@ Deno.test("list command - handles missing frontmatter", async () => {
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs);
   const mockFileSystem = new MockFileSystem(fs);
-  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+  const fileNameService = new MockFileNameService();
+  const markdownService = new MockMarkdownService();
+  const taskService = new DefaultTaskService(
+    pathResolver,
+    git,
+    mockConfig,
+    mockFileSystem,
+    fileNameService,
+    markdownService,
+  );
 
   git.setNotInRepo();
 
@@ -372,7 +440,16 @@ Deno.test("list command - outputs oneline format by default", async () => {
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs, testPath("locus"));
   const mockFileSystem = new MockFileSystem(fs);
-  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+  const fileNameService = new MockFileNameService();
+  const markdownService = new MockMarkdownService();
+  const taskService = new DefaultTaskService(
+    pathResolver,
+    git,
+    mockConfig,
+    mockFileSystem,
+    fileNameService,
+    markdownService,
+  );
 
   // Set up git repository
   git.setRepoInfo({ host: "github.com", owner: "test", repo: "repo" });

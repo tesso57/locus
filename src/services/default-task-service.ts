@@ -11,8 +11,9 @@ import {
 import { PathResolver } from "./path-resolver.ts";
 import { GitService } from "./git-service.ts";
 import { FileSystem } from "./file-system.ts";
+import { FileNameService } from "./filename-service.ts";
+import { MarkdownService } from "./markdown-service.ts";
 import { Config, FrontMatter, ParsedMarkdown, RepoInfo } from "../types.ts";
-import { generateFileName } from "../utils/filename.ts";
 import {
   FileAlreadyExistsError,
   FileNotFoundError,
@@ -30,6 +31,8 @@ export class DefaultTaskService implements TaskService {
     private gitService: GitService,
     private config: Config,
     private fileSystem: FileSystem,
+    private fileNameService: FileNameService,
+    private markdownService: MarkdownService,
   ) {}
 
   async listTasks(options: ListTaskOptions): Promise<Result<TaskInfo[], Error>> {
@@ -91,13 +94,20 @@ export class DefaultTaskService implements TaskService {
         return err(contentResult.error);
       }
 
-      const { frontmatter, body } = this.parseMarkdown(contentResult.value);
+      const parseResult = this.markdownService.parseMarkdown(contentResult.value);
+      if (!parseResult.ok) {
+        return err(parseResult.error);
+      }
+      const { frontmatter, body } = parseResult.value;
 
       if (!frontmatter) {
         return err(new FileSystemError(`Invalid task file: ${fileName}`));
       }
 
-      const title = this.extractTitle(body) || fileName.replace(/\.md$/, "");
+      const titleResult = this.markdownService.extractTitle(body);
+      const title = titleResult.ok && titleResult.value
+        ? titleResult.value
+        : fileName.replace(/\.md$/, "");
       const relativePath = this.getRelativePath(filePath);
       const repository = this.extractRepository(relativePath, repoInfo);
 
@@ -129,8 +139,12 @@ export class DefaultTaskService implements TaskService {
         return err(taskDirResult.error);
       }
 
-      const fileName = await generateFileName(options.title);
-      const validateResult = this.fileSystem.validateFileName(fileName);
+      const fileNameResult = this.fileNameService.generateFileName(options.title);
+      if (!fileNameResult.ok) {
+        return err(fileNameResult.error);
+      }
+      const fileName = fileNameResult.value;
+      const validateResult = this.markdownService.validateFileName(fileName);
       if (!validateResult.ok) {
         throw validateResult.error;
       }
@@ -167,11 +181,15 @@ export class DefaultTaskService implements TaskService {
         frontmatter.status = "todo";
       }
 
-      const content = this.createTaskMarkdown(
+      const createResult = this.markdownService.createTaskMarkdown(
         options.title,
         options.body,
         frontmatter,
       );
+      if (!createResult.ok) {
+        return err(createResult.error);
+      }
+      const content = createResult.value;
 
       const writeResult = await this.fileSystem.writeTextFile(taskPath, content);
       if (!writeResult.ok) {
@@ -207,7 +225,11 @@ export class DefaultTaskService implements TaskService {
       };
 
       const updatedBody = options.body !== undefined ? options.body : task.body;
-      const content = this.generateMarkdown(updatedFrontmatter, updatedBody);
+      const generateResult = this.markdownService.generateMarkdown(updatedFrontmatter, updatedBody);
+      if (!generateResult.ok) {
+        return err(generateResult.error);
+      }
+      const content = generateResult.value;
 
       const writeResult = await this.fileSystem.writeTextFile(filePathResult.value, content);
       if (!writeResult.ok) {
@@ -316,14 +338,21 @@ export class DefaultTaskService implements TaskService {
         return err(contentResult.error);
       }
 
-      const { frontmatter, body } = this.parseMarkdown(contentResult.value);
+      const parseResult = this.markdownService.parseMarkdown(contentResult.value);
+      if (!parseResult.ok) {
+        return err(parseResult.error);
+      }
+      const { frontmatter, body } = parseResult.value;
 
       if (!frontmatter) {
         return err(new FileSystemError(`Invalid task file: ${filePath}`));
       }
 
       const fileName = filePath.split(/[/\\]/).pop() || "";
-      const title = this.extractTitle(body) || fileName.replace(/\.md$/, "");
+      const titleResult = this.markdownService.extractTitle(body);
+      const title = titleResult.ok && titleResult.value
+        ? titleResult.value
+        : fileName.replace(/\.md$/, "");
       const relativePath = this.getRelativePath(filePath);
       const repository = this.extractRepositoryFromPath(relativePath);
 
@@ -432,112 +461,5 @@ export class DefaultTaskService implements TaskService {
     }
 
     return "default";
-  }
-
-  /**
-   * Parse markdown content with frontmatter
-   */
-  private parseMarkdown(content: string): ParsedMarkdown {
-    const lines = content.split("\n");
-
-    if (lines[0] !== "---") {
-      return { frontmatter: null, body: content };
-    }
-
-    let endIndex = -1;
-    for (let i = 1; i < lines.length; i++) {
-      if (lines[i] === "---") {
-        endIndex = i;
-        break;
-      }
-    }
-
-    if (endIndex === -1) {
-      return { frontmatter: null, body: content };
-    }
-
-    const yamlContent = lines.slice(1, endIndex).join("\n");
-    const body = lines.slice(endIndex + 1).join("\n");
-
-    try {
-      const frontmatter = parse(yamlContent) as FrontMatter;
-      return { frontmatter, body };
-    } catch {
-      return { frontmatter: null, body: content };
-    }
-  }
-
-  /**
-   * Generate markdown content with frontmatter
-   */
-  private generateMarkdown(
-    frontmatter: FrontMatter | null,
-    body: string,
-  ): string {
-    if (!frontmatter || Object.keys(frontmatter).length === 0) {
-      return body;
-    }
-
-    const yamlContent = stringify(frontmatter, {
-      lineWidth: -1, // Disable line wrapping
-      useAnchors: false, // Disable anchors and aliases
-    }).trim();
-
-    return `---\n${yamlContent}\n---\n${body}`;
-  }
-
-  /**
-   * Extract title from markdown body
-   */
-  private extractTitle(body: string): string | null {
-    const lines = body.trim().split("\n");
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith("# ")) {
-        return trimmed.substring(2).trim();
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Merge frontmatter objects
-   */
-  private mergeFrontmatter(
-    existing: FrontMatter | null,
-    updates: Partial<FrontMatter>,
-  ): FrontMatter {
-    const base = existing || {};
-
-    // Handle special array fields
-    if (updates.tags && Array.isArray(updates.tags)) {
-      // Replace tags array entirely
-      return { ...base, ...updates };
-    }
-
-    return { ...base, ...updates };
-  }
-
-  /**
-   * Create task markdown content
-   */
-  private createTaskMarkdown(
-    title: string,
-    body: string = "",
-    frontmatter: FrontMatter = {},
-  ): string {
-    const now = new Date().toISOString();
-
-    const defaultFrontmatter: FrontMatter = {
-      date: now.split("T")[0], // YYYY-MM-DD format
-      created: now,
-      ...frontmatter,
-    };
-
-    const markdownBody = body || `# ${title}\n\n`;
-
-    return this.generateMarkdown(defaultFrontmatter, markdownBody);
   }
 }

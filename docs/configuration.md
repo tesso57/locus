@@ -21,6 +21,7 @@ Locus uses a hierarchical configuration system with three levels of precedence:
 3. **Default Values** (lowest priority)
 
 This allows you to:
+
 - Override specific settings temporarily using environment variables
 - Set persistent preferences in the configuration file
 - Rely on sensible defaults without any configuration
@@ -30,6 +31,7 @@ This allows you to:
 ### Location
 
 The configuration file is stored at:
+
 - **Unix/Linux/macOS**: `~/.config/locus/settings.yml`
 - **Windows**: `%USERPROFILE%\.config\locus\settings.yml`
 
@@ -76,58 +78,61 @@ task_directory: "~/locus"
 
 # Language settings
 language:
-  default: "en"  # Available: "en" (English) or "ja" (Japanese)
+  default: "en" # Available: "en" (English) or "ja" (Japanese)
 
 # Git integration settings
 git:
-  extract_username: true      # Extract username from Git config
-  username_from_remote: true  # Use username from remote URL
+  extract_username: true # Extract username from Git config
+  username_from_remote: true # Use username from remote URL
 
 # File naming configuration
 file_naming:
-  pattern: "{slug}.md"                # File naming pattern
-  date_format: "YYYY-MM-DD"           # Date format in filenames
-  hash_length: 8                      # Length of random hash
+  pattern: "{slug}.md" # File naming pattern
+  date_format: "YYYY-MM-DD" # Date format in filenames
+  hash_length: 8 # Length of random hash
 
 # Default values for new tasks
 defaults:
-  status: "todo"      # Default task status
-  priority: "normal"  # Default task priority
-  tags: []           # Default tags (empty array)
+  status: "todo" # Default task status
+  priority: "normal" # Default task priority
+  tags: [] # Default tags (empty array)
 ```
 
 ## Environment Variables
 
 Environment variables override configuration file settings. They are useful for:
+
 - Temporary overrides
 - CI/CD environments
 - Testing different configurations
 
 ### Available Environment Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `LOCUS_LANG` | Override language setting | `LOCUS_LANG=en locus list` |
-| `LOCUS_TASK_DIRECTORY` | Override task directory | `LOCUS_TASK_DIRECTORY=/tmp/tasks locus add "Test"` |
-| `LOCUS_GIT_EXTRACT_USERNAME` | Enable/disable username extraction | `LOCUS_GIT_EXTRACT_USERNAME=false locus add "Task"` |
-| `LOCUS_GIT_USERNAME_FROM_REMOTE` | Enable/disable username from remote | `LOCUS_GIT_USERNAME_FROM_REMOTE=false locus add "Task"` |
-| `LOCUS_FILE_NAMING_PATTERN` | File naming pattern | `LOCUS_FILE_NAMING_PATTERN="{date}-{slug}.md" locus add "Task"` |
-| `LOCUS_FILE_NAMING_DATE_FORMAT` | Date format for filenames | `LOCUS_FILE_NAMING_DATE_FORMAT="YYYYMMDD" locus add "Task"` |
-| `LOCUS_FILE_NAMING_HASH_LENGTH` | Hash length for unique identifiers | `LOCUS_FILE_NAMING_HASH_LENGTH=12 locus add "Task"` |
-| `LOCUS_DEFAULTS_STATUS` | Override default status | `LOCUS_DEFAULTS_STATUS=in-progress locus add "Task"` |
-| `LOCUS_DEFAULTS_PRIORITY` | Override default priority | `LOCUS_DEFAULTS_PRIORITY=high locus add "Urgent"` |
-| `LOCUS_DEFAULTS_TAGS` | Default tags (comma-separated) | `LOCUS_DEFAULTS_TAGS="work,urgent" locus add "Task"` |
-| `LOCUS_LANGUAGE_DEFAULT` | Default language (en/ja) | `LOCUS_LANGUAGE_DEFAULT=ja locus config show` |
+| Variable                         | Description                         | Example                                                         |
+| -------------------------------- | ----------------------------------- | --------------------------------------------------------------- |
+| `LOCUS_LANG`                     | Override language setting           | `LOCUS_LANG=en locus list`                                      |
+| `LOCUS_TASK_DIRECTORY`           | Override task directory             | `LOCUS_TASK_DIRECTORY=/tmp/tasks locus add "Test"`              |
+| `LOCUS_GIT_EXTRACT_USERNAME`     | Enable/disable username extraction  | `LOCUS_GIT_EXTRACT_USERNAME=false locus add "Task"`             |
+| `LOCUS_GIT_USERNAME_FROM_REMOTE` | Enable/disable username from remote | `LOCUS_GIT_USERNAME_FROM_REMOTE=false locus add "Task"`         |
+| `LOCUS_FILE_NAMING_PATTERN`      | File naming pattern                 | `LOCUS_FILE_NAMING_PATTERN="{date}-{slug}.md" locus add "Task"` |
+| `LOCUS_FILE_NAMING_DATE_FORMAT`  | Date format for filenames           | `LOCUS_FILE_NAMING_DATE_FORMAT="YYYYMMDD" locus add "Task"`     |
+| `LOCUS_FILE_NAMING_HASH_LENGTH`  | Hash length for unique identifiers  | `LOCUS_FILE_NAMING_HASH_LENGTH=12 locus add "Task"`             |
+| `LOCUS_DEFAULTS_STATUS`          | Override default status             | `LOCUS_DEFAULTS_STATUS=in-progress locus add "Task"`            |
+| `LOCUS_DEFAULTS_PRIORITY`        | Override default priority           | `LOCUS_DEFAULTS_PRIORITY=high locus add "Urgent"`               |
+| `LOCUS_DEFAULTS_TAGS`            | Default tags (comma-separated)      | `LOCUS_DEFAULTS_TAGS="work,urgent" locus add "Task"`            |
+| `LOCUS_LANGUAGE_DEFAULT`         | Default language (en/ja)            | `LOCUS_LANGUAGE_DEFAULT=ja locus config show`                   |
 
 ### Environment Variable Format
 
 Boolean values can be specified as:
+
 - `true`, `1`, `yes`, `on` for true
 - `false`, `0`, `no`, `off` for false
 
 ### Configuration Directory
 
 The configuration directory location can be overridden using standard XDG environment variables:
+
 - `XDG_CONFIG_HOME`: Override the base config directory (default: `~/.config`)
 - `XDG_CONFIG_DIRS`: Additional config directories to search (default: `/etc/xdg`)
 
@@ -175,13 +180,14 @@ defaults:
 
 ### Task Directory
 
-**Key**: `task_directory`  
-**Default**: `~/locus`  
+**Key**: `task_directory`\
+**Default**: `~/locus`\
 **Environment**: `LOCUS_TASK_DIRECTORY`
 
 The base directory where all task files are stored. Tasks are organized by Git repository under this directory.
 
 Example structure:
+
 ```
 ~/locus/
 ├── github-username/
@@ -196,14 +202,15 @@ Example structure:
 
 ### Language Settings
 
-**Key**: `language.default`  
-**Default**: `en`  
-**Environment**: `LOCUS_LANG`  
+**Key**: `language.default`\
+**Default**: `en`\
+**Environment**: `LOCUS_LANG`\
 **Options**: `en` (English), `ja` (Japanese)
 
 Controls the display language for all command output, error messages, and prompts.
 
 Language detection priority:
+
 1. `LOCUS_LANG` environment variable
 2. Configuration file setting
 3. System `LANG` environment variable
@@ -213,20 +220,21 @@ Language detection priority:
 
 #### Extract Username
 
-**Key**: `git.extract_username`  
-**Default**: `true`  
+**Key**: `git.extract_username`\
+**Default**: `true`\
 **Environment**: `LOCUS_GIT_EXTRACT_USERNAME`
 
 When enabled, Locus extracts the Git username to organize tasks by repository owner.
 
 #### Username from Remote
 
-**Key**: `git.username_from_remote`  
+**Key**: `git.username_from_remote`\
 **Default**: `true`
 
 When enabled, Locus extracts the username from the Git remote URL. This is useful when your local Git username differs from your GitHub/GitLab username.
 
 Example:
+
 - Remote URL: `https://github.com/john-doe/project.git`
 - Extracted username: `john-doe`
 - Task location: `~/locus/john-doe/project/`
@@ -235,15 +243,17 @@ Example:
 
 #### Pattern
 
-**Key**: `file_naming.pattern`  
+**Key**: `file_naming.pattern`\
 **Default**: `{slug}.md`
 
 Available placeholders:
+
 - `{date}`: Current date formatted according to `date_format`
 - `{slug}`: Sanitized task title (lowercase, alphanumeric, hyphens)
 - `{hash}`: Random alphanumeric string for uniqueness
 
 Common patterns:
+
 - `{date}-{slug}-{hash}.md` → `2024-01-15-fix-auth-bug-a1b2c3d4.md`
 - `{slug}-{date}-{hash}.md` → `fix-auth-bug-2024-01-15-a1b2c3d4.md`
 - `{date}-{slug}.md` → `2024-01-15-fix-auth-bug.md`
@@ -251,10 +261,11 @@ Common patterns:
 
 #### Date Format
 
-**Key**: `file_naming.date_format`  
+**Key**: `file_naming.date_format`\
 **Default**: `YYYY-MM-DD`
 
 Supported formats:
+
 - `YYYY-MM-DD` → `2024-01-15`
 - `YYYYMMDD` → `20240115`
 - `YYYY/MM/DD` → `2024/01/15`
@@ -262,8 +273,8 @@ Supported formats:
 
 #### Hash Length
 
-**Key**: `file_naming.hash_length`  
-**Default**: `8`  
+**Key**: `file_naming.hash_length`\
+**Default**: `8`\
 **Range**: 4-32
 
 The length of the random hash appended to filenames. Longer hashes reduce the chance of collisions.
@@ -272,11 +283,12 @@ The length of the random hash appended to filenames. Longer hashes reduce the ch
 
 #### Status
 
-**Key**: `defaults.status`  
-**Default**: `todo`  
+**Key**: `defaults.status`\
+**Default**: `todo`\
 **Environment**: `LOCUS_DEFAULTS_STATUS`
 
 Common values:
+
 - `todo` - Task not started
 - `in-progress` - Currently working on
 - `done` - Completed
@@ -284,23 +296,25 @@ Common values:
 
 #### Priority
 
-**Key**: `defaults.priority`  
-**Default**: `normal`  
+**Key**: `defaults.priority`\
+**Default**: `normal`\
 **Environment**: `LOCUS_DEFAULTS_PRIORITY`
 
 Common values:
+
 - `high` - Urgent tasks
 - `normal` - Regular priority
 - `low` - Can be deferred
 
 #### Tags
 
-**Key**: `defaults.tags`  
+**Key**: `defaults.tags`\
 **Default**: `[]` (empty array)
 
 An array of default tags applied to all new tasks. Can be overridden per task.
 
 Example:
+
 ```yaml
 defaults:
   tags: ["work", "current-sprint"]
@@ -318,7 +332,7 @@ git:
   extract_username: true
   username_from_remote: true
 file_naming:
-  pattern: "{date}-{slug}-{hash}.md"  # Include hash to avoid conflicts
+  pattern: "{date}-{slug}-{hash}.md" # Include hash to avoid conflicts
   date_format: "YYYYMMDD"
   hash_length: 8
 defaults:
@@ -334,12 +348,12 @@ task_directory: "/shared/team-tasks"
 language:
   default: "en"
 git:
-  extract_username: false  # Don't organize by user
+  extract_username: false # Don't organize by user
   username_from_remote: false
 file_naming:
-  pattern: "{slug}-{hash}.md"  # No date for better sorting
+  pattern: "{slug}-{hash}.md" # No date for better sorting
   date_format: "YYYY-MM-DD"
-  hash_length: 12  # Longer hash for more uniqueness
+  hash_length: 12 # Longer hash for more uniqueness
 defaults:
   status: "todo"
   priority: "normal"
@@ -353,7 +367,7 @@ task_directory: "~/Documents/tasks"
 language:
   default: "en"
 git:
-  extract_username: false  # Don't use Git organization
+  extract_username: false # Don't use Git organization
   username_from_remote: false
 file_naming:
   pattern: "{date}-{slug}.md"

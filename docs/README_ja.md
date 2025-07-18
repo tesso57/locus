@@ -248,7 +248,6 @@ cat $(locus path "my-task")
 editor $(locus path "todo-task")
 ```
 
-
 ### 設定
 
 ```bash
@@ -303,6 +302,7 @@ locus config show --json
 設定は `~/.config/locus/settings.yml` に保存されます（XDG Base Directory仕様に準拠）。
 
 詳細な設定ドキュメントについては、以下を参照してください：
+
 - **[設定ガイド](configuration_ja.md)** - 完全な設定リファレンス
 - **[Configuration Guide](configuration.md)** - 英語版設定ガイド
 
@@ -355,6 +355,7 @@ assignee: john
 APIエンドポイントにJWTベースの認証を追加する。
 
 ## 要件
+
 - [ ] ログインエンドポイント
 - [ ] トークンリフレッシュ機能
 - [ ] ログアウト機能

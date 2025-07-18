@@ -11,13 +11,8 @@ import {
 } from "./tags-service.ts";
 import { PathResolver } from "./path-resolver.ts";
 import { FileSystem } from "./file-system.ts";
+import { MarkdownService } from "./markdown-service.ts";
 import { FrontMatter, RepoInfo } from "../types.ts";
-import {
-  ensureMarkdownExtension,
-  generateMarkdown,
-  mergeFrontmatter,
-  parseMarkdown,
-} from "../utils/markdown.ts";
 import {
   FileSystemError,
   getErrorMessage,
@@ -32,6 +27,7 @@ export class DefaultTagsService implements TagsService {
   constructor(
     private pathResolver: PathResolver,
     private fileSystem: FileSystem,
+    private markdownService: MarkdownService,
   ) {}
 
   async listTags(options: ListTagsOptions): Promise<Result<TagInfo[], Error>> {
@@ -58,7 +54,11 @@ export class DefaultTagsService implements TagsService {
         return err(contentResult.error);
       }
 
-      const { frontmatter } = parseMarkdown(contentResult.value);
+      const parseResult = this.markdownService.parseMarkdown(contentResult.value);
+      if (!parseResult.ok) {
+        return err(parseResult.error);
+      }
+      const { frontmatter } = parseResult.value;
 
       const tagInfo: TagInfo = {
         fileName: filePath.split("/").pop() || "",
@@ -91,7 +91,11 @@ export class DefaultTagsService implements TagsService {
         return err(contentResult.error);
       }
 
-      const { frontmatter } = parseMarkdown(contentResult.value);
+      const parseResult = this.markdownService.parseMarkdown(contentResult.value);
+      if (!parseResult.ok) {
+        return err(parseResult.error);
+      }
+      const { frontmatter } = parseResult.value;
 
       if (!frontmatter || !(options.property in frontmatter)) {
         return err(new PropertyNotFoundError(options.property));
@@ -121,16 +125,24 @@ export class DefaultTagsService implements TagsService {
         if (!contentResult.ok) {
           return err(contentResult.error);
         }
-        const parsed = parseMarkdown(contentResult.value);
+        const parseResult = this.markdownService.parseMarkdown(contentResult.value);
+        if (!parseResult.ok) {
+          return err(parseResult.error);
+        }
+        const parsed = parseResult.value;
         frontmatter = parsed.frontmatter || {};
         body = parsed.body;
       }
 
-      frontmatter = mergeFrontmatter(frontmatter, {
+      frontmatter = this.markdownService.mergeFrontmatter(frontmatter, {
         [options.property]: options.value,
       });
 
-      const newContent = generateMarkdown(frontmatter, body);
+      const generateResult = this.markdownService.generateMarkdown(frontmatter, body);
+      if (!generateResult.ok) {
+        return err(generateResult.error);
+      }
+      const newContent = generateResult.value;
       const writeResult = await this.fileSystem.writeTextFile(filePath, newContent);
       if (!writeResult.ok) {
         return err(writeResult.error);
@@ -161,7 +173,11 @@ export class DefaultTagsService implements TagsService {
         return err(contentResult.error);
       }
 
-      const { frontmatter, body } = parseMarkdown(contentResult.value);
+      const parseResult = this.markdownService.parseMarkdown(contentResult.value);
+      if (!parseResult.ok) {
+        return err(parseResult.error);
+      }
+      const { frontmatter, body } = parseResult.value;
 
       if (!frontmatter || !(options.property in frontmatter)) {
         return err(new PropertyNotFoundError(options.property));
@@ -169,7 +185,11 @@ export class DefaultTagsService implements TagsService {
 
       delete frontmatter[options.property];
 
-      const newContent = generateMarkdown(frontmatter, body);
+      const generateResult = this.markdownService.generateMarkdown(frontmatter, body);
+      if (!generateResult.ok) {
+        return err(generateResult.error);
+      }
+      const newContent = generateResult.value;
       const writeResult = await this.fileSystem.writeTextFile(filePath, newContent);
       if (!writeResult.ok) {
         return err(writeResult.error);
@@ -200,7 +220,11 @@ export class DefaultTagsService implements TagsService {
         return err(contentResult.error);
       }
 
-      const { body } = parseMarkdown(contentResult.value);
+      const parseResult = this.markdownService.parseMarkdown(contentResult.value);
+      if (!parseResult.ok) {
+        return err(parseResult.error);
+      }
+      const { body } = parseResult.value;
 
       const writeResult = await this.fileSystem.writeTextFile(filePath, body);
       if (!writeResult.ok) {
@@ -267,7 +291,7 @@ export class DefaultTagsService implements TagsService {
     }
 
     // If not found, construct path
-    const withExt = ensureMarkdownExtension(fileName);
+    const withExt = this.markdownService.ensureMarkdownExtension(fileName);
     return ok(join(baseDirResult.value, withExt));
   }
 
