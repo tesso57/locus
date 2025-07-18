@@ -63,7 +63,7 @@ export class DefaultFileNameService implements FileNameService {
   generateFileName(title: string): Result<string, Error> {
     try {
       const componentsResult = this.generateFileNameComponents(title);
-      if (!componentsok) {
+      if (!componentsResult.ok) {
         return componentsResult;
       }
 
