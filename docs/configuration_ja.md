@@ -21,6 +21,7 @@ Locusは3つの優先順位レベルを持つ階層的な設定システムを�
 3. **デフォルト値**（最低優先度）
 
 これにより、以下のことが可能になります：
+
 - 環境変数を使用して特定の設定を一時的に上書き
 - 設定ファイルで永続的な設定を行う
 - 設定なしでも適切なデフォルト値を使用
@@ -30,6 +31,7 @@ Locusは3つの優先順位レベルを持つ階層的な設定システムを�
 ### ファイルの場所
 
 設定ファイルは以下の場所に保存されます：
+
 - **Unix/Linux/macOS**: `~/.config/locus/settings.yml`
 - **Windows**: `%USERPROFILE%\.config\locus\settings.yml`
 
@@ -76,58 +78,61 @@ task_directory: "~/locus"
 
 # 言語設定
 language:
-  default: "ja"  # 利用可能: "ja"（日本語）または "en"（英語）
+  default: "ja" # 利用可能: "ja"（日本語）または "en"（英語）
 
 # Git連携設定
 git:
-  extract_username: true      # Git設定からユーザー名を抽出
-  username_from_remote: true  # リモートURLからユーザー名を使用
+  extract_username: true # Git設定からユーザー名を抽出
+  username_from_remote: true # リモートURLからユーザー名を使用
 
 # ファイル名設定
 file_naming:
-  pattern: "{slug}.md"                # ファイル名パターン
-  date_format: "YYYY-MM-DD"           # ファイル名の日付形式
-  hash_length: 8                      # ランダムハッシュの長さ
+  pattern: "{slug}.md" # ファイル名パターン
+  date_format: "YYYY-MM-DD" # ファイル名の日付形式
+  hash_length: 8 # ランダムハッシュの長さ
 
 # 新規タスクのデフォルト値
 defaults:
-  status: "todo"      # デフォルトのタスクステータス
-  priority: "normal"  # デフォルトの優先度
-  tags: []           # デフォルトのタグ（空の配列）
+  status: "todo" # デフォルトのタスクステータス
+  priority: "normal" # デフォルトの優先度
+  tags: [] # デフォルトのタグ（空の配列）
 ```
 
 ## 環境変数
 
 環境変数は設定ファイルの設定を上書きします。以下の用途に便利です：
+
 - 一時的な設定変更
 - CI/CD環境
 - 異なる設定のテスト
 
 ### 利用可能な環境変数
 
-| 変数名 | 説明 | 例 |
-|--------|------|-----|
-| `LOCUS_LANG` | 言語設定を上書き | `LOCUS_LANG=ja locus list` |
-| `LOCUS_TASK_DIRECTORY` | タスクディレクトリを上書き | `LOCUS_TASK_DIRECTORY=/tmp/tasks locus add "テスト"` |
-| `LOCUS_GIT_EXTRACT_USERNAME` | ユーザー名抽出の有効/無効 | `LOCUS_GIT_EXTRACT_USERNAME=false locus add "タスク"` |
-| `LOCUS_GIT_USERNAME_FROM_REMOTE` | リモートからのユーザー名使用の有効/無効 | `LOCUS_GIT_USERNAME_FROM_REMOTE=false locus add "タスク"` |
-| `LOCUS_FILE_NAMING_PATTERN` | ファイル名パターン | `LOCUS_FILE_NAMING_PATTERN="{date}-{slug}.md" locus add "タスク"` |
-| `LOCUS_FILE_NAMING_DATE_FORMAT` | ファイル名の日付形式 | `LOCUS_FILE_NAMING_DATE_FORMAT="YYYYMMDD" locus add "タスク"` |
-| `LOCUS_FILE_NAMING_HASH_LENGTH` | 一意識別子のハッシュ長 | `LOCUS_FILE_NAMING_HASH_LENGTH=12 locus add "タスク"` |
-| `LOCUS_DEFAULTS_STATUS` | デフォルトステータスを上書き | `LOCUS_DEFAULTS_STATUS=in-progress locus add "タスク"` |
-| `LOCUS_DEFAULTS_PRIORITY` | デフォルト優先度を上書き | `LOCUS_DEFAULTS_PRIORITY=high locus add "緊急"` |
-| `LOCUS_DEFAULTS_TAGS` | デフォルトタグ（カンマ区切り） | `LOCUS_DEFAULTS_TAGS="仕事,緊急" locus add "タスク"` |
-| `LOCUS_LANGUAGE_DEFAULT` | デフォルト言語（en/ja） | `LOCUS_LANGUAGE_DEFAULT=en locus config show` |
+| 変数名                           | 説明                                    | 例                                                                |
+| -------------------------------- | --------------------------------------- | ----------------------------------------------------------------- |
+| `LOCUS_LANG`                     | 言語設定を上書き                        | `LOCUS_LANG=ja locus list`                                        |
+| `LOCUS_TASK_DIRECTORY`           | タスクディレクトリを上書き              | `LOCUS_TASK_DIRECTORY=/tmp/tasks locus add "テスト"`              |
+| `LOCUS_GIT_EXTRACT_USERNAME`     | ユーザー名抽出の有効/無効               | `LOCUS_GIT_EXTRACT_USERNAME=false locus add "タスク"`             |
+| `LOCUS_GIT_USERNAME_FROM_REMOTE` | リモートからのユーザー名使用の有効/無効 | `LOCUS_GIT_USERNAME_FROM_REMOTE=false locus add "タスク"`         |
+| `LOCUS_FILE_NAMING_PATTERN`      | ファイル名パターン                      | `LOCUS_FILE_NAMING_PATTERN="{date}-{slug}.md" locus add "タスク"` |
+| `LOCUS_FILE_NAMING_DATE_FORMAT`  | ファイル名の日付形式                    | `LOCUS_FILE_NAMING_DATE_FORMAT="YYYYMMDD" locus add "タスク"`     |
+| `LOCUS_FILE_NAMING_HASH_LENGTH`  | 一意識別子のハッシュ長                  | `LOCUS_FILE_NAMING_HASH_LENGTH=12 locus add "タスク"`             |
+| `LOCUS_DEFAULTS_STATUS`          | デフォルトステータスを上書き            | `LOCUS_DEFAULTS_STATUS=in-progress locus add "タスク"`            |
+| `LOCUS_DEFAULTS_PRIORITY`        | デフォルト優先度を上書き                | `LOCUS_DEFAULTS_PRIORITY=high locus add "緊急"`                   |
+| `LOCUS_DEFAULTS_TAGS`            | デフォルトタグ（カンマ区切り）          | `LOCUS_DEFAULTS_TAGS="仕事,緊急" locus add "タスク"`              |
+| `LOCUS_LANGUAGE_DEFAULT`         | デフォルト言語（en/ja）                 | `LOCUS_LANGUAGE_DEFAULT=en locus config show`                     |
 
 ### 環境変数の形式
 
 ブール値は以下のように指定できます：
+
 - 真: `true`、`1`、`yes`、`on`
 - 偽: `false`、`0`、`no`、`off`
 
 ### 設定ディレクトリ
 
 設定ディレクトリの場所は、標準的なXDG環境変数を使用して上書きできます：
+
 - `XDG_CONFIG_HOME`: ベース設定ディレクトリを上書き（デフォルト: `~/.config`）
 - `XDG_CONFIG_DIRS`: 検索する追加の設定ディレクトリ（デフォルト: `/etc/xdg`）
 
@@ -175,13 +180,14 @@ defaults:
 
 ### タスクディレクトリ
 
-**キー**: `task_directory`  
-**デフォルト**: `~/locus`  
+**キー**: `task_directory`\
+**デフォルト**: `~/locus`\
 **環境変数**: `LOCUS_TASK_DIRECTORY`
 
 すべてのタスクファイルが保存されるベースディレクトリ。タスクはこのディレクトリ下でGitリポジトリごとに整理されます。
 
 構造例：
+
 ```
 ~/locus/
 ├── github-username/
@@ -196,14 +202,15 @@ defaults:
 
 ### 言語設定
 
-**キー**: `language.default`  
-**デフォルト**: `en`  
-**環境変数**: `LOCUS_LANG`  
+**キー**: `language.default`\
+**デフォルト**: `en`\
+**環境変数**: `LOCUS_LANG`\
 **オプション**: `ja`（日本語）、`en`（英語）
 
 すべてのコマンド出力、エラーメッセージ、プロンプトの表示言語を制御します。
 
 言語検出の優先順位：
+
 1. `LOCUS_LANG`環境変数
 2. 設定ファイルの設定
 3. システムの`LANG`環境変数
@@ -213,20 +220,21 @@ defaults:
 
 #### ユーザー名の抽出
 
-**キー**: `git.extract_username`  
-**デフォルト**: `true`  
+**キー**: `git.extract_username`\
+**デフォルト**: `true`\
 **環境変数**: `LOCUS_GIT_EXTRACT_USERNAME`
 
 有効にすると、LocusはGitユーザー名を抽出してリポジトリ所有者ごとにタスクを整理します。
 
 #### リモートからのユーザー名
 
-**キー**: `git.username_from_remote`  
+**キー**: `git.username_from_remote`\
 **デフォルト**: `true`
 
 有効にすると、LocusはGitリモートURLからユーザー名を抽出します。これは、ローカルのGitユーザー名がGitHub/GitLabのユーザー名と異なる場合に便利です。
 
 例：
+
 - リモートURL: `https://github.com/john-doe/project.git`
 - 抽出されたユーザー名: `john-doe`
 - タスクの場所: `~/locus/john-doe/project/`
@@ -235,15 +243,17 @@ defaults:
 
 #### パターン
 
-**キー**: `file_naming.pattern`  
+**キー**: `file_naming.pattern`\
 **デフォルト**: `{slug}.md`
 
 利用可能なプレースホルダー：
+
 - `{date}`: `date_format`に従ってフォーマットされた現在の日付
 - `{slug}`: サニタイズされたタスクタイトル（小文字、英数字、ハイフン）
 - `{hash}`: 一意性のためのランダムな英数字文字列
 
 一般的なパターン：
+
 - `{date}-{slug}-{hash}.md` → `2024-01-15-fix-auth-bug-a1b2c3d4.md`
 - `{slug}-{date}-{hash}.md` → `fix-auth-bug-2024-01-15-a1b2c3d4.md`
 - `{date}-{slug}.md` → `2024-01-15-fix-auth-bug.md`
@@ -251,10 +261,11 @@ defaults:
 
 #### 日付形式
 
-**キー**: `file_naming.date_format`  
+**キー**: `file_naming.date_format`\
 **デフォルト**: `YYYY-MM-DD`
 
 サポートされる形式：
+
 - `YYYY-MM-DD` → `2024-01-15`
 - `YYYYMMDD` → `20240115`
 - `YYYY/MM/DD` → `2024/01/15`
@@ -262,8 +273,8 @@ defaults:
 
 #### ハッシュの長さ
 
-**キー**: `file_naming.hash_length`  
-**デフォルト**: `8`  
+**キー**: `file_naming.hash_length`\
+**デフォルト**: `8`\
 **範囲**: 4-32
 
 ファイル名に追加されるランダムハッシュの長さ。長いハッシュは衝突の可能性を減らします。
@@ -272,11 +283,12 @@ defaults:
 
 #### ステータス
 
-**キー**: `defaults.status`  
-**デフォルト**: `todo`  
+**キー**: `defaults.status`\
+**デフォルト**: `todo`\
 **環境変数**: `LOCUS_DEFAULTS_STATUS`
 
 一般的な値：
+
 - `todo` - 未着手のタスク
 - `in-progress` - 現在作業中
 - `done` - 完了
@@ -284,23 +296,25 @@ defaults:
 
 #### 優先度
 
-**キー**: `defaults.priority`  
-**デフォルト**: `normal`  
+**キー**: `defaults.priority`\
+**デフォルト**: `normal`\
 **環境変数**: `LOCUS_DEFAULTS_PRIORITY`
 
 一般的な値：
+
 - `high` - 緊急タスク
 - `normal` - 通常の優先度
 - `low` - 後回し可能
 
 #### タグ
 
-**キー**: `defaults.tags`  
+**キー**: `defaults.tags`\
 **デフォルト**: `[]`（空の配列）
 
 すべての新規タスクに適用されるデフォルトタグの配列。タスクごとに上書き可能です。
 
 例：
+
 ```yaml
 defaults:
   tags: ["work", "current-sprint"]
@@ -318,7 +332,7 @@ git:
   extract_username: true
   username_from_remote: true
 file_naming:
-  pattern: "{date}-{slug}-{hash}.md"  # 衝突回避のためハッシュを含める
+  pattern: "{date}-{slug}-{hash}.md" # 衝突回避のためハッシュを含める
   date_format: "YYYYMMDD"
   hash_length: 8
 defaults:
@@ -334,12 +348,12 @@ task_directory: "/shared/team-tasks"
 language:
   default: "ja"
 git:
-  extract_username: false  # ユーザーごとに整理しない
+  extract_username: false # ユーザーごとに整理しない
   username_from_remote: false
 file_naming:
-  pattern: "{slug}-{hash}.md"  # ソートしやすいよう日付なし
+  pattern: "{slug}-{hash}.md" # ソートしやすいよう日付なし
   date_format: "YYYY-MM-DD"
-  hash_length: 12  # より高い一意性のための長いハッシュ
+  hash_length: 12 # より高い一意性のための長いハッシュ
 defaults:
   status: "todo"
   priority: "normal"
@@ -353,7 +367,7 @@ task_directory: "~/Documents/tasks"
 language:
   default: "ja"
 git:
-  extract_username: false  # Git整理を使用しない
+  extract_username: false # Git整理を使用しない
   username_from_remote: false
 file_naming:
   pattern: "{date}-{slug}.md"

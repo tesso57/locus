@@ -28,11 +28,11 @@ await build({
     },
     keywords: ["task", "management", "cli", "git", "markdown", "productivity"],
     engines: {
-      node: ">=18.0.0"
+      node: ">=18.0.0",
     },
     bin: {
-      locus: "./bin/locus"
-    }
+      locus: "./bin/locus",
+    },
   },
   typeCheck: false, // Disable type checking for npm build
   test: false, // Disable test for now
@@ -43,7 +43,7 @@ await build({
     skipLibCheck: true,
   },
   scriptModule: false, // Only generate ESM
-  
+
   postBuild() {
     // Ensure the docs directory exists
     try {
@@ -52,12 +52,12 @@ await build({
     } catch {
       // Directory might already exist
     }
-    
+
     // Copy necessary files
     Deno.copyFileSync("LICENSE", "npm/LICENSE");
     Deno.copyFileSync("README.md", "npm/README.md");
     Deno.copyFileSync("docs/README_ja.md", "npm/docs/README_ja.md");
-    
+
     // Create a wrapper script for the CLI
     const wrapperScript = `#!/usr/bin/env node
 import { createRequire } from "module";
@@ -77,9 +77,9 @@ import("../esm/cli-npm.js").then(async (module) => {
   process.exit(1);
 });
 `;
-    
+
     Deno.writeTextFileSync("npm/bin/locus", wrapperScript);
-    
+
     // Make the script executable
     if (Deno.build.os !== "windows") {
       Deno.chmodSync("npm/bin/locus", 0o755);
