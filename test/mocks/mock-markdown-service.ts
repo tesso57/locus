@@ -84,7 +84,7 @@ export class MockMarkdownService implements MarkdownService {
     }
     
     if (fileName.includes("/") || fileName.includes("\\")) {
-      return err(new Error("Filename cannot contain path separators"));
+      return err(new Error("ファイル名にパス区切り文字（/や\\）を含めることはできません"));
     }
     
     return ok(undefined);
