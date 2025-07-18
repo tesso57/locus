@@ -367,7 +367,7 @@ Deno.test("list command - handles missing frontmatter", async () => {
   }
 });
 
-Deno.test("list command - outputs oneline format for fzf integration", async () => {
+Deno.test("list command - outputs oneline format by default", async () => {
   const fs = new InMemoryFileSystem();
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs, testPath("locus"));
