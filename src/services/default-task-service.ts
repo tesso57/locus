@@ -404,7 +404,7 @@ export class DefaultTaskService implements TaskService {
     // Normalize paths to use forward slashes for comparison
     const normalizedFilePath = filePath.replace(/\\/g, "/");
     const normalizedBaseDir = baseDir.replace(/\\/g, "/");
-    
+
     // If filePath starts with baseDir, remove it
     if (normalizedFilePath.startsWith(normalizedBaseDir)) {
       // Remove baseDir and any leading slash
