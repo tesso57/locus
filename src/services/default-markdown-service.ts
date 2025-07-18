@@ -1,6 +1,6 @@
 import { parse, stringify } from "@std/yaml";
 import { FrontMatter, ParsedMarkdown } from "../types.ts";
-import { ok, err, Result } from "../utils/result.ts";
+import { err, ok, Result } from "../utils/result.ts";
 import { MarkdownService } from "./markdown-service.ts";
 import { I18nService } from "./i18n.ts";
 

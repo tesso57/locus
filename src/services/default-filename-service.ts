@@ -1,5 +1,5 @@
 import { Config, FileNameComponents } from "../types.ts";
-import { ok, err, Result } from "../utils/result.ts";
+import { err, ok, Result } from "../utils/result.ts";
 import { FileNameService } from "./filename-service.ts";
 import { I18nService } from "./i18n.ts";
 
