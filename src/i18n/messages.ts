@@ -153,6 +153,9 @@ export const messages = {
         json: {
           description: "JSON形式で出力",
         },
+        oneline: {
+          description: "各タスクを一行で出力（fzf連携用）",
+        },
       },
       messages: {
         repository: "📁 リポジトリ: {{repo}}",
@@ -474,6 +477,9 @@ export const messages = {
         },
         json: {
           description: "Output in JSON format",
+        },
+        oneline: {
+          description: "Output each task on a single line (for fzf integration)",
         },
       },
       messages: {

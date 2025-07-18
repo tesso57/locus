@@ -30,6 +30,7 @@ interface ListOptions extends BaseCommandOptions {
   detail?: boolean;
   all?: boolean;
   groupByRepo?: boolean;
+  oneline?: boolean;
 }
 
 export function createListCommand(i18n: I18nService): Command<any, any, any> {
@@ -44,6 +45,7 @@ export function createListCommand(i18n: I18nService): Command<any, any, any> {
     .option("-a, --all", i18n.t("list.options.all.description"))
     .option("-g, --group-by-repo", i18n.t("list.options.group.description"))
     .option("--json", i18n.t("list.options.json.description"))
+    .option("--oneline", i18n.t("list.options.oneline.description"))
     .action(createAction<ListOptions>(async (options) => {
       await executeCommand(async ({ container }) => {
         // Set the i18n service on the container
@@ -136,6 +138,24 @@ async function listTasks(
 
     if (options.json) {
       output(tasks, options, () => "");
+      return;
+    }
+
+    // Oneline format for fzf integration
+    if (options.oneline) {
+      for (const task of tasks) {
+        // Format: [repository] [status] [priority] [title] [tags] [created] [path]
+        const repo = task.repository || "default";
+        const status = task.status;
+        const priority = task.priority;
+        const title = task.title;
+        const tags = task.tags.length > 0 ? task.tags.join(",") : "-";
+        const created = task.created.split("T")[0]; // Date only
+        const fullPath = baseDir ? join(baseDir, task.path) : task.path;
+
+        // Tab-separated format for easy parsing
+        console.log(`${repo}\t${status}\t${priority}\t${title}\t${tags}\t${created}\t${fullPath}`);
+      }
       return;
     }
 

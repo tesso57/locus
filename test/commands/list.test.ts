@@ -1,4 +1,4 @@
-import { assertEquals, assertExists } from "@std/assert";
+import { assert, assertEquals, assertExists } from "@std/assert";
 import { InMemoryFileSystem } from "../mocks/in-memory-fs.ts";
 import { MockGitService } from "../mocks/mock-git-service.ts";
 import { MockPathResolver } from "../mocks/mock-path-resolver.ts";
@@ -363,5 +363,72 @@ Deno.test("list command - handles missing frontmatter", async () => {
   assertEquals(result.ok, true);
   if (result.ok) {
     assertEquals(result.value.length, 0);
+  }
+});
+
+Deno.test("list command - outputs oneline format for fzf integration", async () => {
+  const fs = new InMemoryFileSystem();
+  const git = new MockGitService();
+  const pathResolver = new MockPathResolver(fs, testPath("locus"));
+  const mockFileSystem = new MockFileSystem(fs);
+  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+
+  // Set up git repository
+  git.setRepoInfo({ host: "github.com", owner: "test", repo: "repo" });
+
+  const taskDir = testPath("locus/test/repo");
+  await fs.mkdir(taskDir, true);
+
+  // Create test tasks with various attributes
+  await createTestTask(
+    fs,
+    `${taskDir}/task1.md`,
+    "Task with tags",
+    {
+      date: "2025-07-01",
+      created: "2025-07-01T10:00:00Z",
+      status: "todo",
+      priority: "high",
+      tags: ["bug", "urgent"],
+    },
+  );
+
+  await createTestTask(
+    fs,
+    `${taskDir}/task2.md`,
+    "Simple task",
+    {
+      date: "2025-07-02",
+      created: "2025-07-02T10:00:00Z",
+      status: "inProgress",
+      priority: "normal",
+    },
+  );
+
+  const result = await taskService.listTasks({
+    repoInfo: { host: "github.com", owner: "test", repo: "repo" },
+  });
+  assertExists(result.ok);
+  assertEquals(result.ok, true);
+
+  if (result.ok) {
+    const tasks = result.value;
+    assertEquals(tasks.length, 2);
+
+    // Verify the data structure has all required fields for oneline format
+    const task1 = tasks.find((t) => t.title === "Task with tags");
+    assertExists(task1);
+    assertEquals(task1.repository, "test/repo");
+    assertEquals(task1.status, "todo");
+    assertEquals(task1.priority, "high");
+    assertEquals(task1.tags, ["bug", "urgent"]);
+    assert(task1.created.startsWith("2025-07-01"));
+    assert(task1.path.includes("task1.md"));
+
+    const task2 = tasks.find((t) => t.title === "Simple task");
+    assertExists(task2);
+    assertEquals(task2.status, "inProgress");
+    assertEquals(task2.priority, "normal");
+    assertEquals(task2.tags.length, 0);
   }
 });
