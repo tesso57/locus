@@ -440,7 +440,16 @@ Deno.test("list command - outputs oneline format by default", async () => {
   const git = new MockGitService();
   const pathResolver = new MockPathResolver(fs, testPath("locus"));
   const mockFileSystem = new MockFileSystem(fs);
-  const taskService = new DefaultTaskService(pathResolver, git, mockConfig, mockFileSystem);
+  const fileNameService = new MockFileNameService();
+  const markdownService = new MockMarkdownService();
+  const taskService = new DefaultTaskService(
+    pathResolver,
+    git,
+    mockConfig,
+    mockFileSystem,
+    fileNameService,
+    markdownService,
+  );
 
   // Set up git repository
   git.setRepoInfo({ host: "github.com", owner: "test", repo: "repo" });
