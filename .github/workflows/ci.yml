@@ -39,21 +39,8 @@ jobs:
       - name: Check deno.lock is up to date
         run: deno cache --frozen --lock=deno.lock src/cli.ts
 
-      - name: Debug - List all files
-        run: |
-          echo "=== All tracked files ==="
-          git ls-files | head -20
-          echo "=== Deno version ==="
-          deno --version
-          echo "=== Running format check ==="
-
       - name: Format check
-        run: |
-          if ! deno fmt --check; then
-            echo "=== Format check failed, showing differences ==="
-            deno fmt --check . 2>&1 | head -100 || true
-            exit 1
-          fi
+        run: deno fmt --check
 
       - name: Lint
         run: deno lint
