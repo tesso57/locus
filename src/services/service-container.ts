@@ -7,6 +7,8 @@ import { FileSystem } from "./file-system.ts";
 import { TagsService } from "./tags-service.ts";
 import { SearchService } from "./search-service.ts";
 import { FormatService } from "./format-service.ts";
+import { MarkdownService } from "./markdown-service.ts";
+import { FileNameService } from "./filename-service.ts";
 import { DefaultGitService } from "./git-service.ts";
 import { DefaultPathResolver } from "./path-resolver.ts";
 import { DefaultTaskService } from "./default-task-service.ts";
@@ -14,6 +16,8 @@ import { DefaultFileSystem } from "./default-file-system.ts";
 import { DefaultTagsService } from "./default-tags-service.ts";
 import { DefaultSearchService } from "./default-search-service.ts";
 import { DefaultFormatService } from "./default-format-service.ts";
+import { DefaultMarkdownService } from "./default-markdown-service.ts";
+import { DefaultFileNameService } from "./default-filename-service.ts";
 import { I18nService } from "./i18n.ts";
 
 /**
@@ -31,6 +35,8 @@ export class ServiceContainer {
   private searchService: SearchService | null = null;
   private i18nService: I18nService | null = null;
   private formatService: FormatService | null = null;
+  private markdownService: MarkdownService | null = null;
+  private fileNameService: FileNameService | null = null;
 
   private constructor() {}
 
@@ -103,7 +109,16 @@ export class ServiceContainer {
       const pathResolver = await this.getPathResolver();
       const gitService = this.getGitService();
       const fileSystem = this.getFileSystem();
-      this.taskService = new DefaultTaskService(pathResolver, gitService, config, fileSystem);
+      const fileNameService = await this.getFileNameService();
+      const markdownService = this.getMarkdownService();
+      this.taskService = new DefaultTaskService(
+        pathResolver,
+        gitService,
+        config,
+        fileSystem,
+        fileNameService,
+        markdownService,
+      );
     }
     return this.taskService;
   }
@@ -115,7 +130,8 @@ export class ServiceContainer {
     if (!this.tagsService) {
       const pathResolver = await this.getPathResolver();
       const fileSystem = this.getFileSystem();
-      this.tagsService = new DefaultTagsService(pathResolver, fileSystem);
+      const markdownService = this.getMarkdownService();
+      this.tagsService = new DefaultTagsService(pathResolver, fileSystem, markdownService);
     }
     return this.tagsService;
   }
@@ -162,6 +178,29 @@ export class ServiceContainer {
   }
 
   /**
+   * Get MarkdownService instance
+   */
+  getMarkdownService(): MarkdownService {
+    if (!this.markdownService) {
+      const i18nService = this.getI18nService();
+      this.markdownService = new DefaultMarkdownService(i18nService);
+    }
+    return this.markdownService;
+  }
+
+  /**
+   * Get FileNameService instance
+   */
+  async getFileNameService(): Promise<FileNameService> {
+    if (!this.fileNameService) {
+      const config = await this.getConfig();
+      const i18nService = this.getI18nService();
+      this.fileNameService = new DefaultFileNameService(config, i18nService);
+    }
+    return this.fileNameService;
+  }
+
+  /**
    * Set custom services for testing
    */
   setServices(services: {
@@ -174,6 +213,8 @@ export class ServiceContainer {
     searchService?: SearchService;
     i18nService?: I18nService;
     formatService?: FormatService;
+    markdownService?: MarkdownService;
+    fileNameService?: FileNameService;
   }): void {
     if (services.config) this.config = services.config;
     if (services.gitService) this.gitService = services.gitService;
@@ -184,6 +225,8 @@ export class ServiceContainer {
     if (services.searchService) this.searchService = services.searchService;
     if (services.i18nService) this.i18nService = services.i18nService;
     if (services.formatService) this.formatService = services.formatService;
+    if (services.markdownService) this.markdownService = services.markdownService;
+    if (services.fileNameService) this.fileNameService = services.fileNameService;
   }
 
   /**
@@ -199,6 +242,8 @@ export class ServiceContainer {
     this.searchService = null;
     this.i18nService = null;
     this.formatService = null;
+    this.markdownService = null;
+    this.fileNameService = null;
   }
 
   /**

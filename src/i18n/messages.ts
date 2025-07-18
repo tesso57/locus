@@ -314,13 +314,22 @@ export const messages = {
       customFields: "🔧 カスタムフィールド:",
       noContent: "（本文なし）",
     },
-    validation: {
+    errors: {
+      markdown: {
+        parseFailed: "マークダウンの解析に失敗しました: {{error}}",
+        generateFailed: "マークダウンの生成に失敗しました: {{error}}",
+        extractTitleFailed: "タイトルの抽出に失敗しました: {{error}}",
+        createFailed: "タスクマークダウンの作成に失敗しました: {{error}}",
+      },
       filename: {
         pathSeparator: "ファイル名にパス区切り文字（/や\\）を含めることはできません",
         relativePath: "ファイル名に相対パス（..）を含めることはできません",
         empty: "ファイル名が空です",
         tooLong: "ファイル名が長すぎます（最大255文字）",
-        invalidCharacters: "ファイル名に無効な文字が含まれています",
+        invalidChars: "ファイル名に無効な文字が含まれています",
+        generateComponentsFailed: "ファイル名コンポーネントの生成に失敗しました: {{error}}",
+        generateFailed: "ファイル名の生成に失敗しました: {{error}}",
+        parseFailed: "ファイル名の解析に失敗しました: {{error}}",
       },
     },
   },
@@ -636,13 +645,22 @@ export const messages = {
       customFields: "🔧 Custom fields:",
       noContent: "(no content)",
     },
-    validation: {
+    errors: {
+      markdown: {
+        parseFailed: "Failed to parse markdown: {{error}}",
+        generateFailed: "Failed to generate markdown: {{error}}",
+        extractTitleFailed: "Failed to extract title: {{error}}",
+        createFailed: "Failed to create task markdown: {{error}}",
+      },
       filename: {
         pathSeparator: "Filename cannot contain path separators (/ or \\)",
         relativePath: "Filename cannot contain relative paths (..)",
         empty: "Filename is empty",
         tooLong: "Filename is too long (max 255 characters)",
-        invalidCharacters: "Filename contains invalid characters",
+        invalidChars: "Filename contains invalid characters",
+        generateComponentsFailed: "Failed to generate filename components: {{error}}",
+        generateFailed: "Failed to generate filename: {{error}}",
+        parseFailed: "Failed to parse filename: {{error}}",
       },
     },
   },

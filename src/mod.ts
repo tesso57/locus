@@ -39,9 +39,11 @@ export {
 } from "./config/index.ts";
 export { DEFAULT_CONFIG } from "./config/defaults.ts";
 
-// Utility exports
-export * from "./utils/markdown.ts";
-export * from "./utils/filename.ts";
+// Service exports
+export { MarkdownService } from "./services/markdown-service.ts";
+export { DefaultMarkdownService } from "./services/default-markdown-service.ts";
+export { FileNameService } from "./services/filename-service.ts";
+export { DefaultFileNameService } from "./services/default-filename-service.ts";
 
 // Command creation functions for extensibility
 export { createAddCommand } from "./commands/add.ts";

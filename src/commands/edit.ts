@@ -1,6 +1,5 @@
 import { Command } from "@cliffy/command";
 import { colors } from "@cliffy/ansi/colors";
-import { parseMarkdown, validateFileName } from "../utils/markdown.ts";
 import { isAbsolute } from "@std/path";
 import {
   createAction,
@@ -176,6 +175,7 @@ export function createEditCommand(i18n: I18nService): Command<any, any, any> {
         const taskService = await container.getTaskService();
         const gitService = container.getGitService();
         const pathResolver = await container.getPathResolver();
+        const markdownService = container.getMarkdownService();
 
         // Handle stdin input for body
         let bodyContent = options.body;
@@ -193,7 +193,10 @@ export function createEditCommand(i18n: I18nService): Command<any, any, any> {
         if (actualFileName !== "-") {
           // Always validate filename to prevent path traversal
           if (!isAbsolute(actualFileName)) {
-            validateFileName(actualFileName);
+            const validateResult = markdownService.validateFileName(actualFileName);
+            if (!validateResult.ok) {
+              exitWithError(validateResult.error.message);
+            }
           } else {
             // For absolute paths, ensure they are within the task directory
             const taskDirResult = await pathResolver.getTaskDir(null);

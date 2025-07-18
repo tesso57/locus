@@ -21,6 +21,11 @@ export class MockI18nService implements I18nService {
     "display.noContent": "（本文なし）",
     "display.noBody": "（本文なし）",
     "display.customFields": "🔧 カスタムフィールド:",
+    "errors.filename.pathSeparator": "ファイル名にパス区切り文字（/や\\）を含めることはできません",
+    "errors.filename.relativePath": "ファイル名に相対パス（..）を含めることはできません",
+    "errors.filename.empty": "ファイル名が空です",
+    "errors.filename.tooLong": "ファイル名が長すぎます（最大255文字）",
+    "errors.filename.invalidChars": "ファイル名に無効な文字が含まれています",
   };
 
   /**

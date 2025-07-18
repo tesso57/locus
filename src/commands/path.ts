@@ -1,5 +1,4 @@
 import { Command } from "@cliffy/command";
-import { ensureMarkdownExtension, validateFileName } from "../utils/markdown.ts";
 import { isAbsolute, resolve } from "@std/path";
 import { createAction, executeCommand, getRepoInfoOptional } from "./utils/command-helpers.ts";
 import { PathOptions } from "./utils/option-types.ts";
@@ -8,6 +7,7 @@ import { ok, Result } from "../utils/result.ts";
 import { FileSystem } from "../services/file-system.ts";
 import { PathResolver } from "../services/path-resolver.ts";
 import { GitService } from "../services/git-service.ts";
+import { MarkdownService } from "../services/markdown-service.ts";
 import { RepoInfo } from "../types.ts";
 import { logError } from "../utils/errors-i18n.ts";
 import {
@@ -71,6 +71,7 @@ async function searchCurrentDirectory(
   repoInfo: RepoInfo | null,
   pathResolver: PathResolver,
   fileSystem: FileSystem,
+  markdownService: MarkdownService,
   i18n: I18nService,
 ): Promise<Result<void, Error>> {
   const taskDirResult = await pathResolver.getTaskDir(repoInfo);
@@ -84,6 +85,7 @@ async function searchCurrentDirectory(
     fileName,
     taskDirResult.value,
     fileSystem,
+    markdownService,
   );
 
   if (exactMatchPath) {
@@ -138,9 +140,10 @@ async function findExactMatch(
   originalFileName: string,
   taskDir: string,
   fileSystem: FileSystem,
+  markdownService: MarkdownService,
 ): Promise<string | null> {
   // Try with .md extension first
-  const fileNameWithMd = ensureMarkdownExtension(baseFileName);
+  const fileNameWithMd = markdownService.ensureMarkdownExtension(baseFileName);
   let filePath = resolve(taskDir, fileNameWithMd);
 
   let existsResult = await checkFileExists(filePath, fileSystem);
@@ -181,6 +184,7 @@ export function createPathCommand(i18n: I18nService): Command<any, any, any> {
         const gitService = container.getGitService();
         const pathResolver = await container.getPathResolver();
         const fileSystem = container.getFileSystem();
+        const markdownService = container.getMarkdownService();
 
         // Handle absolute path
         if (isAbsolute(fileName)) {
@@ -189,7 +193,10 @@ export function createPathCommand(i18n: I18nService): Command<any, any, any> {
 
         // Normalize filename
         const baseFileName = normalizeFileName(fileName);
-        validateFileName(baseFileName);
+        const validateResult = markdownService.validateFileName(baseFileName);
+        if (!validateResult.ok) {
+          return validateResult;
+        }
 
         // Get repository information
         const repoInfo = await getRepoInfoOptional(gitService, options.noGit);
@@ -205,6 +212,7 @@ export function createPathCommand(i18n: I18nService): Command<any, any, any> {
             repoInfo,
             pathResolver,
             fileSystem,
+            markdownService,
             i18n,
           );
         }
