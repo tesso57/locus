@@ -36,11 +36,24 @@ jobs:
           deno-version: ${{ matrix.deno }}
           cache: true
 
+      - name: Debug info
+        run: |
+          echo "=== Debug Information ==="
+          echo "Deno version:"
+          deno --version
+          echo "Current directory:"
+          pwd
+          echo "Git status:"
+          git status --porcelain
+          echo "========================"
+
       - name: Check deno.lock is up to date
         run: deno cache --frozen --lock=deno.lock src/cli.ts
 
       - name: Format check
-        run: deno fmt --check
+        run: |
+          echo "Running format check..."
+          deno fmt --check || (echo "Format check failed with exit code $?" && deno fmt --check . 2>&1 | head -50 && exit 1)
 
       - name: Lint
         run: deno lint
