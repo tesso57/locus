@@ -1,6 +1,6 @@
 {
   "name": "@tesso/locus",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Git-aware task management CLI tool built with Deno",
   "exports": {
     ".": "./src/cli.ts"
