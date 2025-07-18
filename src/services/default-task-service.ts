@@ -401,11 +401,17 @@ export class DefaultTaskService implements TaskService {
     }
 
     const baseDir = baseDirResult.value;
+    // Normalize paths to use forward slashes for comparison
+    const normalizedFilePath = filePath.replace(/\\/g, "/");
+    const normalizedBaseDir = baseDir.replace(/\\/g, "/");
+
     // If filePath starts with baseDir, remove it
-    if (filePath.startsWith(baseDir)) {
-      return filePath.replace(baseDir + "/", "");
+    if (normalizedFilePath.startsWith(normalizedBaseDir)) {
+      // Remove baseDir and any leading slash
+      const relativePath = normalizedFilePath.slice(normalizedBaseDir.length);
+      return relativePath.startsWith("/") ? relativePath.slice(1) : relativePath;
     }
-    return filePath;
+    return normalizedFilePath;
   }
 
   private extractRepository(relativePath: string, repoInfo?: RepoInfo | null): string {

@@ -153,6 +153,9 @@ export const messages = {
         json: {
           description: "JSON形式で出力",
         },
+        table: {
+          description: "テーブル形式で出力",
+        },
       },
       messages: {
         repository: "📁 リポジトリ: {{repo}}",
@@ -474,6 +477,9 @@ export const messages = {
         },
         json: {
           description: "Output in JSON format",
+        },
+        table: {
+          description: "Output in table format",
         },
       },
       messages: {
