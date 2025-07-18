@@ -1,4 +1,5 @@
 import { assert, assertEquals, assertExists } from "@std/assert";
+import { basename } from "@std/path";
 import { InMemoryFileSystem } from "../mocks/in-memory-fs.ts";
 import { MockGitService } from "../mocks/mock-git-service.ts";
 import { MockPathResolver } from "../mocks/mock-path-resolver.ts";
@@ -423,7 +424,7 @@ Deno.test("list command - outputs oneline format for fzf integration", async () 
     assertEquals(task1.priority, "high");
     assertEquals(task1.tags, ["bug", "urgent"]);
     assert(task1.created.startsWith("2025-07-01"));
-    assert(task1.path.includes("task1.md"));
+    assert(basename(task1.path) === "task1.md");
 
     const task2 = tasks.find((t) => t.title === "Simple task");
     assertExists(task2);
