@@ -106,22 +106,19 @@ npm install -g @tesso/locus
 ## Quick Start
 
 ```bash
-# 1. Initialize configuration (optional)
-locus setup
-
-# 2. Add your first task
+# 1. Add your first task
 locus add "Fix authentication bug" --tags bug,urgent --priority high
 
-# 3. List your tasks
+# 2. List your tasks
 locus list
 
-# 4. View a task
+# 3. View a task
 locus read "Fix authentication bug"
 
-# 5. Update task status
+# 4. Update task status
 locus tags set "Fix authentication bug" status done
 
-# 6. Find tasks interactively with fzf
+# 5. Find tasks interactively with fzf
 locus list | fzf --preview='locus read {7} --raw'
 ```
 
@@ -137,7 +134,6 @@ Commands:
   set     <fileName>  - Set task properties (flexible key=value syntax)
   get     <fileName>  - Get task properties
   config              - Manage configuration
-  setup               - Interactive setup wizard
   read    <fileName>  - Display task content (supports full paths)
   path    <fileName>  - Show absolute path of task file
   help                - Show help

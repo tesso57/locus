@@ -111,7 +111,6 @@ npx @tesso/locus --version
   set     <fileName>  - タスクプロパティを設定（柔軟なkey=value構文）
   get     <fileName>  - タスクプロパティを取得
   config              - 設定を管理
-  setup               - 対話型セットアップウィザード
   read    <fileName>  - タスクの内容を表示（フルパス対応）
   path    <fileName>  - タスクファイルの絶対パスを表示
   help                - ヘルプを表示
