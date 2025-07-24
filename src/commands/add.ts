@@ -7,7 +7,7 @@ import { AddOptions } from "./utils/option-types.ts";
 import { ok } from "../utils/result.ts";
 import { I18nService } from "../services/i18n.ts";
 import * as formatI18n from "../utils/format-i18n.ts";
-import { parsePropertyValue } from "../utils/property-parser.ts";
+import { parsePropertyValue, parseKeyValuePairs } from "../utils/property-parser.ts";
 
 export function createAddCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()
