@@ -40,9 +40,9 @@ export {
 export { DEFAULT_CONFIG } from "./config/defaults.ts";
 
 // Service exports
-export { MarkdownService } from "./services/markdown-service.ts";
+export type { MarkdownService } from "./services/markdown-service.ts";
 export { DefaultMarkdownService } from "./services/default-markdown-service.ts";
-export { FileNameService } from "./services/filename-service.ts";
+export type { FileNameService } from "./services/filename-service.ts";
 export { DefaultFileNameService } from "./services/default-filename-service.ts";
 
 // Command creation functions for extensibility

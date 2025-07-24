@@ -18,5 +18,6 @@ export const DEFAULT_CONFIG: Config = {
     status: "todo",
     priority: "normal",
     tags: [],
+    custom: {},
   },
 };

@@ -69,6 +69,7 @@ export const messages = {
         status: "ステータス: {{status}}",
         priority: "優先度: {{priority}}",
         tags: "タグ: {{tags}}",
+        propertySetFailed: "警告: プロパティ '{{property}}' の設定に失敗しました",
       },
     },
     config: {
@@ -282,6 +283,38 @@ export const messages = {
         },
       },
     },
+    set: {
+      description: "タスクのプロパティを柔軟に設定",
+      options: {
+        noGit: {
+          description: "Git情報を使用しない",
+        },
+      },
+      messages: {
+        noProperties: "プロパティが指定されていません",
+        invalidFormat: "無効な形式です。key=value の形式で指定してください: {{property}}",
+        emptyKey: "キーが空です: {{property}}",
+        fileNotFound: "ファイル '{{filename}}' が見つかりません",
+        propertiesUpdated: "✅ {{count}} 個のプロパティを更新しました",
+        noValidProperties: "有効なプロパティが指定されていません",
+      },
+    },
+    get: {
+      description: "タスクのプロパティを取得",
+      options: {
+        noGit: {
+          description: "Git情報を使用しない",
+        },
+        json: {
+          description: "JSON形式で出力",
+        },
+      },
+      messages: {
+        fileNotFound: "ファイル '{{filename}}' が見つかりません",
+        propertyNotFound: "プロパティ '{{property}}' が見つかりません",
+        noProperties: "プロパティが設定されていません",
+      },
+    },
     format: {
       status: {
         todo: "⏳ TODO",
@@ -403,6 +436,7 @@ export const messages = {
         status: "Status: {{status}}",
         priority: "Priority: {{priority}}",
         tags: "Tags: {{tags}}",
+        propertySetFailed: "Warning: Failed to set property '{{property}}'",
       },
     },
     config: {
@@ -614,6 +648,38 @@ export const messages = {
         noGit: {
           description: "Don't use Git information",
         },
+      },
+    },
+    set: {
+      description: "Set task properties flexibly",
+      options: {
+        noGit: {
+          description: "Don't use Git information",
+        },
+      },
+      messages: {
+        noProperties: "No properties specified",
+        invalidFormat: "Invalid format. Please use key=value format: {{property}}",
+        emptyKey: "Empty key: {{property}}",
+        fileNotFound: "File '{{filename}}' not found",
+        propertiesUpdated: "✅ {{count}} properties updated",
+        noValidProperties: "No valid properties specified",
+      },
+    },
+    get: {
+      description: "Get task properties",
+      options: {
+        noGit: {
+          description: "Don't use Git information",
+        },
+        json: {
+          description: "Output in JSON format",
+        },
+      },
+      messages: {
+        fileNotFound: "File '{{filename}}' not found",
+        propertyNotFound: "Property '{{property}}' not found",
+        noProperties: "No properties set",
       },
     },
     format: {
