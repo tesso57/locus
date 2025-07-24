@@ -22,10 +22,10 @@ export function createGetCommand(i18n: I18nService): Command<any, any, any> {
 
       if (property) {
         // Get specific property
-        await getProperty(tagsService, fileName, property, options.json, i18n);
+        await getProperty(tagsService, fileName, property, options.json || false, i18n);
       } else {
         // Get all properties
-        await getAllProperties(tagsService, fileName, options.json, i18n);
+        await getAllProperties(tagsService, fileName, options.json || false, i18n);
       }
     });
 }

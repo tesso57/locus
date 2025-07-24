@@ -86,21 +86,21 @@ function extractFromEnv(): Partial<Config> {
 
   if (env.LOCUS_DEFAULTS_STATUS) {
     if (!config.defaults) {
-      config.defaults = { status: "", priority: "", tags: [] };
+      config.defaults = { status: "", priority: "", tags: [], custom: {} };
     }
     config.defaults.status = env.LOCUS_DEFAULTS_STATUS;
   }
 
   if (env.LOCUS_DEFAULTS_PRIORITY) {
     if (!config.defaults) {
-      config.defaults = { status: "", priority: "", tags: [] };
+      config.defaults = { status: "", priority: "", tags: [], custom: {} };
     }
     config.defaults.priority = env.LOCUS_DEFAULTS_PRIORITY;
   }
 
   if (env.LOCUS_DEFAULTS_TAGS) {
     if (!config.defaults) {
-      config.defaults = { status: "", priority: "", tags: [] };
+      config.defaults = { status: "", priority: "", tags: [], custom: {} };
     }
     config.defaults.tags = env.LOCUS_DEFAULTS_TAGS.split(",").map((t) => t.trim());
   }
