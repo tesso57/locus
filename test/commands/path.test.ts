@@ -53,6 +53,7 @@ describe("path command", () => {
         status: "todo",
         priority: "medium",
         tags: [],
+        custom: {},
       },
       language: {
         default: "ja",

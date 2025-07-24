@@ -50,6 +50,7 @@ describe("read command", () => {
           status: "todo",
           priority: "normal",
           tags: [],
+          custom: {},
         },
         language: {
           default: "ja",

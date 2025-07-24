@@ -22,6 +22,7 @@ const mockConfig: Config = {
     status: "todo",
     priority: "normal",
     tags: [],
+    custom: {},
   },
   language: {
     default: "ja",
