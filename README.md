@@ -1,6 +1,6 @@
 # Locus
 
-[![Version](https://img.shields.io/badge/version-0.1.8-blue.svg)](https://github.com/tesso57/locus)
+[![Version](https://img.shields.io/badge/version-0.1.9-blue.svg)](https://github.com/tesso57/locus)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/tesso57/locus/actions/workflows/ci.yml/badge.svg)](https://github.com/tesso57/locus/actions/workflows/ci.yml)
 [![Deno](https://img.shields.io/badge/Deno-2.x-000000?logo=deno)](https://deno.com)
