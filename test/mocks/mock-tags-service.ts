@@ -1,6 +1,14 @@
-import { TagsService, TagInfo, ListTagsOptions, GetTagOptions, SetTagOptions, RemoveTagOptions, ClearTagsOptions } from "../../src/services/tags-service.ts";
-import { Result, ok, err } from "../../src/utils/result.ts";
-import { TaskNotFoundError, PropertyNotFoundError } from "../../src/utils/errors.ts";
+import {
+  ClearTagsOptions,
+  GetTagOptions,
+  ListTagsOptions,
+  RemoveTagOptions,
+  SetTagOptions,
+  TagInfo,
+  TagsService,
+} from "../../src/services/tags-service.ts";
+import { err, ok, Result } from "../../src/utils/result.ts";
+import { PropertyNotFoundError, TaskNotFoundError } from "../../src/utils/errors.ts";
 import { FrontMatter } from "../../src/types.ts";
 
 /**
@@ -88,7 +96,7 @@ export class MockTagsService implements TagsService {
 
     // Update the frontmatter
     (task.frontmatter as any)[options.property] = options.value;
-    
+
     return ok(undefined);
   }
 
@@ -101,7 +109,7 @@ export class MockTagsService implements TagsService {
     }
 
     delete (task.frontmatter as any)[options.property];
-    
+
     return ok(undefined);
   }
 
@@ -119,7 +127,7 @@ export class MockTagsService implements TagsService {
       created: task.frontmatter.created,
     };
     task.frontmatter = newFrontmatter;
-    
+
     return ok(undefined);
   }
 

@@ -87,17 +87,17 @@ describe("set command", () => {
   it("should have correct options", () => {
     const setCommand = createSetCommand(i18n);
     const options = setCommand.getOptions();
-    
+
     // Check that noGit option exists
-    const hasNoGit = options.some(opt => opt.flags.includes("--no-git"));
-    
+    const hasNoGit = options.some((opt) => opt.flags.includes("--no-git"));
+
     assertEquals(hasNoGit, true);
   });
 
   it("should accept fileName and properties arguments", () => {
     const setCommand = createSetCommand(i18n);
     const args = setCommand.getArguments();
-    
+
     assertEquals(args.length, 2);
     assertEquals(args[0].name, "fileName");
     assertEquals(args[1].name, "properties");
@@ -163,7 +163,13 @@ describe("set command", () => {
       mockTagsService.setTask("task.md", "/path/to/task.md", frontmatter);
 
       const command = createSetCommand(i18n);
-      await command.parse(["task.md", "urgent=true", "archived=false", "active=TRUE", "disabled=FALSE"]);
+      await command.parse([
+        "task.md",
+        "urgent=true",
+        "archived=false",
+        "active=TRUE",
+        "disabled=FALSE",
+      ]);
 
       const setCalls = mockTagsService.getMethodCalls("setTag");
       assertEquals(setCalls.length, 4);
@@ -218,21 +224,21 @@ describe("set command", () => {
 
       const setCalls = mockTagsService.getMethodCalls("setTag");
       assertEquals(setCalls.length, 3);
-      
+
       // Check that values are ISO date strings
       const dueValue = setCalls[0].value as string;
       const startValue = setCalls[1].value as string;
       const reminderValue = setCalls[2].value as string;
-      
+
       assertEquals(typeof dueValue, "string");
       assertEquals(typeof startValue, "string");
       assertEquals(typeof reminderValue, "string");
-      
+
       // Check ISO format
       assertStringIncludes(dueValue, "T");
       assertStringIncludes(startValue, "T");
       assertStringIncludes(reminderValue, "T");
-      
+
       // Due date should be later than start date
       const dueDate = new Date(dueValue);
       const startDate = new Date(startValue);
@@ -363,7 +369,7 @@ describe("set command", () => {
         created: "2025-07-24T10:00:00Z",
       };
       mockTagsService.setTask("task.md", "/path/to/task.md", frontmatter);
-      
+
       // Make the second setTag call fail
       let callCount = 0;
       mockTagsService.setTag = async (options) => {
@@ -404,7 +410,7 @@ describe("set command", () => {
       const setCalls = mockTagsService.getMethodCalls("setTag");
       assertEquals(setCalls.length, 1);
       assertEquals(setCalls[0].value, "done");
-      
+
       // Verify git service was not called when --no-git is used
       const gitCalls = mockGitService.getMethodCalls("getRepoInfo");
       assertEquals(gitCalls.length, 0);

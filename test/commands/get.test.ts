@@ -98,11 +98,11 @@ describe("get command", () => {
   it("should have correct options", () => {
     const getCommand = createGetCommand(i18n);
     const options = getCommand.getOptions();
-    
+
     // Check that noGit and json options exist
-    const hasNoGit = options.some(opt => opt.flags.includes("--no-git"));
-    const hasJson = options.some(opt => opt.flags.includes("--json"));
-    
+    const hasNoGit = options.some((opt) => opt.flags.includes("--no-git"));
+    const hasJson = options.some((opt) => opt.flags.includes("--json"));
+
     assertEquals(hasNoGit, true);
     assertEquals(hasJson, true);
   });
@@ -110,7 +110,7 @@ describe("get command", () => {
   it("should accept fileName and optional property arguments", () => {
     const getCommand = createGetCommand(i18n);
     const args = getCommand.getArguments();
-    
+
     assertEquals(args.length, 2);
     assertEquals(args[0].name, "fileName");
     assertEquals(args[1].name, "property");
@@ -377,7 +377,7 @@ describe("get command", () => {
 
       assertEquals(capturedOutput.length, 1);
       assertEquals(capturedOutput[0], "done");
-      
+
       // Verify git service was not called when --no-git is used
       const gitCalls = mockGitService.getMethodCalls("getRepoInfo");
       assertEquals(gitCalls.length, 0);

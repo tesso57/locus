@@ -20,7 +20,7 @@ export function parsePropertyValue(value: string): unknown {
 
   // Array (comma-separated)
   if (value.includes(",")) {
-    return value.split(",").map(item => item.trim()).filter(item => item !== "");
+    return value.split(",").map((item) => item.trim()).filter((item) => item !== "");
   }
 
   // Date patterns
@@ -82,7 +82,7 @@ function parseDatePattern(value: string): Date | null {
  */
 export function parseKeyValuePairs(properties: string[]): Record<string, unknown> {
   const result: Record<string, unknown> = {};
-  
+
   for (const prop of properties) {
     const index = prop.indexOf("=");
     if (index === -1) {

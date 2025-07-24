@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
-import { parsePropertyValue, parseKeyValuePairs } from "../../src/utils/property-parser.ts";
+import { parseKeyValuePairs, parsePropertyValue } from "../../src/utils/property-parser.ts";
 
 describe("parsePropertyValue", () => {
   it("should parse empty string", () => {
@@ -33,7 +33,7 @@ describe("parsePropertyValue", () => {
 
   it("should parse date patterns", () => {
     const now = new Date();
-    
+
     // Test "today"
     const today = parsePropertyValue("today");
     assertEquals(typeof today, "string");
@@ -124,7 +124,7 @@ describe("parseKeyValuePairs", () => {
       "count=42",
       "active=false",
       "tags=a,b,c",
-      "due=tomorrow"
+      "due=tomorrow",
     ]);
     assertEquals(result.count, 42);
     assertEquals(result.active, false);

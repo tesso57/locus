@@ -4,7 +4,7 @@ import { ServiceContainer } from "../services/service-container.ts";
 import { TagsService } from "../services/tags-service.ts";
 import { exitWithError, getRepoInfoOptional } from "./utils/command-helpers.ts";
 import { getErrorMessage } from "../utils/errors-i18n.ts";
-import { TaskNotFoundError, PropertyNotFoundError } from "../utils/errors.ts";
+import { PropertyNotFoundError, TaskNotFoundError } from "../utils/errors.ts";
 
 export function createGetCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()

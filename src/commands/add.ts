@@ -7,7 +7,7 @@ import { AddOptions } from "./utils/option-types.ts";
 import { ok } from "../utils/result.ts";
 import { I18nService } from "../services/i18n.ts";
 import * as formatI18n from "../utils/format-i18n.ts";
-import { parsePropertyValue, parseKeyValuePairs } from "../utils/property-parser.ts";
+import { parseKeyValuePairs, parsePropertyValue } from "../utils/property-parser.ts";
 
 export function createAddCommand(i18n: I18nService): Command<any, any, any> {
   return new Command()
@@ -40,15 +40,28 @@ export function createAddCommand(i18n: I18nService): Command<any, any, any> {
         const mergedCustomProperties = { ...customDefaults, ...additionalProperties };
 
         // Separate standard properties from custom ones
-        const { tags: propTags, priority: propPriority, status: propStatus, body: propBody, ...customProperties } = mergedCustomProperties;
+        const {
+          tags: propTags,
+          priority: propPriority,
+          status: propStatus,
+          body: propBody,
+          ...customProperties
+        } = mergedCustomProperties;
 
         // Create task options
         const createOptions: CreateTaskOptions = {
           title,
           body: options.body || (typeof propBody === "string" ? propBody : undefined),
-          tags: options.tags || (Array.isArray(propTags) ? propTags : (typeof propTags === "string" ? [propTags] : config.defaults?.tags || [])),
-          priority: options.priority || (typeof propPriority === "string" ? propPriority : config.defaults?.priority || "normal"),
-          status: options.status || (typeof propStatus === "string" ? propStatus : config.defaults?.status || "todo"),
+          tags: options.tags ||
+            (Array.isArray(propTags)
+              ? propTags
+              : (typeof propTags === "string" ? [propTags] : config.defaults?.tags || [])),
+          priority: options.priority ||
+            (typeof propPriority === "string"
+              ? propPriority
+              : config.defaults?.priority || "normal"),
+          status: options.status ||
+            (typeof propStatus === "string" ? propStatus : config.defaults?.status || "todo"),
           repoInfo,
         };
 
@@ -66,7 +79,9 @@ export function createAddCommand(i18n: I18nService): Command<any, any, any> {
           for (const [key, value] of Object.entries(customProperties)) {
             const setResult = await tagsService.setTag({ fileName, property: key, value });
             if (!setResult.ok) {
-              console.error(colors.yellow(i18n.t("add.messages.propertySetFailed", { property: key })));
+              console.error(
+                colors.yellow(i18n.t("add.messages.propertySetFailed", { property: key })),
+              );
             }
           }
         }

@@ -27,7 +27,7 @@ export function createSetCommand(i18n: I18nService): Command<any, any, any> {
 
       // Parse key=value pairs
       const updates = parseKeyValuePairs(properties);
-      
+
       // Validate that all properties are valid key=value format
       for (const prop of properties) {
         if (!prop.includes("=")) {
