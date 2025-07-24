@@ -1,6 +1,6 @@
 # Locus
 
-[![Version](https://img.shields.io/badge/version-0.1.7-blue.svg)](https://github.com/tesso57/locus)
+[![Version](https://img.shields.io/badge/version-0.1.8-blue.svg)](https://github.com/tesso57/locus)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/tesso57/locus/actions/workflows/ci.yml/badge.svg)](https://github.com/tesso57/locus/actions/workflows/ci.yml)
 [![Deno](https://img.shields.io/badge/Deno-2.x-000000?logo=deno)](https://deno.com)
@@ -76,9 +76,9 @@ locus read "src-services-user-service.ts-のテストを作成" | your-ai-agent
 
 - **Git対応の整理機能**: タスクは自動的にGitリポジトリごとに整理されます（`~/locus/<ユーザー名>/<リポジトリ名>/`）
 - **Markdownベース**: タスクはYAMLフロントマターを含むMarkdownファイルとして保存されます
-- **柔軟なタグ付け**: タグ、ステータス、優先度、カスタムプロパティをサポート
+- **柔軟なプロパティ**: タグ、ステータス、優先度、無制限のカスタムプロパティをサポート
 - **スマートなファイル命名**: 日付、スラグ、ハッシュによる自動ファイル命名
-- **タスクプロパティ管理**: ファイルを編集せずにタグ、ステータス、優先度を更新
+- **タスクプロパティ管理**: ファイルを編集せずに任意のプロパティを取得/設定
 - **JSON出力**: スクリプティングや自動化のための機械可読出力
 - **国際化**: 英語と日本語インターフェースの完全サポート
 - **クロスプラットフォーム**: macOS、Linux、Windowsで動作
@@ -105,9 +105,13 @@ npx @tesso/locus --version
 コマンド:
 
   add     <title>     - 新しいタスクを追加
+  edit    <fileName>  - タスクの内容を編集
   list                - タスクを一覧表示
   tags                - タスクファイルのプロパティを管理
+  set     <fileName>  - タスクプロパティを設定（柔軟なkey=value構文）
+  get     <fileName>  - タスクプロパティを取得
   config              - 設定を管理
+  setup               - 対話型セットアップウィザード
   read    <fileName>  - タスクの内容を表示（フルパス対応）
   path    <fileName>  - タスクファイルの絶対パスを表示
   help                - ヘルプを表示
@@ -131,6 +135,9 @@ locus add "バグ修正" --body "バグ修正の詳細"
 
 # タグとプロパティを指定
 locus add "ダークモードの実装" --tags ui,feature --priority high --status in-progress
+
+# key=value構文でカスタムプロパティを指定
+locus add "データベース移行" --tags backend assignee=alice estimate=3h
 
 # Gitコンテキストなしでタスクを作成
 locus add "個人的なタスク" --no-git
@@ -198,6 +205,39 @@ locus tags rm "fix-auth-bug" assignee
 
 # すべてのプロパティをクリア
 locus tags clear "fix-auth-bug"
+```
+
+### set/getコマンドで柔軟なプロパティ管理
+
+```bash
+# key=value構文でプロパティを設定
+locus set "fix-auth-bug" status=done priority=high
+locus set "feature-task" assignee=bob estimate=5h
+
+# 複数のプロパティを一度に設定
+locus set "complex-task" status=in-progress assignee=alice reviewer=bob due=tomorrow
+
+# スマートな値の解析
+locus set "data-task" count=42 active=true tags=backend,urgent
+
+# 日付パターン
+locus set "deadline-task" due=today start=tomorrow end=+7d
+
+# 特定のプロパティを取得
+locus get "fix-auth-bug" status
+# 出力: done
+
+# すべてのプロパティを取得
+locus get "fix-auth-bug"
+# 出力:
+# date: 2024-01-15
+# created: 2024-01-15T10:00:00Z
+# status: done
+# priority: high
+
+# スクリプト用のJSON出力
+locus get "task" --json
+locus get "task" status --json
 ```
 
 ### タスク内容を読む
@@ -332,6 +372,10 @@ defaults:
   status: "todo"
   priority: "normal"
   tags: []
+  custom:
+    # カスタムデフォルトプロパティをここに追加
+    # assignee: "unassigned"
+    # category: "general"
 ```
 
 ## タスクファイルの形式
@@ -347,7 +391,10 @@ tags:
   - backend
 status: in-progress
 priority: high
-assignee: john
+# カスタムプロパティ
+assignee: alice
+estimate: 8h
+reviewer: bob
 ---
 
 # ユーザー認証の実装

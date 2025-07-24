@@ -76,9 +76,9 @@ This method provides the AI agent with a narrow, well-defined scope for each run
 
 - **Git-aware organization**: Tasks are automatically organized by Git repository (`~/locus/<username>/<repo>/`)
 - **Markdown-based**: Tasks are stored as Markdown files with YAML frontmatter
-- **Flexible tagging**: Support for tags, status, priority, and custom properties
+- **Flexible properties**: Support for tags, status, priority, and unlimited custom properties
 - **Smart file naming**: Automatic file naming with date, slug, and hash
-- **Task property management**: Update tags, status, priority without editing files
+- **Task property management**: Get/set any property without editing files
 - **fzf-friendly output**: Default oneline format optimized for command-line filtering
 - **JSON output**: Machine-readable output for scripting and automation
 - **Internationalization**: Full support for English and Japanese interfaces
@@ -134,6 +134,8 @@ Commands:
   edit    <fileName>  - Edit task content
   list                - List tasks (default: oneline format)
   tags                - Manage task file properties
+  set     <fileName>  - Set task properties (flexible key=value syntax)
+  get     <fileName>  - Get task properties
   config              - Manage configuration
   setup               - Interactive setup wizard
   read    <fileName>  - Display task content (supports full paths)
@@ -159,6 +161,9 @@ locus add "Fix bug" --body "Details about the bug fix"
 
 # With tags and properties
 locus add "Implement dark mode" --tags ui,feature --priority high --status in-progress
+
+# With custom properties using key=value syntax
+locus add "Database migration" --tags backend assignee=alice estimate=3h
 
 # Create task without Git context
 locus add "Personal task" --no-git
@@ -281,6 +286,39 @@ locus tags rm "fix-auth-bug" assignee
 
 # Clear all properties
 locus tags clear "fix-auth-bug"
+```
+
+### Flexible property management with set/get commands
+
+```bash
+# Set properties using key=value syntax
+locus set "fix-auth-bug" status=done priority=high
+locus set "feature-task" assignee=bob estimate=5h
+
+# Set multiple properties at once
+locus set "complex-task" status=in-progress assignee=alice reviewer=bob due=tomorrow
+
+# Smart value parsing
+locus set "data-task" count=42 active=true tags=backend,urgent
+
+# Date patterns
+locus set "deadline-task" due=today start=tomorrow end=+7d
+
+# Get a specific property
+locus get "fix-auth-bug" status
+# Output: done
+
+# Get all properties
+locus get "fix-auth-bug"
+# Output:
+# date: 2024-01-15
+# created: 2024-01-15T10:00:00Z
+# status: done
+# priority: high
+
+# JSON output for scripting
+locus get "task" --json
+locus get "task" status --json
 ```
 
 ### Read task content
@@ -414,6 +452,10 @@ defaults:
   status: "todo"
   priority: "normal"
   tags: []
+  custom:
+    # Add your custom default properties here
+    # assignee: "unassigned"
+    # category: "general"
 ```
 
 ## Task File Format
@@ -429,6 +471,10 @@ tags:
   - backend
 status: in-progress
 priority: high
+# Custom properties
+assignee: alice
+estimate: 8h
+reviewer: bob
 ---
 
 # Implement user authentication
