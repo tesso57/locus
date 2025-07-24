@@ -452,10 +452,10 @@ defaults:
   status: "todo"
   priority: "normal"
   tags: []
-  custom:
-    # Add your custom default properties here
-    # assignee: "unassigned"
-    # category: "general"
+  custom: {}
+# Add your custom default properties here
+# Example: assignee: "unassigned"
+# Example: category: "general"
 ```
 
 ## Task File Format

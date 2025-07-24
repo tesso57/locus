@@ -372,10 +372,10 @@ defaults:
   status: "todo"
   priority: "normal"
   tags: []
-  custom:
-    # カスタムデフォルトプロパティをここに追加
-    # assignee: "unassigned"
-    # category: "general"
+  custom: {}
+# カスタムデフォルトプロパティをここに追加
+# 例: assignee: "unassigned"
+# 例: category: "general"
 ```
 
 ## タスクファイルの形式
