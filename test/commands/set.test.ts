@@ -372,12 +372,12 @@ describe("set command", () => {
 
       // Make the second setTag call fail
       let callCount = 0;
-      mockTagsService.setTag = async (options) => {
+      mockTagsService.setTag = (options) => {
         callCount++;
         if (callCount === 2) {
-          return { ok: false, error: new Error("Failed to set property") };
+          return Promise.resolve({ ok: false, error: new Error("Failed to set property") });
         }
-        return { ok: true, value: undefined };
+        return Promise.resolve({ ok: true, value: undefined });
       };
 
       let errorThrown = false;

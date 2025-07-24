@@ -44,19 +44,19 @@ export class MockTagsService implements TagsService {
     this.methodCalls.clear();
   }
 
-  async listTags(options: ListTagsOptions): Promise<Result<TagInfo[], Error>> {
+  listTags(options: ListTagsOptions): Promise<Result<TagInfo[], Error>> {
     this.recordCall("listTags", options);
 
     if (options.fileName) {
       const task = this.tasks.get(options.fileName);
       if (!task) {
-        return ok([]);
+        return Promise.resolve(ok([]));
       }
-      return ok([{
+      return Promise.resolve(ok([{
         fileName: options.fileName,
         path: task.path,
         frontmatter: task.frontmatter,
-      }]);
+      }]));
     }
 
     const results: TagInfo[] = [];
@@ -67,58 +67,58 @@ export class MockTagsService implements TagsService {
         frontmatter: task.frontmatter,
       });
     }
-    return ok(results);
+    return Promise.resolve(ok(results));
   }
 
-  async getTag(options: GetTagOptions): Promise<Result<unknown, Error>> {
+  getTag(options: GetTagOptions): Promise<Result<unknown, Error>> {
     this.recordCall("getTag", options);
 
     const task = this.tasks.get(options.fileName);
     if (!task) {
-      return err(new TaskNotFoundError(options.fileName));
+      return Promise.resolve(err(new TaskNotFoundError(options.fileName)));
     }
 
     const value = task.frontmatter[options.property as keyof FrontMatter];
     if (value === undefined) {
-      return err(new PropertyNotFoundError(options.property));
+      return Promise.resolve(err(new PropertyNotFoundError(options.property)));
     }
 
-    return ok(value);
+    return Promise.resolve(ok(value));
   }
 
-  async setTag(options: SetTagOptions): Promise<Result<void, Error>> {
+  setTag(options: SetTagOptions): Promise<Result<void, Error>> {
     this.recordCall("setTag", options);
 
     const task = this.tasks.get(options.fileName);
     if (!task) {
-      return err(new TaskNotFoundError(options.fileName));
+      return Promise.resolve(err(new TaskNotFoundError(options.fileName)));
     }
 
     // Update the frontmatter
     (task.frontmatter as any)[options.property] = options.value;
 
-    return ok(undefined);
+    return Promise.resolve(ok(undefined));
   }
 
-  async removeTag(options: RemoveTagOptions): Promise<Result<void, Error>> {
+  removeTag(options: RemoveTagOptions): Promise<Result<void, Error>> {
     this.recordCall("removeTag", options);
 
     const task = this.tasks.get(options.fileName);
     if (!task) {
-      return err(new TaskNotFoundError(options.fileName));
+      return Promise.resolve(err(new TaskNotFoundError(options.fileName)));
     }
 
     delete (task.frontmatter as any)[options.property];
 
-    return ok(undefined);
+    return Promise.resolve(ok(undefined));
   }
 
-  async clearTags(options: ClearTagsOptions): Promise<Result<void, Error>> {
+  clearTags(options: ClearTagsOptions): Promise<Result<void, Error>> {
     this.recordCall("clearTags", options);
 
     const task = this.tasks.get(options.fileName);
     if (!task) {
-      return err(new TaskNotFoundError(options.fileName));
+      return Promise.resolve(err(new TaskNotFoundError(options.fileName)));
     }
 
     // Clear all properties except required ones
@@ -128,10 +128,10 @@ export class MockTagsService implements TagsService {
     };
     task.frontmatter = newFrontmatter;
 
-    return ok(undefined);
+    return Promise.resolve(ok(undefined));
   }
 
-  async getAllTaskFiles(): Promise<Result<TagInfo[], Error>> {
+  getAllTaskFiles(): Promise<Result<TagInfo[], Error>> {
     this.recordCall("getAllTaskFiles", {});
 
     const results: TagInfo[] = [];
@@ -142,7 +142,7 @@ export class MockTagsService implements TagsService {
         frontmatter: task.frontmatter,
       });
     }
-    return ok(results);
+    return Promise.resolve(ok(results));
   }
 
   private recordCall(method: string, args: any): void {
