@@ -86,6 +86,7 @@ export async function findConfigFile(): Promise<Result<string | null, Error>> {
  * - `LOCUS_DEFAULTS_STATUS`: Default task status
  * - `LOCUS_DEFAULTS_PRIORITY`: Default task priority
  * - `LOCUS_DEFAULTS_TAGS`: Default tags (comma-separated)
+ * - `LOCUS_DEFAULTS_CUSTOM`: Custom default properties (JSON format)
  * - `LOCUS_LANGUAGE_DEFAULT`: Default language (ja/en)
  *
  * @returns Partial configuration object with values from environment
@@ -140,6 +141,16 @@ function extractFromEnv(): Partial<Config> {
   }
   if (env.LOCUS_DEFAULTS_TAGS) {
     defaults.tags = env.LOCUS_DEFAULTS_TAGS.split(",").map((t) => t.trim());
+  }
+  if (env.LOCUS_DEFAULTS_CUSTOM) {
+    try {
+      const custom = JSON.parse(env.LOCUS_DEFAULTS_CUSTOM);
+      if (typeof custom === "object" && custom !== null) {
+        defaults.custom = custom;
+      }
+    } catch {
+      // Ignore invalid JSON
+    }
   }
   if (Object.keys(defaults).length > 0) {
     config.defaults = defaults;

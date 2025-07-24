@@ -31,10 +31,12 @@ export const DefaultsConfigSchema: z.ZodObject<{
   status: z.ZodDefault<z.ZodString>;
   priority: z.ZodDefault<z.ZodString>;
   tags: z.ZodDefault<z.ZodArray<z.ZodString>>;
+  custom: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }> = z.object({
   status: z.string().default("todo"),
   priority: z.string().default("normal"),
   tags: z.array(z.string()).default([]),
+  custom: z.record(z.unknown()).default({}),
 });
 
 /**
